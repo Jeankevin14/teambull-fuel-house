@@ -1,0 +1,161 @@
+@import "tailwindcss";
+
+/* =====================================================================
+   TEAMBULL FUEL HOUSE — WHITE & RED THEME  (single file)
+   Change the colours in the first block and the whole site updates.
+   ===================================================================== */
+:root {
+  --background: #ffffff;   /* page background */
+  --foreground: #1a1a1a;   /* main text */
+  --accent: #dc2626;       /* RED: buttons, headings, links */
+  --accent-dark: #b91c1c;  /* darker red for hover */
+  --accent-soft: #fef2f2;  /* very light red tint for sections */
+  --surface: #fafafa;      /* card background */
+  --line: #ececec;         /* borders */
+  --muted: #5f6368;        /* secondary text */
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-accent: var(--accent);
+  --color-accent-dark: var(--accent-dark);
+  --color-accent-soft: var(--accent-soft);
+  --color-surface: var(--surface);
+  --color-line: var(--line);
+  --color-muted: var(--muted);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-oswald);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+/* =====================================================================
+   COMPATIBILITY: turns any leftover dark-theme classes into white/red,
+   so the site looks right even if you did not edit the other files.
+   ===================================================================== */
+@layer utilities {
+  .bg-black\/80 { background-color: rgb(255 255 255 / 0.92); }
+  .bg-black { background-color: #ffffff; }
+  .bg-neutral-950 { background-color: var(--accent-soft); }
+  .bg-neutral-900,
+  .bg-neutral-800 { background-color: var(--surface); }
+
+  .from-black { --tw-gradient-from: #ffffff; }
+  .to-neutral-900 { --tw-gradient-to: var(--accent-soft); }
+
+  .border-white\/10,
+  .border-white\/20 { border-color: var(--line); }
+  .divide-white\/10 > :not(:last-child) { border-color: var(--line); }
+
+  .text-white\/20 { color: color-mix(in srgb, var(--accent) 30%, transparent); }
+  .text-white\/40,
+  .text-white\/50,
+  .text-white\/60,
+  .text-white\/70 { color: var(--muted); }
+
+  footer .text-white { color: var(--foreground); }
+}
+
+/* =====================================================================
+   POLISH
+   ===================================================================== */
+@layer utilities {
+  /* red buttons: soft red glow, darker on hover */
+  .bg-accent {
+    box-shadow: 0 8px 18px -8px rgb(220 38 38 / 0.6);
+    transition: background-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .bg-accent:hover {
+    background-color: var(--accent-dark);
+  }
+
+  /* product cards and category tiles lift on hover */
+  .rounded-xl.hover\:border-accent {
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .rounded-xl.hover\:border-accent:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 16px 32px -16px rgb(220 38 38 / 0.35);
+  }
+}
+
+/* red line on top of header and footer */
+header {
+  border-top: 3px solid var(--accent);
+  box-shadow: 0 1px 14px rgb(0 0 0 / 0.05);
+}
+
+footer {
+  background-color: var(--surface);
+  border-top: 3px solid var(--accent);
+}
+
+/* hero banner: white with a soft red glow */
+section.bg-gradient-to-b {
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgb(220 38 38 / 0.1), transparent 60%),
+    linear-gradient(to bottom, #ffffff, var(--accent-soft));
+}
+
+/* =====================================================================
+   "ADDED TO CART" ANIMATIONS
+   ===================================================================== */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(24px) scale(0.98); }
+  to   { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes pop {
+  0%   { transform: scale(0.6); }
+  60%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+@keyframes draw-check {
+  from { stroke-dashoffset: 24; }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes drawer-in {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+@keyframes shrink {
+  from { width: 100%; }
+  to   { width: 0%; }
+}
+
+.anim-toast { animation: toast-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.anim-pop { animation: pop 0.35s ease-out both; }
+.anim-check {
+  stroke-dasharray: 24;
+  animation: draw-check 0.4s 0.1s ease-out both;
+}
+.anim-progress { animation: shrink linear forwards; }
+.anim-fade { animation: fade-in 0.2s ease both; }
+.anim-drawer { animation: drawer-in 0.3s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .anim-toast, .anim-pop, .anim-check, .anim-progress, .anim-fade, .anim-drawer { animation: none; }
+}
