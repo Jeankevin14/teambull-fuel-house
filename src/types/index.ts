@@ -16,6 +16,7 @@ export type Product = {
   flavours?: string[]; // e.g. ["Chocolate", "Vanilla"]
   sizes?: ProductSize[]; // e.g. [{ label: "1kg", price: 1999 }, { label: "2kg", price: 3499 }]
   inStock?: boolean; // set to false to show "Out of stock"
+  stock?: number; // units left (comes from the Google Sheet). Blank = not tracked
 };
 
 export type CartItem = {
@@ -26,4 +27,12 @@ export type CartItem = {
   price: number;
   qty: number;
   image?: string;
+};
+
+export type Me = {
+  uid: string;
+  name: string;
+  email: string;
+  phone: string;
+  role: "admin" | "customer";
 };

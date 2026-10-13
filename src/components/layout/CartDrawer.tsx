@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useEffect } from "react";
 import { useCart } from "@/context/CartContext";
-import { buildOrderUrl } from "@/lib/whatsapp";
+import { useCheckout } from "@/components/cart/useCheckout";
 import { formatPrice } from "@/lib/format";
 
 /** The cart panel that slides in from the right (like big supplement shops). */
@@ -20,6 +20,8 @@ export default function CartDrawer() {
     setQty,
     remove,
   } = useCart();
+
+  const { checkout: runCheckout, label: checkoutLabel } = useCheckout(closeDrawer);
 
   // close with the Escape key, and stop the page behind from scrolling
   useEffect(() => {
@@ -38,9 +40,7 @@ export default function CartDrawer() {
 
   if (!drawerOpen) return null;
 
-  const checkout = () => {
-    window.open(buildOrderUrl(items, total), "_blank", "noopener,noreferrer");
-  };
+  const checkout = () => runCheckout(items, total);
 
   return (
     <div
@@ -208,7 +208,7 @@ export default function CartDrawer() {
                 onClick={checkout}
                 className="mt-4 w-full rounded-full bg-green-500 py-3.5 text-base font-semibold text-white hover:bg-green-600"
               >
-                Checkout on WhatsApp
+                {checkoutLabel}
               </button>
 
               <div className="mt-3 flex items-center justify-between text-sm">

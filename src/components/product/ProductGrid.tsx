@@ -3,14 +3,14 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
-import { PRODUCTS } from "@/data/products";
+import type { Product } from "@/types";
 import { CATEGORIES } from "@/config/site";
 import { startingPrice } from "@/lib/products";
 import ProductCard from "./ProductCard";
 
 type Sort = "featured" | "price-low" | "price-high" | "name";
 
-export default function ProductGrid() {
+export default function ProductGrid({ products }: { products: Product[] }) {
   const params = useSearchParams();
   const active = params.get("category");
 
@@ -20,7 +20,7 @@ export default function ProductGrid() {
   const items = useMemo(() => {
     const q = query.trim().toLowerCase();
 
-    let list = PRODUCTS.filter((p) => !active || p.category === active);
+    let list = products.filter((p) => !active || p.category === active);
 
     if (q) {
       list = list.filter((p) =>
@@ -39,7 +39,7 @@ export default function ProductGrid() {
       list = [...list].sort((a, b) => a.name.localeCompare(b.name));
     }
     return list;
-  }, [active, query, sort]);
+  }, [products, active, query, sort]);
 
   const pill = (isActive: boolean) =>
     `rounded-full border px-4 py-2 text-sm font-medium transition ${

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { PRODUCTS } from "@/data/products";
+import type { Product } from "@/types";
 import { SITE, type Category } from "@/config/site";
 import { isInStock, startingPrice } from "@/lib/products";
 import { buildChatUrl } from "@/lib/whatsapp";
@@ -53,7 +53,7 @@ const BUDGETS = [
   { id: "any", title: "Any budget", max: Infinity },
 ];
 
-export default function SupplementFinder() {
+export default function SupplementFinder({ products }: { products: Product[] }) {
   const [goalId, setGoalId] = useState<string | null>(null);
   const [budgetId, setBudgetId] = useState<string | null>(null);
 
@@ -121,7 +121,7 @@ export default function SupplementFinder() {
   }
 
   // Result
-  const picks = PRODUCTS.filter(
+  const picks = products.filter(
     (p) =>
       goal.categories.includes(p.category) &&
       isInStock(p) &&

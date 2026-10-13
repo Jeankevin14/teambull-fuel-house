@@ -1,6 +1,7 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { CATEGORIES } from "@/config/site";
-import { PRODUCTS } from "@/data/products";
+import { getProducts } from "@/lib/catalog";
 import ProductCard from "@/components/product/ProductCard";
 
 const TRUST = [
@@ -9,9 +10,31 @@ const TRUST = [
   ["Fast Delivery", "We confirm your address and ship fast"],
 ];
 
-export default function Home() {
-  const featured = PRODUCTS.slice(0, 3);
+async function FeaturedProducts() {
+  const featured = (await getProducts()).slice(0, 3);
+  return (
+    <>
+      {featured.map((p) => (
+        <ProductCard key={p.id} product={p} />
+      ))}
+    </>
+  );
+}
 
+function FeaturedSkeleton() {
+  return (
+    <>
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className="h-72 animate-pulse rounded-xl border border-line bg-surface"
+        />
+      ))}
+    </>
+  );
+}
+
+export default function Home() {
   return (
     <>
       {/* Hero */}
@@ -89,14 +112,17 @@ export default function Home() {
           <h2 className="font-display text-3xl font-bold uppercase">
             Featured <span className="text-accent">Products</span>
           </h2>
-          <Link href="/products" className="text-sm text-muted hover:text-accent">
+          <Link
+            href="/products"
+            className="text-sm text-muted hover:text-accent"
+          >
             View all →
           </Link>
         </div>
         <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {featured.map((p) => (
-            <ProductCard key={p.id} product={p} />
-          ))}
+          <Suspense fallback={<FeaturedSkeleton />}>
+            <FeaturedProducts />
+          </Suspense>
         </div>
       </section>
 

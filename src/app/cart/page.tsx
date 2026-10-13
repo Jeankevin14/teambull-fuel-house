@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useCart } from "@/context/CartContext";
-import { buildOrderUrl } from "@/lib/whatsapp";
+import { useCheckout } from "@/components/cart/useCheckout";
 import { formatPrice } from "@/lib/format";
 
 export default function CartPage() {
   const { items, total, ready, setQty, remove, clear } = useCart();
+  const { checkout, label } = useCheckout();
 
   if (!ready) {
     return (
@@ -30,9 +31,7 @@ export default function CartPage() {
     );
   }
 
-  const handleCheckout = () => {
-    window.open(buildOrderUrl(items, total), "_blank", "noopener,noreferrer");
-  };
+  const handleCheckout = () => checkout(items, total);
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-12">
@@ -97,7 +96,7 @@ export default function CartPage() {
         onClick={handleCheckout}
         className="mt-6 w-full rounded-full bg-green-500 py-4 text-lg font-semibold text-white hover:bg-green-600"
       >
-        Checkout on WhatsApp
+        {label}
       </button>
 
       <button

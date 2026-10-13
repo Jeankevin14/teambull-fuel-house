@@ -1,5 +1,6 @@
 import Link from "next/link";
 import CartLink from "./CartLink";
+import AuthLink from "./AuthLink";
 
 export default function Header() {
   return (
@@ -28,6 +29,7 @@ export default function Header() {
           <Link href="/contact" className="hidden hover:text-accent sm:inline">
             Contact
           </Link>
+          <AuthLink />
           <CartLink />
         </nav>
       </div>

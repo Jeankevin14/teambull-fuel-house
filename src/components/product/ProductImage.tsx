@@ -13,7 +13,16 @@ export default function ProductImage({
 }) {
   return (
     <div className={`relative bg-surface ${className}`}>
-      {product.image ? (
+      {product.image && !product.image.startsWith("/images/") ? (
+        // photos uploaded in Admin (or links): plain <img> so any address works
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={product.image}
+          alt={product.name}
+          loading="lazy"
+          className="absolute inset-0 h-full w-full object-contain p-2"
+        />
+      ) : product.image ? (
         <Image
           src={product.image}
           alt={product.name}

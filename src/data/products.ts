@@ -16,6 +16,7 @@ import type { Product } from "@/types";
 export const PRODUCTS: Product[] = [
   {
     id: 1,
+    image: "/images/sample-1.svg",
     name: "Whey Protein",
     brand: "Brand Name",
     category: "Whey Protein",
@@ -29,6 +30,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 2,
+    image: "/images/sample-2.svg",
     name: "Creatine Monohydrate",
     brand: "Brand Name",
     category: "Creatine",
@@ -41,6 +43,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 3,
+    image: "/images/sample-3.svg",
     name: "Pre-Workout 300g",
     brand: "Brand Name",
     category: "Pre-Workout",
@@ -50,6 +53,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 4,
+    image: "/images/sample-4.svg",
     name: "Mass Gainer",
     brand: "Brand Name",
     category: "Mass Gainer",
@@ -63,6 +67,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 5,
+    image: "/images/sample-5.svg",
     name: "BCAA 250g",
     brand: "Brand Name",
     category: "BCAA & EAA",
@@ -72,6 +77,7 @@ export const PRODUCTS: Product[] = [
   },
   {
     id: 6,
+    image: "/images/sample-6.svg",
     name: "Multivitamin 60 Tablets",
     brand: "Brand Name",
     category: "Vitamins",
