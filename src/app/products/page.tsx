@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import BarbellLoader from "@/components/fx/BarbellLoader";
 import ProductGrid from "@/components/product/ProductGrid";
 import { getProducts } from "@/lib/catalog";
 
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 async function Grid() {
   const products = await getProducts();
   return (
-    <Suspense fallback={<p className="mt-8 text-muted">Loading…</p>}>
+    <Suspense fallback={<BarbellLoader />}>
       <ProductGrid products={products} />
     </Suspense>
   );
@@ -24,7 +25,7 @@ export default function ProductsPage() {
       <h1 className="font-display text-4xl font-bold uppercase">
         All <span className="text-accent">Products</span>
       </h1>
-      <Suspense fallback={<p className="mt-8 text-muted">Loading…</p>}>
+      <Suspense fallback={<BarbellLoader />}>
         <Grid />
       </Suspense>
     </div>

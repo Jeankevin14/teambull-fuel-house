@@ -83,7 +83,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const key = `${p.id}|${options.flavour ?? ""}|${sizeLabel ?? ""}`;
 
     setLastAdded(variant ? `${p.name} (${variant})` : p.name);
-    setDrawerOpen(true);
+    // let the "ADDED TO CART" stamp show on the product first, then slide the cart in
+    setTimeout(() => setDrawerOpen(true), 1100);
     setItems((prev) => {
       const found = prev.find((i) => i.key === key);
       if (found) {

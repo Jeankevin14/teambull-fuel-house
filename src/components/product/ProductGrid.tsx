@@ -7,6 +7,7 @@ import type { Product } from "@/types";
 import { CATEGORIES } from "@/config/site";
 import { startingPrice } from "@/lib/products";
 import ProductCard from "./ProductCard";
+import Reveal from "@/components/fx/Reveal";
 
 type Sort = "featured" | "price-low" | "price-high" | "name";
 
@@ -27,7 +28,7 @@ export default function ProductGrid({ products }: { products: Product[] }) {
         [p.name, p.brand, p.category, p.description, ...(p.flavours ?? [])]
           .join(" ")
           .toLowerCase()
-          .includes(q)
+          .includes(q),
       );
     }
 
@@ -125,8 +126,10 @@ export default function ProductGrid({ products }: { products: Product[] }) {
         </div>
       ) : (
         <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((p) => (
-            <ProductCard key={p.id} product={p} />
+          {items.map((p, i) => (
+            <Reveal key={p.id} delay={Math.min(i, 8) * 0.06} className="h-full">
+              <ProductCard product={p} />
+            </Reveal>
           ))}
         </div>
       )}

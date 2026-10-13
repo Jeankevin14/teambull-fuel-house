@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { useCart } from "@/context/CartContext";
+import { flyToCart } from "@/lib/flyToCart";
+import { stampAdded } from "@/lib/motion";
 import { isInStock } from "@/lib/products";
 import type { Product } from "@/types";
 
@@ -29,7 +31,9 @@ export default function AddToCartButton({
     );
   }
 
-  const handleClick = () => {
+  const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    flyToCart(e.currentTarget);
+    stampAdded(e.currentTarget);
     add(product, { flavour, size });
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);

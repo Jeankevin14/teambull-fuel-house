@@ -40,3 +40,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local-only cinematic launch page (not deployed)
+/src/app/launch/
+/src/components/launch/
