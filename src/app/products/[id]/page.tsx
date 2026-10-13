@@ -19,7 +19,7 @@ export async function generateMetadata({
   const { id } = await params;
   const product = await findProduct(Number(id));
   if (!product) return {};
-  return { title: product.name, description: product.description };
+  return { title: product.name, description: product.description, alternates: { canonical: `/products/${product.id}` } };
 }
 
 async function ProductDetails({ params }: { params: Promise<{ id: string }> }) {

@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import PageShell from "@/components/ui/PageShell";
 import { SITE } from "@/config/site";
 
-export const metadata: Metadata = { title: "About" };
+export const metadata: Metadata = {
+  title: "About",
+  description: "Learn about Teambull Fuel House, your trusted source for genuine gym supplements in Puducherry.",
+  alternates: { canonical: "/about" },
+};
 
 export default function AboutPage() {
   return (
