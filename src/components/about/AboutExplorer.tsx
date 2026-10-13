@@ -64,30 +64,32 @@ export default function AboutExplorer() {
 
       {/* Founder */}
       <Reveal delay={0.1} className="mt-8">
-        <div className="flex flex-col items-center gap-5 rounded-2xl border border-line bg-surface p-6 sm:flex-row">
-          <div
-            className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full bg-accent font-display text-4xl font-bold text-white shadow-lg"
-            aria-hidden="true"
-          >
-            VD
-          </div>
-          <div className="text-center sm:text-left">
+        <div className="flex flex-col items-center gap-6 overflow-hidden rounded-2xl border border-line bg-surface p-5 sm:flex-row sm:items-stretch">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/vishwam.jpg"
+            alt="Vishwam D, founder of Team Bull"
+            width={400}
+            height={500}
+            className="h-72 w-56 shrink-0 rounded-xl object-cover object-top shadow-lg sm:h-64 sm:w-52"
+          />
+          <div className="flex flex-1 flex-col justify-center text-center sm:text-left">
             <p className="font-display text-xs font-semibold uppercase tracking-[0.25em] text-accent">
               Founder
             </p>
-            <h2 className="font-display text-3xl font-bold uppercase">Vishwam D</h2>
-            <p className="mt-1 text-muted">
+            <h2 className="font-display text-4xl font-bold uppercase">Vishwam D</h2>
+            <p className="mt-2 text-muted">
               The founder behind TeamBull, building people, athletes and a brand.
             </p>
+            <a
+              href={founderLink}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 self-center rounded-full bg-accent px-6 py-3 text-center text-sm font-bold text-white transition hover:bg-accent-dark sm:self-start"
+            >
+              Chat on WhatsApp
+            </a>
           </div>
-          <a
-            href={founderLink}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full bg-accent px-6 py-3 text-center text-sm font-bold text-white transition hover:bg-accent-dark sm:ml-auto"
-          >
-            Chat on WhatsApp
-          </a>
         </div>
       </Reveal>
 
