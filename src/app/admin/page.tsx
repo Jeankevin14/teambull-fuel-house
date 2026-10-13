@@ -1,3 +1,4 @@
+import BarbellLoader from "@/components/fx/BarbellLoader";
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import { LOW_STOCK_LIMIT, RECORD_ORDERS_ON_CHECKOUT } from "@/config/features";
@@ -26,7 +27,7 @@ export const metadata: Metadata = {
 export default function AdminPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-12">
-      <Suspense fallback={<p className="text-muted">Loading…</p>}>
+      <Suspense fallback={<BarbellLoader />}>
         <AdminContent />
       </Suspense>
     </div>

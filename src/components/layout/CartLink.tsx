@@ -9,13 +9,15 @@ export default function CartLink() {
   return (
     <button
       type="button"
+      data-cart-button
       onClick={openDrawer}
       aria-label={`Open cart, ${ready ? count : 0} items`}
       className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 font-semibold text-white hover:opacity-90"
     >
       <svg
+        key={`icon-${ready ? count : 0}`}
         viewBox="0 0 24 24"
-        className="h-5 w-5"
+        className={`h-5 w-5 ${ready && count > 0 ? "anim-wiggle" : ""}`}
         fill="none"
         stroke="currentColor"
         strokeWidth="2"

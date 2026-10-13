@@ -5,6 +5,7 @@ import type { Product } from "@/types";
 import { formatPrice } from "@/lib/format";
 import { isInStock, priceFor } from "@/lib/products";
 import AddToCartButton from "./AddToCartButton";
+import PlatePicker from "./PlatePicker";
 
 /** Price, flavour picker, size picker and Add to Cart (product page). */
 export default function ProductPurchase({ product }: { product: Product }) {
@@ -29,7 +30,13 @@ export default function ProductPurchase({ product }: { product: Product }) {
         </p>
       )}
 
-      {product.sizes && product.sizes.length > 0 && (
+      {product.sizes && product.sizes.length > 1 && (
+        <div className="mt-6">
+          <PlatePicker sizes={product.sizes} value={size} onChange={setSize} />
+        </div>
+      )}
+
+      {product.sizes && product.sizes.length === 1 && (
         <div className="mt-6">
           <p className="text-sm font-semibold">
             Size: <span className="font-normal text-muted">{size}</span>

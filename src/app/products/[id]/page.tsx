@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getProducts, findProduct } from "@/lib/catalog";
+import BarbellLoader from "@/components/fx/BarbellLoader";
 import ProductPurchase from "@/components/product/ProductPurchase";
 import ProductImage from "@/components/product/ProductImage";
 
@@ -27,7 +28,7 @@ async function ProductDetails({ params }: { params: Promise<{ id: string }> }) {
   if (!product) notFound();
 
   return (
-    <div className="mt-6 grid gap-10 md:grid-cols-2">
+    <div data-stamp-scope className="mt-6 grid gap-10 md:grid-cols-2">
       <div className="overflow-hidden rounded-xl">
         <ProductImage
           product={product}
@@ -66,7 +67,7 @@ export default function ProductPage({
       </Link>
       <Suspense
         fallback={
-          <div className="mt-6 h-96 animate-pulse rounded-xl bg-surface" />
+          <BarbellLoader />
         }
       >
         <ProductDetails params={params} />

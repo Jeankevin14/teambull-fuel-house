@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { useCheckout } from "@/components/cart/useCheckout";
 import { formatPrice } from "@/lib/format";
+import { confetti, ripple } from "@/lib/motion";
 
 /** The cart panel that slides in from the right (like big supplement shops). */
 export default function CartDrawer() {
@@ -40,7 +41,11 @@ export default function CartDrawer() {
 
   if (!drawerOpen) return null;
 
-  const checkout = () => runCheckout(items, total);
+  const checkout = (e: React.MouseEvent<HTMLButtonElement>) => {
+    ripple(e);
+    confetti(e.clientX, e.clientY);
+    runCheckout(items, total);
+  };
 
   return (
     <div
@@ -206,7 +211,7 @@ export default function CartDrawer() {
 
               <button
                 onClick={checkout}
-                className="mt-4 w-full rounded-full bg-green-500 py-3.5 text-base font-semibold text-white hover:bg-green-600"
+                className="relative mt-4 w-full overflow-hidden rounded-full bg-green-500 py-3.5 text-base font-semibold text-white hover:bg-green-600"
               >
                 {checkoutLabel}
               </button>
