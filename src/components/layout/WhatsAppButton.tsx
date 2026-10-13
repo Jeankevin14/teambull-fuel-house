@@ -1,7 +1,7 @@
 import { buildChatUrl } from "@/lib/whatsapp";
 
 export default function WhatsAppButton() {
-  const url = buildChatUrl("Hi Team Bull Fuel House! I want to buy supplements from your website. Can you help me to  place an order?");
+  const url = buildChatUrl("Hi Team Bull Fuel House! I want to buy supplements from your website. Can you help me to place an order?");
 
   return (
     <a
