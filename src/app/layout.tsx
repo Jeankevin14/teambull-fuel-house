@@ -29,6 +29,7 @@ export const metadata: Metadata = {
     locale: "en_IN",
   },
   robots: { index: true, follow: true },
+  verification: { google: "6vsu48LdxzFDgFxM53-zQB8WDhrZUjf26xXrn03aD-w" },
 };
 
 const jsonLd = {
