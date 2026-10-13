@@ -19,19 +19,34 @@ export const metadata: Metadata = {
     template: `%s | ${SITE.name}`,
   },
   description: SITE.description,
+  keywords: ["gym supplements", "whey protein", "creatine", "pre-workout", "mass gainer", "Puducherry", "Teambull Fuel House"],
   openGraph: {
     title: SITE.name,
     description: SITE.description,
     url: SITE.url,
     siteName: SITE.name,
     type: "website",
+    locale: "en_IN",
   },
+  robots: { index: true, follow: true },
+};
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Store",
+  name: SITE.name,
+  url: SITE.url,
+  description: SITE.description,
+  email: SITE.email,
+  sameAs: [SITE.instagram],
+  address: { "@type": "PostalAddress", addressLocality: "Puducherry", postalCode: "605008", addressCountry: "IN" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${inter.variable} ${oswald.variable}`}>
       <body className="flex min-h-screen flex-col">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         <UserProvider>
           <CartProvider>
             <Header />

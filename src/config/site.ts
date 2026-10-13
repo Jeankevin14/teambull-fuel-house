@@ -8,7 +8,7 @@ export const SITE = {
   tagline: "Fuel Your Gains",
   description:
     "Buy genuine gym supplements: whey protein, creatine, pre-workout and more. Order easily on WhatsApp.",
-  url: "https://teambullfuelhouse.com",
+  url: "https://www.teambullfuelhouse.com",
 
   // WhatsApp number: country code + number, digits only (no +, no spaces)
   whatsapp: "917548854038",

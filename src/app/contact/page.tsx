@@ -2,7 +2,11 @@ import type { Metadata } from "next";
 import PageShell from "@/components/ui/PageShell";
 import { SITE } from "@/config/site";
 
-export const metadata: Metadata = { title: "Contact" };
+export const metadata: Metadata = {
+  title: "Contact",
+  description: "Contact Teambull Fuel House on WhatsApp, Instagram or email to order gym supplements.",
+  alternates: { canonical: "/contact" },
+};
 
 export default function ContactPage() {
   return (
