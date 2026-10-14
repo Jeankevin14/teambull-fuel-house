@@ -180,7 +180,7 @@ export default function Home() {
 
       {/* Helpful tools */}
       <section className="mx-auto max-w-6xl px-4 pb-16">
-        <Reveal className="grid gap-4 md:grid-cols-2">
+        <Reveal className="grid gap-4 md:grid-cols-3">
           <Spotlight className="rounded-xl">
           <Link
             href="/find-supplement"
@@ -205,6 +205,20 @@ export default function Home() {
             </p>
             <p className="mt-2 text-sm text-muted">
               See how much protein you need every day for your weight and goal.
+            </p>
+          </Link>
+          </Spotlight>
+          <Spotlight className="rounded-xl">
+          <Link
+            href="/bmi-calculator"
+            className="block h-full rounded-xl border border-line bg-surface p-6 transition hover:border-accent"
+          >
+            <p className="font-display text-xl font-bold uppercase text-accent">
+              BMI calculator
+            </p>
+            <p className="mt-2 text-sm text-muted">
+              Check your BMI, daily calories and protein, and get a free
+              consultation from Team Bull.
             </p>
           </Link>
           </Spotlight>
