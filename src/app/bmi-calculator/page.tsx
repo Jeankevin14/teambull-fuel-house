@@ -30,10 +30,7 @@ async function Calculator() {
 export default function BmiCalculatorPage() {
   return (
     <PageShell first="BMI" second="Calculator" narrow={false}>
-      <p className="max-w-2xl">
-        Check your BMI in seconds, see your daily calories and protein, and get
-        a free consultation with the Team Bull coaches.
-      </p>
+      <p className="max-w-2xl">Four quick steps. Get your BMI, daily calories and a free consultation.</p>
       <div className="pt-4 text-foreground">
         <Suspense fallback={<BarbellLoader />}>
           <Calculator />

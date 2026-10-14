@@ -1,12 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState, useSyncExternalStore, type FormEvent } from "react";
+import { useState, useSyncExternalStore } from "react";
 import type { Product } from "@/types";
 import {
   ACTIVITY,
   GOALS,
-  LIMITS,
   bmiOf,
   caloriesFor,
   gaugeAngle,
@@ -21,45 +20,46 @@ import {
 } from "@/lib/bmi";
 import { buildChatUrl } from "@/lib/whatsapp";
 import { isInStock } from "@/lib/products";
+import { confetti } from "@/lib/motion";
 import ProductImage from "@/components/product/ProductImage";
 
-const LEVELS: Record<
-  BmiLevel,
-  { label: string; color: string; headline: string; text: string }
-> = {
+/* ------------------------------------------------------------------ */
+/*  Copy and colours                                                   */
+/* ------------------------------------------------------------------ */
+
+const LEVELS: Record<BmiLevel, { label: string; color: string; headline: string; text: string }> = {
   under: {
     label: "Underweight",
     color: "#3b82f6",
-    headline: "Your body needs more fuel",
-    text: "You are below the healthy range. A steady calorie surplus, enough protein and strength training can help you gain weight the healthy way.",
+    headline: "Time to fuel up",
+    text: "You are below the healthy range. Eat in a surplus, get enough protein and lift to gain weight the healthy way.",
   },
   normal: {
-    label: "Healthy weight",
+    label: "Healthy",
     color: "#16a34a",
-    headline: "Great, you are in the healthy range",
-    text: "Now it is about building strength, staying consistent and fuelling your training well.",
+    headline: "Right in the zone",
+    text: "Your weight is in the healthy range. Now build strength and stay consistent.",
   },
   over: {
     label: "Overweight",
     color: "#f59e0b",
-    headline: "A little above the healthy range",
-    text: "Small changes in food and training can bring this down. A clear plan makes it much easier.",
+    headline: "Slightly above the range",
+    text: "Small changes in food and training can bring this down. A clear plan makes it easier.",
   },
   obese: {
     label: "Obese",
     color: "#ea580c",
-    headline: "Let us build a plan together",
-    text: "Your BMI is in the obese range. The good news is that steady training and the right nutrition work. Our coaches can guide you step by step.",
+    headline: "Let's build a plan",
+    text: "Steady training and the right nutrition work. Our coaches can guide you step by step.",
   },
   severe: {
     label: "Obese (high)",
     color: "#dc2626",
-    headline: "Let us start with a plan, step by step",
-    text: "Your BMI is high. We recommend a check-up with your doctor too, and our coaches can help you with training and food habits at a safe pace.",
+    headline: "Start with a plan",
+    text: "Your BMI is high. Please also get a check-up with your doctor. We can help with training and food habits at a safe pace.",
   },
 };
 
-// gauge colours by BMI band (Asian cut-offs)
 const BANDS = [
   { from: 12, to: 18.5, color: "#3b82f6" },
   { from: 18.5, to: 23, color: "#16a34a" },
@@ -68,20 +68,24 @@ const BANDS = [
   { from: 30, to: 40, color: "#dc2626" },
 ];
 
-const CX = 120;
-const CY = 120;
-const R = 96;
+const STEPS = ["You", "Height", "Weight", "Goal"] as const;
 
-function point(angle: number, r = R) {
-  const a = (angle * Math.PI) / 180;
-  return [CX + r * Math.sin(a), CY - r * Math.cos(a)];
-}
+const GENDERS: { id: Gender; label: string }[] = [
+  { id: "male", label: "Male" },
+  { id: "female", label: "Female" },
+  { id: "other", label: "Other" },
+];
 
-function arc(from: number, to: number) {
-  const [x1, y1] = point(gaugeAngle(from));
-  const [x2, y2] = point(gaugeAngle(to));
-  return `M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${R} ${R} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`;
-}
+const GOAL_HINT: Record<Goal, string> = {
+  lose: "Burn fat",
+  muscle: "Get stronger",
+  maintain: "Stay in shape",
+  gain: "Add healthy weight",
+};
+
+/* ------------------------------------------------------------------ */
+/*  Small helpers                                                      */
+/* ------------------------------------------------------------------ */
 
 const subscribeMotion = (cb: () => void) => {
   const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -90,27 +94,40 @@ const subscribeMotion = (cb: () => void) => {
 };
 const reducedMotion = () => window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+const CX = 120;
+const CY = 120;
+const R = 96;
+
+function point(angle: number) {
+  const a = (angle * Math.PI) / 180;
+  return [CX + R * Math.sin(a), CY - R * Math.cos(a)];
+}
+function arc(from: number, to: number) {
+  const [x1, y1] = point(gaugeAngle(from));
+  const [x2, y2] = point(gaugeAngle(to));
+  return `M ${x1.toFixed(2)} ${y1.toFixed(2)} A ${R} ${R} 0 0 1 ${x2.toFixed(2)} ${y2.toFixed(2)}`;
+}
+
+function toFeet(cm: number) {
+  const totalIn = Math.round(cm / 2.54);
+  return `${Math.floor(totalIn / 12)} ft ${totalIn % 12} in`;
+}
+
+function pickCategories(level: BmiLevel, goal: Goal): string[] {
+  if (level === "under" || goal === "gain") return ["Mass Gainer", "Whey Protein", "Creatine"];
+  if (goal === "muscle") return ["Whey Protein", "Creatine", "BCAA & EAA"];
+  if (goal === "maintain") return ["Whey Protein", "BCAA & EAA", "Vitamins"];
+  return ["Whey Protein", "BCAA & EAA", "Pre-Workout"];
+}
+
 function Gauge({ bmi, color }: { bmi: number; color: string }) {
   const angle = gaugeAngle(bmi);
   const reduce = useSyncExternalStore(subscribeMotion, reducedMotion, () => false);
   return (
-    <svg
-      viewBox="0 0 240 150"
-      className="mx-auto w-full max-w-sm"
-      role="img"
-      aria-label={`BMI gauge showing ${bmi.toFixed(1)}`}
-    >
+    <svg viewBox="0 0 240 140" className="mx-auto w-full max-w-xs" role="img" aria-label={`BMI gauge showing ${bmi.toFixed(1)}`}>
       {BANDS.map((b) => (
-        <path
-          key={b.from}
-          d={arc(b.from, b.to)}
-          stroke={b.color}
-          strokeWidth="20"
-          fill="none"
-          opacity="0.9"
-        />
+        <path key={b.from} d={arc(b.from, b.to)} stroke={b.color} strokeWidth="20" fill="none" />
       ))}
-      {/* needle (key restarts the swing on every new result) */}
       <g key={bmi} transform={`rotate(${angle} ${CX} ${CY})`}>
         {!reduce && (
           <animateTransform
@@ -118,7 +135,7 @@ function Gauge({ bmi, color }: { bmi: number; color: string }) {
             type="rotate"
             from={`-90 ${CX} ${CY}`}
             to={`${angle} ${CX} ${CY}`}
-            dur="1.1s"
+            dur="1.2s"
             begin="0s"
             fill="freeze"
             calcMode="spline"
@@ -130,301 +147,420 @@ function Gauge({ bmi, color }: { bmi: number; color: string }) {
       </g>
       <circle cx={CX} cy={CY} r="9" fill="#1a1a1a" />
       <circle cx={CX} cy={CY} r="4" fill={color} />
-      <text x="14" y="142" fontSize="9" fill="#5f6368">12</text>
-      <text x="213" y="142" fontSize="9" fill="#5f6368">40+</text>
+      <text x="12" y="136" fontSize="9" fill="#5f6368">12</text>
+      <text x="212" y="136" fontSize="9" fill="#5f6368">40+</text>
     </svg>
   );
 }
 
-function pickCategories(level: BmiLevel, goal: Goal): string[] {
-  if (level === "under" || goal === "gain") return ["Mass Gainer", "Whey Protein", "Creatine"];
-  if (goal === "muscle") return ["Whey Protein", "Creatine", "BCAA & EAA"];
-  if (goal === "maintain") return ["Whey Protein", "BCAA & EAA", "Vitamins"];
-  return ["Whey Protein", "BCAA & EAA", "Pre-Workout"];
+/** A barbell that loads one more pair of plates as the weight goes up. */
+function Barbell({ weight }: { weight: number }) {
+  const pairs = Math.max(0, Math.min(8, Math.round(((weight - 30) / 170) * 8)));
+  const plates = Array.from({ length: 8 }, (_, i) => i);
+  return (
+    <svg viewBox="0 0 320 100" className="mx-auto w-full max-w-md" aria-hidden="true">
+      <rect x="6" y="47" width="308" height="6" rx="3" fill="#9ca3af" />
+      {[-1, 1].map((side) =>
+        plates.map((i) => {
+          const h = 84 - i * 7;
+          const w = 11;
+          const x = side === -1 ? 104 - (i + 1) * (w + 2) : 216 + i * (w + 2) + 2;
+          const on = i < pairs;
+          return (
+            <rect
+              key={`${side}-${i}`}
+              x={x}
+              y={50 - h / 2}
+              width={w}
+              height={h}
+              rx="3"
+              fill={i % 2 === 0 ? "#dc2626" : "#1a1a1a"}
+              style={{
+                opacity: on ? 1 : 0,
+                transform: on ? "scaleY(1)" : "scaleY(0.2)",
+                transformBox: "fill-box",
+                transformOrigin: "center",
+                transition: `opacity .3s ease ${i * 25}ms, transform .3s ease ${i * 25}ms`,
+              }}
+            />
+          );
+        }),
+      )}
+      <rect x="104" y="40" width="6" height="20" rx="2" fill="#6b7280" />
+      <rect x="210" y="40" width="6" height="20" rx="2" fill="#6b7280" />
+    </svg>
+  );
 }
 
-const inputCls =
-  "mt-2 w-full rounded-full border border-line bg-white px-5 py-3 outline-none focus:border-accent";
+function Stepper({
+  value,
+  onChange,
+  min,
+  max,
+  unit,
+  label,
+}: {
+  value: number;
+  onChange: (n: number) => void;
+  min: number;
+  max: number;
+  unit: string;
+  label: string;
+}) {
+  const set = (n: number) => onChange(Math.min(max, Math.max(min, n)));
+  const btn =
+    "flex h-12 w-12 items-center justify-center rounded-full border border-line bg-white text-2xl font-bold transition hover:border-accent hover:text-accent active:scale-95";
+  return (
+    <div className="flex items-center justify-center gap-5">
+      <button type="button" className={btn} onClick={() => set(value - 1)} aria-label={`Decrease ${label}`}>−</button>
+      <p className="min-w-28 text-center font-display text-6xl font-bold tabular-nums">
+        {value}
+        <span className="ml-1 text-xl text-muted">{unit}</span>
+      </p>
+      <button type="button" className={btn} onClick={() => set(value + 1)} aria-label={`Increase ${label}`}>+</button>
+    </div>
+  );
+}
 
-type Result = {
-  bmi: number;
-  level: BmiLevel;
-  kg: number;
-  cm: number;
-  age: number;
-  gender: Gender;
-  goal: Goal;
-  name: string;
-};
+const chip = (on: boolean) =>
+  `rounded-full border px-4 py-2 text-sm font-semibold transition ${
+    on ? "border-accent bg-accent text-white" : "border-line bg-white hover:border-accent hover:text-accent"
+  }`;
+
+/* ------------------------------------------------------------------ */
+/*  The calculator                                                     */
+/* ------------------------------------------------------------------ */
 
 export default function BmiCalculator({ products }: { products: Product[] }) {
-  const [age, setAge] = useState("");
-  const [gender, setGender] = useState<Gender>("male");
-  const [unit, setUnit] = useState<"cm" | "ft">("cm");
-  const [cm, setCm] = useState("");
-  const [ft, setFt] = useState("");
-  const [inch, setInch] = useState("");
-  const [weight, setWeight] = useState("");
+  const [step, setStep] = useState(0);
+  const [done, setDone] = useState(false);
+  const [gender, setGender] = useState<Gender | null>(null);
+  const [age, setAge] = useState(25);
+  const [cm, setCm] = useState(170);
+  const [kg, setKg] = useState(70);
   const [activity, setActivity] = useState<Activity>("light");
   const [goal, setGoal] = useState<Goal>("maintain");
   const [name, setName] = useState("");
-  const [error, setError] = useState("");
-  const [result, setResult] = useState<Result | null>(null);
 
-  function onSubmit(e: FormEvent) {
-    e.preventDefault();
-    const a = Number(age);
-    const kg = Number(weight);
-    const h = unit === "cm" ? Number(cm) : Math.round((Number(ft) * 12 + Number(inch || 0)) * 2.54);
+  const bmi = bmiOf(kg, cm);
+  const level = levelOf(bmi);
+  const info = LEVELS[level];
+  const g: Gender = gender ?? "other";
+  const range = healthyRangeKg(cm);
+  const cal = caloriesFor(kg, cm, age, g, activity, goal);
+  const protein = proteinFor(kg, goal);
+  const suggested = suggestedGoal(level);
+  const wantsHelp = level !== "normal";
+  const goalLabel = GOALS.find((x) => x.id === goal)?.label ?? "";
 
-    if (!(a >= 1 && a <= 120) || !age) return setError("Please enter your age.");
-    if (a < LIMITS.age[0])
-      return setError(
-        "BMI for under-18s needs special growth charts. Please ask a doctor, or message us on WhatsApp.",
-      );
-    if (a > LIMITS.age[1]) return setError(`Please enter an age up to ${LIMITS.age[1]}.`);
-    if (!(h >= LIMITS.heightCm[0] && h <= LIMITS.heightCm[1]))
-      return setError(`Please enter a height between ${LIMITS.heightCm[0]} and ${LIMITS.heightCm[1]} cm.`);
-    if (!(kg >= LIMITS.weightKg[0] && kg <= LIMITS.weightKg[1]))
-      return setError(`Please enter a weight between ${LIMITS.weightKg[0]} and ${LIMITS.weightKg[1]} kg.`);
+  const canNext = step !== 0 || gender !== null;
 
-    setError("");
-    const bmi = bmiOf(kg, h);
-    setResult({ bmi, level: levelOf(bmi), kg, cm: h, age: a, gender, goal, name: name.trim() });
-    // bring the result into view
+  function reveal(e: React.MouseEvent<HTMLButtonElement>) {
+    // start on the goal that fits the BMI, the user can switch it on the result
+    setGoal(suggested);
+    setDone(true);
+    if (level === "normal") {
+      const r = e.currentTarget.getBoundingClientRect();
+      confetti(r.left + r.width / 2, r.top);
+    }
     requestAnimationFrame(() =>
-      document.getElementById("bmi-result")?.scrollIntoView({ behavior: "smooth", block: "start" }),
+      document.getElementById("bmi-card")?.scrollIntoView({ behavior: "smooth", block: "start" }),
     );
   }
 
-  function reset() {
-    setResult(null);
-    setError("");
-  }
-
-  const info = result ? LEVELS[result.level] : null;
-  const range = result ? healthyRangeKg(result.cm) : null;
-  const cal = result ? caloriesFor(result.kg, result.cm, result.age, result.gender, activity, result.goal) : null;
-  const protein = result ? proteinFor(result.kg, result.goal) : null;
-  const wantsHelp = result ? result.level !== "normal" : false;
-  const goalLabel = result ? GOALS.find((g) => g.id === result.goal)?.label : "";
-  const suggested = result ? suggestedGoal(result.level) : "maintain";
-
   const picks: Product[] = [];
-  if (result) {
-    for (const cat of pickCategories(result.level, result.goal)) {
-      const p = products.find((x) => x.category === cat && isInStock(x));
-      if (p) picks.push(p);
-    }
+  for (const cat of pickCategories(level, goal)) {
+    const p = products.find((x) => x.category === cat && isInStock(x));
+    if (p) picks.push(p);
   }
 
-  const consultMsg = result
-    ? [
-        "Hi Team Bull Fuel House! I used your BMI calculator and would like a free consultation.",
-        "",
-        ...(result.name ? [`Name: ${result.name}`] : []),
-        `Age: ${result.age} | Gender: ${result.gender[0].toUpperCase()}${result.gender.slice(1)}`,
-        `Height: ${Math.round(result.cm)} cm | Weight: ${result.kg} kg`,
-        `BMI: ${result.bmi.toFixed(1)} (${info?.label})`,
-        `Goal: ${goalLabel}`,
-        "",
-        "Please guide me.",
-      ].join("\n")
-    : "";
+  const message = [
+    "Hi Team Bull Fuel House! I used your BMI calculator and would like a free consultation.",
+    "",
+    ...(name.trim() ? [`Name: ${name.trim()}`] : []),
+    `Age: ${age} | Gender: ${g[0].toUpperCase()}${g.slice(1)}`,
+    `Height: ${cm} cm | Weight: ${kg} kg`,
+    `BMI: ${bmi.toFixed(1)} (${info.label})`,
+    `Goal: ${goalLabel}`,
+    "",
+    "Please guide me.",
+  ].join("\n");
 
   return (
-    <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)]">
-      {/* ---------- form ---------- */}
-      <form onSubmit={onSubmit} className="rounded-2xl border border-line bg-surface p-6" noValidate>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <label className="block">
-            <span className="text-sm font-semibold">Age</span>
-            <input type="number" inputMode="numeric" value={age} onChange={(e) => setAge(e.target.value)} placeholder="e.g. 28" className={inputCls} />
-          </label>
-          <label className="block">
-            <span className="text-sm font-semibold">Gender</span>
-            <select value={gender} onChange={(e) => setGender(e.target.value as Gender)} className={inputCls}>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-              <option value="other">Other</option>
-            </select>
-          </label>
-
-          <div className="sm:col-span-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold">Height</span>
-              <div className="flex rounded-full border border-line bg-white p-0.5 text-xs font-semibold">
-                {(["cm", "ft"] as const).map((u) => (
-                  <button
-                    key={u}
-                    type="button"
-                    onClick={() => setUnit(u)}
-                    aria-pressed={unit === u}
-                    className={`rounded-full px-3 py-1 ${unit === u ? "bg-accent text-white" : "text-muted"}`}
-                  >
-                    {u === "cm" ? "cm" : "ft / in"}
-                  </button>
-                ))}
-              </div>
-            </div>
-            {unit === "cm" ? (
-              <input type="number" inputMode="decimal" value={cm} onChange={(e) => setCm(e.target.value)} placeholder="e.g. 170" className={inputCls} aria-label="Height in centimetres" />
-            ) : (
-              <div className="grid grid-cols-2 gap-3">
-                <input type="number" inputMode="numeric" value={ft} onChange={(e) => setFt(e.target.value)} placeholder="ft, e.g. 5" className={inputCls} aria-label="Height, feet" />
-                <input type="number" inputMode="numeric" value={inch} onChange={(e) => setInch(e.target.value)} placeholder="in, e.g. 7" className={inputCls} aria-label="Height, inches" />
-              </div>
-            )}
-          </div>
-
-          <label className="block">
-            <span className="text-sm font-semibold">Weight (kg)</span>
-            <input type="number" inputMode="decimal" value={weight} onChange={(e) => setWeight(e.target.value)} placeholder="e.g. 72" className={inputCls} />
-          </label>
-          <label className="block">
-            <span className="text-sm font-semibold">Your goal</span>
-            <select value={goal} onChange={(e) => setGoal(e.target.value as Goal)} className={inputCls}>
-              {GOALS.map((g) => (
-                <option key={g.id} value={g.id}>{g.label}</option>
-              ))}
-            </select>
-          </label>
-
-          <label className="block sm:col-span-2">
-            <span className="text-sm font-semibold">How active are you?</span>
-            <select value={activity} onChange={(e) => setActivity(e.target.value as Activity)} className={inputCls}>
-              {ACTIVITY.map((a) => (
-                <option key={a.id} value={a.id}>{a.label}</option>
-              ))}
-            </select>
-          </label>
-
-          <label className="block sm:col-span-2">
-            <span className="text-sm font-semibold">
-              Your name <span className="font-normal text-muted">(optional, used only in your WhatsApp message)</span>
-            </span>
-            <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Arun" className={inputCls} maxLength={40} />
-          </label>
-        </div>
-
-        {error && (
-          <p role="alert" className="mt-4 rounded-lg bg-accent-soft px-4 py-3 text-sm text-accent">
-            {error}
-          </p>
-        )}
-
-        <div className="mt-6 flex flex-wrap gap-3">
-          <button type="submit" className="rounded-full bg-accent px-8 py-3 font-bold text-white transition hover:bg-accent-dark">
-            Calculate my BMI
-          </button>
-          {result && (
-            <button type="button" onClick={reset} className="rounded-full border border-line bg-white px-6 py-3 font-semibold hover:border-accent hover:text-accent">
-              Start again
-            </button>
-          )}
-        </div>
-        <p className="mt-4 text-xs text-muted">
-          Your details stay in your browser. Nothing is saved or sent unless you tap a WhatsApp button.
-        </p>
-      </form>
-
-      {/* ---------- result ---------- */}
-      <div id="bmi-result" className="scroll-mt-24">
-        {!result || !info || !range || !cal || !protein ? (
-          <div className="flex h-full min-h-72 flex-col items-center justify-center rounded-2xl border border-dashed border-line p-8 text-center text-muted">
-            <Gauge bmi={21} color="#16a34a" />
-            <p className="mt-2 font-display text-lg uppercase text-foreground">Your result appears here</p>
-            <p className="text-sm">Fill in your details and tap Calculate.</p>
-          </div>
-        ) : (
-          <div className="space-y-5">
-            <div className="rounded-2xl border border-line bg-white p-6 text-center shadow-sm">
-              <Gauge bmi={result.bmi} color={info.color} />
-              <p className="-mt-2 font-display text-6xl font-bold" style={{ color: info.color }}>
-                {result.bmi.toFixed(1)}
-              </p>
-              <p className="mt-1 inline-block rounded-full px-4 py-1 text-sm font-bold uppercase tracking-wide text-white" style={{ background: info.color }}>
-                {info.label}
-              </p>
-              <p className="mt-3 font-display text-xl font-bold uppercase">{info.headline}</p>
-              <p className="mx-auto mt-1 max-w-md text-sm text-muted">{info.text}</p>
-              <p className="mt-3 text-sm">
-                Healthy weight for your height:{" "}
-                <strong>{range.min}–{range.max} kg</strong>
-              </p>
-            </div>
-
-            {/* free consultation */}
-            <div className={`rounded-2xl p-6 ${wantsHelp ? "bg-accent text-white" : "border border-line bg-accent-soft"}`}>
-              <p className="font-display text-2xl font-bold uppercase">
-                {wantsHelp ? "Get a FREE consultation" : "Want a coach on your side?"}
-              </p>
-              <p className={`mt-1 text-sm ${wantsHelp ? "text-white/90" : "text-muted"}`}>
-                {wantsHelp
-                  ? "Talk to the Team Bull coaches. We will look at your numbers and suggest a simple training and food plan that fits your goal."
-                  : "Chat with Team Bull for free tips on training, nutrition and the right supplements for your goal."}
-              </p>
-              <a
-                href={buildChatUrl(consultMsg)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`mt-4 inline-block rounded-full px-7 py-3 font-bold transition ${wantsHelp ? "bg-white text-accent hover:bg-red-50" : "bg-accent text-white hover:bg-accent-dark"}`}
+    <div id="bmi-card" className="mx-auto max-w-4xl scroll-mt-24">
+      {!done ? (
+        <div className="overflow-hidden rounded-3xl border border-line bg-surface shadow-sm">
+          {/* progress */}
+          <div className="grid grid-cols-4 gap-2 border-b border-line bg-white px-5 py-4">
+            {STEPS.map((label, i) => (
+              <button
+                key={label}
+                type="button"
+                onClick={() => i < step && setStep(i)}
+                disabled={i > step}
+                aria-current={i === step}
+                className="text-left disabled:cursor-default"
               >
-                Book free consultation on WhatsApp
-              </a>
-              <p className={`mt-2 text-xs ${wantsHelp ? "text-white/80" : "text-muted"}`}>
-                Your numbers are filled in for you in the message.
-              </p>
-            </div>
+                <span className={`block h-1.5 rounded-full transition-colors ${i <= step ? "bg-accent" : "bg-line"}`} />
+                <span className={`mt-2 block text-xs font-semibold uppercase tracking-wide ${i === step ? "text-accent" : "text-muted"}`}>
+                  {i + 1}. {label}
+                </span>
+              </button>
+            ))}
+          </div>
 
-            {/* calories + protein */}
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-2xl border border-line bg-surface p-5">
-                <p className="text-xs font-semibold uppercase tracking-wide text-accent">Daily calories · {goalLabel}</p>
-                <p className="mt-1 font-display text-4xl font-bold">{cal.target.toLocaleString("en-IN")} <span className="text-lg">kcal</span></p>
-                <p className="mt-1 text-xs text-muted">To stay at your weight: about {cal.maintenance.toLocaleString("en-IN")} kcal.</p>
-              </div>
-              <div className="rounded-2xl border border-line bg-surface p-5">
-                <p className="text-xs font-semibold uppercase tracking-wide text-accent">Daily protein</p>
-                <p className="mt-1 font-display text-4xl font-bold">{protein.min}–{protein.max} <span className="text-lg">g</span></p>
-                <p className="mt-1 text-xs text-muted">
-                  <Link href="/protein-calculator" className="underline hover:text-accent">Open the protein calculator</Link>
-                </p>
-              </div>
-            </div>
-            {result.goal !== suggested && result.level !== "normal" && (
-              <p className="text-sm text-muted">
-                Tip: for your BMI, most people start with{" "}
-                <strong>{GOALS.find((g) => g.id === suggested)?.label}</strong>. Change your goal and calculate again to compare.
-              </p>
-            )}
-
-            {/* product picks */}
-            {picks.length > 0 && (
-              <div>
-                <p className="font-display text-xl font-bold uppercase">Picked for your goal</p>
-                <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                  {picks.map((p) => (
-                    <Link key={p.id} href={`/products/${p.id}`} className="overflow-hidden rounded-xl border border-line bg-surface transition hover:border-accent">
-                      <ProductImage product={p} className="h-28" letterSize="text-3xl" />
-                      <div className="p-3">
-                        <p className="text-xs uppercase tracking-wide text-accent">{p.category}</p>
-                        <p className="text-sm font-semibold leading-snug">{p.name}</p>
-                        <p className="mt-1 text-sm font-semibold text-accent">View product →</p>
-                      </div>
-                    </Link>
+          <div key={step} className="bmi-step flex min-h-[26rem] flex-col justify-between gap-8 px-5 py-8 sm:px-10">
+            {step === 0 && (
+              <div className="space-y-8">
+                <h2 className="text-center font-display text-3xl font-bold uppercase">Who is training?</h2>
+                <div className="mx-auto grid max-w-lg grid-cols-3 gap-3">
+                  {GENDERS.map((o) => (
+                    <button
+                      key={o.id}
+                      type="button"
+                      onClick={() => setGender(o.id)}
+                      aria-pressed={gender === o.id}
+                      className={`rounded-2xl border-2 py-5 font-display text-xl font-bold uppercase transition ${
+                        gender === o.id ? "border-accent bg-accent-soft text-accent" : "border-line bg-white hover:border-accent"
+                      }`}
+                    >
+                      {o.label}
+                    </button>
                   ))}
+                </div>
+                <div>
+                  <p className="mb-3 text-center text-sm font-semibold text-muted">Age</p>
+                  <Stepper value={age} onChange={setAge} min={18} max={80} unit="yrs" label="age" />
                 </div>
               </div>
             )}
-          </div>
-        )}
-      </div>
 
-      <p className="text-xs text-muted lg:col-span-2">
-        BMI is a general screening number and does not show body fat, so very muscular people can score high. Results use
-        Asian BMI cut-offs (overweight from 23, obese from 25). Calories and protein are estimates for healthy adults.
-        This is not medical advice. If you have a medical condition or are pregnant, please ask your doctor first.
+            {step === 1 && (
+              <div className="space-y-6">
+                <h2 className="text-center font-display text-3xl font-bold uppercase">How tall are you?</h2>
+                <p className="text-center font-display text-7xl font-bold tabular-nums">
+                  {cm}<span className="ml-1 text-2xl text-muted">cm</span>
+                </p>
+                <p className="-mt-3 text-center text-muted">{toFeet(cm)}</p>
+                <div className="mx-auto max-w-xl">
+                  <input
+                    type="range"
+                    min={120}
+                    max={220}
+                    value={cm}
+                    onChange={(e) => setCm(Number(e.target.value))}
+                    aria-label="Height in centimetres"
+                    className="h-3 w-full cursor-pointer accent-[#dc2626]"
+                  />
+                  <div className="mt-1 flex justify-between text-xs text-muted">
+                    {[120, 140, 160, 180, 200, 220].map((t) => <span key={t}>{t}</span>)}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {step === 2 && (
+              <div className="space-y-5">
+                <h2 className="text-center font-display text-3xl font-bold uppercase">How much do you weigh?</h2>
+                <Barbell weight={kg} />
+                <Stepper value={kg} onChange={setKg} min={30} max={200} unit="kg" label="weight" />
+                <div className="mx-auto max-w-xl">
+                  <input
+                    type="range"
+                    min={30}
+                    max={200}
+                    value={kg}
+                    onChange={(e) => setKg(Number(e.target.value))}
+                    aria-label="Weight in kilograms"
+                    className="h-3 w-full cursor-pointer accent-[#dc2626]"
+                  />
+                </div>
+                <p className="text-center">
+                  <span
+                    className="inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-sm font-bold text-white transition-colors"
+                    style={{ background: info.color }}
+                  >
+                    BMI {bmi.toFixed(1)} · {info.label}
+                  </span>
+                </p>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="space-y-6">
+                <h2 className="text-center font-display text-3xl font-bold uppercase">What is your goal?</h2>
+                <div className="mx-auto grid max-w-xl grid-cols-2 gap-3">
+                  {GOALS.map((o) => (
+                    <button
+                      key={o.id}
+                      type="button"
+                      onClick={() => setGoal(o.id)}
+                      aria-pressed={goal === o.id}
+                      className={`rounded-2xl border-2 px-4 py-4 text-left transition ${
+                        goal === o.id ? "border-accent bg-accent-soft" : "border-line bg-white hover:border-accent"
+                      }`}
+                    >
+                      <span className={`block font-display text-lg font-bold uppercase ${goal === o.id ? "text-accent" : ""}`}>{o.label}</span>
+                      <span className="text-sm text-muted">{GOAL_HINT[o.id]}</span>
+                    </button>
+                  ))}
+                </div>
+                <div>
+                  <p className="mb-3 text-center text-sm font-semibold text-muted">How active are you?</p>
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {ACTIVITY.map((a) => (
+                      <button key={a.id} type="button" onClick={() => setActivity(a.id)} aria-pressed={activity === a.id} className={chip(activity === a.id)}>
+                        {a.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* navigation */}
+            <div className="flex items-center justify-between gap-3">
+              <button
+                type="button"
+                onClick={() => setStep(step - 1)}
+                className={`rounded-full border border-line bg-white px-6 py-3 font-semibold transition hover:border-accent hover:text-accent ${step === 0 ? "invisible" : ""}`}
+              >
+                Back
+              </button>
+              {step < STEPS.length - 1 ? (
+                <button
+                  type="button"
+                  disabled={!canNext}
+                  onClick={() => setStep(step + 1)}
+                  className="rounded-full bg-accent px-9 py-3 font-bold text-white transition hover:bg-accent-dark disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  {canNext ? "Next" : "Pick one to continue"}
+                </button>
+              ) : (
+                <button type="button" onClick={reveal} className="rounded-full bg-accent px-9 py-3 font-bold text-white transition hover:bg-accent-dark">
+                  Show my BMI
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      ) : (
+        <div className="bmi-step space-y-6">
+          {/* result */}
+          <div className="grid items-center gap-6 rounded-3xl border border-line bg-white p-6 shadow-sm md:grid-cols-2 md:p-8">
+            <Gauge bmi={bmi} color={info.color} />
+            <div className="text-center md:text-left">
+              <p className="font-display text-7xl font-bold leading-none tabular-nums" style={{ color: info.color }}>
+                {bmi.toFixed(1)}
+              </p>
+              <p className="mt-3 inline-block rounded-full px-4 py-1 text-sm font-bold uppercase tracking-wide text-white" style={{ background: info.color }}>
+                {info.label}
+              </p>
+              <h2 className="mt-3 font-display text-2xl font-bold uppercase">{info.headline}</h2>
+              <p className="mt-1 text-sm text-muted">{info.text}</p>
+              <p className="mt-3 text-sm">
+                Healthy weight for {cm} cm: <strong>{range.min}–{range.max} kg</strong>
+              </p>
+            </div>
+          </div>
+
+          {/* consultation */}
+          <div className={`grid items-center gap-5 rounded-3xl p-6 md:grid-cols-[1fr_auto] md:p-8 ${wantsHelp ? "bg-accent text-white" : "border border-line bg-accent-soft"}`}>
+            <div>
+              <h3 className="font-display text-3xl font-bold uppercase">{wantsHelp ? "Get a free consultation" : "Want a coach on your side?"}</h3>
+              <p className={`mt-1 text-sm ${wantsHelp ? "text-white/90" : "text-muted"}`}>
+                {wantsHelp
+                  ? "Talk to the Team Bull coaches. We will look at your numbers and suggest a simple plan for your goal."
+                  : "Chat with Team Bull for training, food and supplement tips for your goal."}
+              </p>
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                maxLength={40}
+                placeholder="Your name (optional)"
+                aria-label="Your name (optional)"
+                className="mt-4 w-full max-w-xs rounded-full border border-transparent bg-white px-5 py-2.5 text-sm text-foreground outline-none focus:border-foreground"
+              />
+            </div>
+            <a
+              href={buildChatUrl(message)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`whitespace-nowrap rounded-full px-8 py-3.5 text-center font-bold transition ${wantsHelp ? "bg-white text-accent hover:bg-red-50" : "bg-accent text-white hover:bg-accent-dark"}`}
+            >
+              Chat on WhatsApp
+            </a>
+          </div>
+
+          {/* goal switcher + numbers */}
+          <div className="rounded-3xl border border-line bg-surface p-6 md:p-8">
+            <p className="text-center text-xs font-semibold uppercase tracking-widest text-accent md:text-left">Your goal</p>
+            <div className="mt-3 flex flex-wrap justify-center gap-2 md:justify-start">
+              {GOALS.map((o) => (
+                <button key={o.id} type="button" onClick={() => setGoal(o.id)} aria-pressed={goal === o.id} className={chip(goal === o.id)}>
+                  {o.label}
+                  {o.id === suggested && <span className="ml-1.5 text-xs opacity-80">★ best fit</span>}
+                </button>
+              ))}
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <div className="rounded-2xl bg-white p-5 text-center md:text-left">
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted">Calories per day</p>
+                <p className="mt-1 font-display text-5xl font-bold tabular-nums">
+                  {cal.target.toLocaleString("en-IN")}<span className="ml-1 text-lg text-muted">kcal</span>
+                </p>
+                <p className="mt-1 text-xs text-muted">Maintenance: {cal.maintenance.toLocaleString("en-IN")} kcal</p>
+              </div>
+              <div className="rounded-2xl bg-white p-5 text-center md:text-left">
+                <p className="text-xs font-semibold uppercase tracking-widest text-muted">Protein per day</p>
+                <p className="mt-1 font-display text-5xl font-bold tabular-nums">
+                  {protein.min}–{protein.max}<span className="ml-1 text-lg text-muted">g</span>
+                </p>
+                <p className="mt-1 text-xs">
+                  <Link href="/protein-calculator" className="text-muted underline hover:text-accent">Protein calculator</Link>
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* picks */}
+          {picks.length > 0 && (
+            <div>
+              <h3 className="text-center font-display text-2xl font-bold uppercase md:text-left">Picked for you</h3>
+              <div className="mt-3 grid gap-4 sm:grid-cols-3">
+                {picks.map((p) => (
+                  <Link key={p.id} href={`/products/${p.id}`} className="group overflow-hidden rounded-2xl border border-line bg-surface transition hover:-translate-y-0.5 hover:border-accent">
+                    <ProductImage product={p} className="h-32" letterSize="text-3xl" />
+                    <div className="p-4">
+                      <p className="text-xs uppercase tracking-wide text-accent">{p.category}</p>
+                      <p className="text-sm font-semibold leading-snug">{p.name}</p>
+                      <p className="mt-2 text-sm font-semibold text-accent group-hover:underline">View product →</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => {
+                setDone(false);
+                setStep(0);
+              }}
+              className="rounded-full border border-line bg-white px-6 py-3 font-semibold transition hover:border-accent hover:text-accent"
+            >
+              Start again
+            </button>
+          </div>
+        </div>
+      )}
+
+      <p className="mx-auto mt-6 max-w-2xl text-center text-xs text-muted">
+        BMI is a screening number and can read high for muscular people. It uses Asian cut-offs (overweight from 23, obese
+        from 25). Calories and protein are estimates, not medical advice. Nothing you enter is saved.
       </p>
     </div>
   );
