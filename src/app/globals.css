@@ -582,3 +582,11 @@ section.bg-gradient-to-b {
 @keyframes cart-ring { from { transform: scale(1); opacity: 0.9; } to { transform: scale(1.5, 1.9); opacity: 0; } }
 .new-badge::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: #dc2626; animation: ping-ring 1.8s ease-out infinite; }
 @media (prefers-reduced-motion: reduce) { .wa-beat, .cart-ring, .new-badge::before { animation: none; } .cart-ring { display: none; } }
+
+/* ===== Play & Win games ===== */
+.mem-card { perspective: 700px; display: block; position: relative; }
+.mem-inner { position: absolute; inset: 0; display: block; transition: transform 0.45s; transform-style: preserve-3d; }
+.mem-inner[data-open="true"] { transform: rotateY(180deg); }
+.mem-face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; border-radius: 14px; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.mem-front { transform: rotateY(180deg); }
+@media (prefers-reduced-motion: reduce) { .mem-inner { transition: none; } }

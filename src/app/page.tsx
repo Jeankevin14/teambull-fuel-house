@@ -200,6 +200,27 @@ export default function Home() {
         </Reveal>
       </section>
 
+      {/* Play & win */}
+      <section className="mx-auto max-w-6xl px-4 pb-10">
+        <Reveal>
+          <Link
+            href="/play"
+            className="group grid items-center gap-4 rounded-2xl bg-foreground p-6 text-white transition hover:bg-black md:grid-cols-[1fr_auto] md:p-8"
+          >
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-accent">Play &amp; win</p>
+              <p className="mt-1 font-display text-3xl font-bold uppercase">Gym brain games</p>
+              <p className="mt-1 text-sm text-white/80">
+                Plate Memory, Rep Counter Reflex and the Gym Quiz. Score high and win a reward.
+              </p>
+            </div>
+            <span className="btn-shine rounded-full bg-accent px-7 py-3 text-center font-bold text-white transition group-hover:scale-105">
+              Play now →
+            </span>
+          </Link>
+        </Reveal>
+      </section>
+
       {/* Helpful tools */}
       <section className="mx-auto max-w-6xl px-4 pb-16">
         <Reveal className="grid gap-4 md:grid-cols-3">
