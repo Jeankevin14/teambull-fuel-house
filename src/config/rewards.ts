@@ -6,7 +6,7 @@
 //  Set reward to "" to show no reward for a medal.
 // ============================================================
 
-export const REWARDS_ENABLED = true;
+export const REWARDS_ENABLED = false;
 
 export type Tier = "gold" | "silver" | "bronze";
 

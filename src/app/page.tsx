@@ -211,7 +211,7 @@ export default function Home() {
               <p className="text-xs font-semibold uppercase tracking-widest text-accent">Play &amp; win</p>
               <p className="mt-1 font-display text-3xl font-bold uppercase">Gym brain games</p>
               <p className="mt-1 text-sm text-white/80">
-                Plate Memory, Perfect Rep and the Gym Quiz. Score high and win a reward.
+                Plate Memory, Perfect Rep and the Gym Quiz. Score high to earn badges and a certificate.
               </p>
             </div>
             <span className="btn-shine rounded-full bg-accent px-7 py-3 text-center font-bold text-white transition group-hover:scale-105">
