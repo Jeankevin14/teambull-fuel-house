@@ -1,3 +1,4 @@
+import NewBadge from "@/components/ui/NewBadge";
 import Link from "next/link";
 import CartLink from "./CartLink";
 import AuthLink from "./AuthLink";
@@ -17,8 +18,8 @@ export default function Header() {
           <Link href="/products" className="hover:text-accent">
             Products
           </Link>
-          <Link href="/bundles" className="hidden hover:text-accent sm:inline">
-            Combos
+          <Link href="/bundles" className="hidden items-center gap-1.5 hover:text-accent sm:inline-flex">
+            Combos <NewBadge />
           </Link>
           <Link
             href="/find-supplement"

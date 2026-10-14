@@ -12,8 +12,9 @@ export default function CartLink() {
       data-cart-button
       onClick={openDrawer}
       aria-label={`Open cart, ${ready ? count : 0} items`}
-      className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 font-semibold text-white hover:opacity-90"
+      className="relative inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 font-semibold text-white hover:opacity-90"
     >
+      {ready && count > 0 && <span key={`ring-${count}`} className="cart-ring" aria-hidden="true" />}
       <svg
         key={`icon-${ready ? count : 0}`}
         viewBox="0 0 24 24"

@@ -570,3 +570,15 @@ section.bg-gradient-to-b {
 @media (prefers-reduced-motion: reduce) { .bmi-step { animation: none; } }
 .bmi-needle { transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1); }
 @media (prefers-reduced-motion: reduce) { .bmi-needle { transition: none; } }
+
+/* ===== simple attention animations ===== */
+.wa-beat { animation: wa-beat 4s ease-in-out infinite; }
+@keyframes wa-beat {
+  0%, 58%, 100% { transform: scale(1); }
+  66%, 82% { transform: scale(1.09); }
+  74%, 90% { transform: scale(1); }
+}
+.cart-ring { position: absolute; inset: 0; border-radius: 9999px; border: 2px solid #dc2626; pointer-events: none; animation: cart-ring 0.7s ease-out both; }
+@keyframes cart-ring { from { transform: scale(1); opacity: 0.9; } to { transform: scale(1.5, 1.9); opacity: 0; } }
+.new-badge::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: #dc2626; animation: ping-ring 1.8s ease-out infinite; }
+@media (prefers-reduced-motion: reduce) { .wa-beat, .cart-ring, .new-badge::before { animation: none; } .cart-ring { display: none; } }
