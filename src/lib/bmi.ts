@@ -27,9 +27,10 @@ export const LIMITS = {
   weightKg: [30, 250],
 } as const;
 
+/** BMI rounded to one decimal, so the number shown and the category always agree */
 export function bmiOf(kg: number, cm: number) {
   const m = cm / 100;
-  return kg / (m * m);
+  return Math.round((kg / (m * m)) * 10) / 10;
 }
 
 export function levelOf(bmi: number): BmiLevel {
@@ -68,17 +69,48 @@ export function caloriesFor(
   const factor = ACTIVITY.find((a) => a.id === activity)?.factor ?? 1.2;
   const maintenance = bmr * factor;
   let target = maintenance;
-  if (goal === "lose") target = Math.max(maintenance - 500, bmr, gender === "female" ? 1200 : 1500);
+  // deficit of 500 kcal, but never more than 25% of maintenance, and never below a safe floor
+  if (goal === "lose") {
+    const deficit = Math.min(500, maintenance * 0.25);
+    target = Math.max(maintenance - deficit, bmr, gender === "female" ? 1200 : 1500);
+  }
   if (goal === "muscle") target = maintenance + 250;
   if (goal === "gain") target = maintenance + 400;
   return { maintenance: round10(maintenance), target: round10(target) };
 }
 
-/** daily protein range in grams for a goal (based on a sensible body weight) */
-export function proteinFor(kg: number, goal: Goal) {
-  const base = Math.min(kg, 100);
-  const [lo, hi] = goal === "maintain" ? [1.2, 1.6] : [1.6, 2.2];
-  return { min: Math.round(base * lo), max: Math.round(base * hi) };
+/**
+ * Weight that protein is worked out on. For a healthy BMI it is your own weight.
+ * Above the healthy range, extra fat does not need extra protein, so only a quarter
+ * of the excess weight is counted.
+ */
+export function proteinBaseKg(kg: number, cm: number) {
+  const top = 22.9 * (cm / 100) ** 2;
+  return kg <= top ? kg : top + 0.25 * (kg - top);
+}
+
+/** grams of protein per kg of base weight, by goal (and training level when staying fit) */
+export function proteinPerKg(goal: Goal, activity: Activity): [number, number] {
+  if (goal === "lose") return [1.8, 2.4];
+  if (goal === "muscle") return [1.6, 2.2];
+  if (goal === "gain") return [1.6, 2.0];
+  return { sedentary: [0.8, 1.2], light: [1.0, 1.4], moderate: [1.2, 1.6], active: [1.4, 1.8] }[activity] as [
+    number,
+    number,
+  ];
+}
+
+/** daily protein range in grams */
+export function proteinFor(kg: number, cm: number, goal: Goal, activity: Activity) {
+  const base = proteinBaseKg(kg, cm);
+  const [lo, hi] = proteinPerKg(goal, activity);
+  return {
+    min: Math.round(base * lo),
+    max: Math.round(base * hi),
+    perKg: [lo, hi] as [number, number],
+    baseKg: Math.round(base),
+    adjusted: base < kg - 0.5,
+  };
 }
 
 export function suggestedGoal(level: BmiLevel): Goal {
