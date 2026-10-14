@@ -5,6 +5,7 @@ const LINKS = [
   { href: "/products", label: "Products" },
   { href: "/find-supplement", label: "Find Supplement" },
   { href: "/protein-calculator", label: "Protein Calculator" },
+  { href: "/bundles", label: "Combo Packs" },
   { href: "/bmi-calculator", label: "BMI Calculator" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },

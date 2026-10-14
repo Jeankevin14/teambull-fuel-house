@@ -4,7 +4,7 @@ import { getProducts } from "@/lib/catalog";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const products = await getProducts();
-  const pages = ["", "/products", "/find-supplement", "/protein-calculator", "/bmi-calculator", "/about", "/contact", "/privacy", "/terms", "/refund-policy"];
+  const pages = ["", "/products", "/find-supplement", "/protein-calculator", "/bmi-calculator", "/bundles", "/about", "/contact", "/privacy", "/terms", "/refund-policy"];
 
   return [
     ...pages.map((path) => ({ url: `${SITE.url}${path}` })),

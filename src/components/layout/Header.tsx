@@ -17,6 +17,9 @@ export default function Header() {
           <Link href="/products" className="hover:text-accent">
             Products
           </Link>
+          <Link href="/bundles" className="hidden hover:text-accent sm:inline">
+            Combos
+          </Link>
           <Link
             href="/find-supplement"
             className="hidden hover:text-accent lg:inline"
