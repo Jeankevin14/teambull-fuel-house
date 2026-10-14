@@ -6,7 +6,6 @@ const LINKS = [
   { href: "/find-supplement", label: "Find Supplement" },
   { href: "/protein-calculator", label: "Protein Calculator" },
   { href: "/bundles", label: "Combo Packs" },
-  { href: "/play", label: "Play & Win" },
   { href: "/bmi-calculator", label: "BMI Calculator" },
   { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },

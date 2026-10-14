@@ -21,9 +21,6 @@ export default function Header() {
           <Link href="/bundles" className="hidden items-center gap-1.5 hover:text-accent sm:inline-flex">
             Combos <NewBadge />
           </Link>
-          <Link href="/play" className="hidden items-center gap-1.5 hover:text-accent md:inline-flex">
-            Play <NewBadge />
-          </Link>
           <Link
             href="/find-supplement"
             className="hidden hover:text-accent lg:inline"
