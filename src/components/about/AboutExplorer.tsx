@@ -50,7 +50,7 @@ export default function AboutExplorer() {
         <p className="font-display text-sm font-semibold uppercase tracking-[0.25em] text-accent">
           About us
         </p>
-        <h1 className="mt-1 font-display text-4xl font-bold uppercase leading-tight md:text-6xl">
+        <h1 className="mt-1 font-display text-3xl font-bold uppercase leading-tight min-[380px]:text-4xl md:text-6xl">
           Built for <span className="text-accent">transformation.</span>
           <br />
           Designed for <span className="text-accent">growth.</span>
@@ -71,7 +71,7 @@ export default function AboutExplorer() {
             alt="Vishwam D, founder of Team Bull"
             width={400}
             height={500}
-            className="h-72 w-56 shrink-0 rounded-xl object-cover object-top shadow-lg sm:h-64 sm:w-52"
+            className="h-72 w-56 shrink-0 rounded-xl object-cover shadow-lg sm:h-64 sm:w-52"
           />
           <div className="flex flex-1 flex-col justify-center text-center sm:text-left">
             <p className="font-display text-xs font-semibold uppercase tracking-[0.25em] text-accent">
@@ -94,7 +94,7 @@ export default function AboutExplorer() {
       </Reveal>
 
       {/* Tabs */}
-      <div role="tablist" aria-label="About sections" className="mt-10 flex gap-2 overflow-x-auto">
+      <div role="tablist" aria-label="About sections" className="mt-10 flex flex-wrap gap-2">
         {TABS.map((t) => (
           <button
             key={t.id}
@@ -103,7 +103,7 @@ export default function AboutExplorer() {
             aria-selected={tab === t.id}
             aria-controls={`panel-${t.id}`}
             onClick={() => setTab(t.id)}
-            className={`whitespace-nowrap rounded-full border px-5 py-2 font-display text-sm font-semibold uppercase tracking-wide transition ${
+            className={`rounded-full border px-4 py-2 font-display text-sm font-semibold uppercase tracking-wide transition ${
               tab === t.id
                 ? "border-accent bg-accent text-white"
                 : "border-line bg-white text-foreground hover:border-accent hover:text-accent"
