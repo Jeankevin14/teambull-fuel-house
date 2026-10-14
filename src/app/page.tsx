@@ -143,7 +143,7 @@ export default function Home() {
           {[
             { to: 100, suffix: "%", label: "Genuine products" },
             { to: CATEGORIES.length, suffix: "", label: "Categories" },
-            { to: 2, suffix: "", label: "Free fitness tools" },
+            { to: 3, suffix: "", label: "Free fitness tools" },
           ].map((n, i) => (
             <Reveal key={n.label} delay={i * 0.1}>
               <p className="font-display text-4xl font-bold text-accent md:text-6xl">
