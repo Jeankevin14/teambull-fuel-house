@@ -125,13 +125,15 @@ export default function BundleBuilder({ products }: { products: Product[] }) {
                 on ? "border-accent bg-accent text-white shadow-lg" : "border-line bg-surface hover:border-accent"
               }`}
             >
-              <span
-                className={`absolute right-3 top-3 rounded-full px-2.5 py-0.5 text-xs font-bold ${
-                  on ? "bg-white text-accent" : "bg-accent text-white"
-                }`}
-              >
-                Save {b.discount}%
-              </span>
+              {b.discount > 0 && (
+                <span
+                  className={`absolute right-3 top-3 rounded-full px-2.5 py-0.5 text-xs font-bold ${
+                    on ? "bg-white text-accent" : "bg-accent text-white"
+                  }`}
+                >
+                  Save {b.discount}%
+                </span>
+              )}
               <span className={`font-display text-sm font-bold ${on ? "text-white/80" : "text-accent"}`}>
                 {b.categories.length + (b.perk ? 1 : 0)} items
               </span>
@@ -220,14 +222,20 @@ export default function BundleBuilder({ products }: { products: Product[] }) {
         <div className="mt-6 grid items-center gap-5 rounded-2xl bg-foreground p-5 text-white md:grid-cols-[1fr_auto] md:p-6">
           <div className="text-center md:text-left">
             <p className="text-sm text-white/70">
-              Bought separately <span className="line-through">{formatPrice(total)}</span>
+              {saving > 0 ? (
+                <>Bought separately <span className="line-through">{formatPrice(total)}</span></>
+              ) : (
+                <>Pack total · {slots.length + (bundle.perk ? 1 : 0)} items</>
+              )}
             </p>
             <p key={packPrice} className="anim-pop font-display text-6xl font-bold leading-tight tabular-nums">
               {formatPrice(packPrice)}
             </p>
-            <p className="mt-1 inline-block rounded-full bg-green-500 px-3 py-1 text-sm font-bold text-white">
-              You save {formatPrice(saving)} ({bundle.discount}%)
-            </p>
+            {saving > 0 && (
+              <p className="mt-1 inline-block rounded-full bg-green-500 px-3 py-1 text-sm font-bold text-white">
+                You save {formatPrice(saving)} ({bundle.discount}%)
+              </p>
+            )}
           </div>
           <button
             type="button"
@@ -242,7 +250,7 @@ export default function BundleBuilder({ products }: { products: Product[] }) {
       </div>
 
       <p className="text-center text-xs text-muted">
-        Pack price is applied automatically in your cart. Check out on WhatsApp as usual.
+        The whole pack goes into your cart as one item. Check out on WhatsApp as usual.
       </p>
     </div>
   );

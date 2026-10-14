@@ -188,7 +188,7 @@ export default function Home() {
           >
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest text-white/80">Just launched</p>
-              <p className="mt-1 font-display text-3xl font-bold uppercase">Combo packs. Save up to 10%</p>
+              <p className="mt-1 font-display text-3xl font-bold uppercase">Combo packs for every goal</p>
               <p className="mt-1 text-sm text-white/90">
                 Muscle Starter Pack, Fat Loss Kit and more. Pick your flavours and add the whole pack in one tap.
               </p>
