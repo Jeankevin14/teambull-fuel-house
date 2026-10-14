@@ -3,6 +3,7 @@
 import { useRef, useState, type ReactNode } from "react";
 import { confetti } from "@/lib/motion";
 import { saveBest, useBest } from "@/lib/best";
+import { awardBadge, type Award } from "@/lib/badges";
 import type { Tier } from "@/config/rewards";
 import GameResult from "./GameResult";
 
@@ -40,6 +41,7 @@ export default function MemoryGame() {
   const [matched, setMatched] = useState<number[]>([]); // icons found
   const [moves, setMoves] = useState(0);
   const [done, setDone] = useState(false);
+  const [award, setAward] = useState<Award>(null);
   const lock = useRef(false);
   const best = useBest("memory");
 
@@ -49,6 +51,7 @@ export default function MemoryGame() {
     setMatched([]);
     setMoves(0);
     setDone(false);
+    setAward(null);
     lock.current = false;
   }
 
@@ -69,6 +72,7 @@ export default function MemoryGame() {
         setMatched(found);
         if (found.length === ICONS.length) {
           saveBest("memory", m, true);
+          setAward(awardBadge("memory", tierFor(m)));
           confetti(window.innerWidth / 2, window.innerHeight / 3);
           setTimeout(() => setDone(true), 600);
         }
@@ -98,6 +102,7 @@ export default function MemoryGame() {
         detail="Fewer moves is better. 10 or less wins Gold."
         tier={tierFor(moves)}
         best={best === null ? null : `${best} moves`}
+        award={award}
         onAgain={restart}
       />
     );
