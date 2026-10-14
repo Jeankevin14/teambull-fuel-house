@@ -20,8 +20,7 @@ import {
   type Goal,
 } from "@/lib/bmi";
 import { buildChatUrl } from "@/lib/whatsapp";
-import { formatPrice } from "@/lib/format";
-import { isInStock, startingPrice } from "@/lib/products";
+import { isInStock } from "@/lib/products";
 import ProductImage from "@/components/product/ProductImage";
 
 const LEVELS: Record<
@@ -362,7 +361,7 @@ export default function BmiCalculator({ products }: { products: Product[] }) {
               </p>
               <p className={`mt-1 text-sm ${wantsHelp ? "text-white/90" : "text-muted"}`}>
                 {wantsHelp
-                  ? "Talk to the Team Bull coaches. We will look at your numbers and suggest a simple training and food plan. No cost, no pressure."
+                  ? "Talk to the Team Bull coaches. We will look at your numbers and suggest a simple training and food plan that fits your goal."
                   : "Chat with Team Bull for free tips on training, nutrition and the right supplements for your goal."}
               </p>
               <a
@@ -411,7 +410,7 @@ export default function BmiCalculator({ products }: { products: Product[] }) {
                       <div className="p-3">
                         <p className="text-xs uppercase tracking-wide text-accent">{p.category}</p>
                         <p className="text-sm font-semibold leading-snug">{p.name}</p>
-                        <p className="mt-1 text-sm text-muted">From {formatPrice(startingPrice(p))}</p>
+                        <p className="mt-1 text-sm font-semibold text-accent">View product →</p>
                       </div>
                     </Link>
                   ))}
