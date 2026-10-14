@@ -178,6 +178,27 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Combo packs */}
+      <section className="mx-auto max-w-6xl px-4 pb-10">
+        <Reveal>
+          <Link
+            href="/bundles"
+            className="group grid items-center gap-4 rounded-2xl bg-accent p-6 text-white transition hover:bg-accent-dark md:grid-cols-[1fr_auto] md:p-8"
+          >
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-white/80">New</p>
+              <p className="mt-1 font-display text-3xl font-bold uppercase">Combo packs. Save up to 10%</p>
+              <p className="mt-1 text-sm text-white/90">
+                Muscle Starter Pack, Fat Loss Kit and more. Pick your flavours and add the whole pack in one tap.
+              </p>
+            </div>
+            <span className="rounded-full bg-white px-7 py-3 text-center font-bold text-accent transition group-hover:scale-105">
+              See combo packs →
+            </span>
+          </Link>
+        </Reveal>
+      </section>
+
       {/* Helpful tools */}
       <section className="mx-auto max-w-6xl px-4 pb-16">
         <Reveal className="grid gap-4 md:grid-cols-3">
