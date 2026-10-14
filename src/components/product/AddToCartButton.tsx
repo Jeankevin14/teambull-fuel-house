@@ -42,7 +42,7 @@ export default function AddToCartButton({
   return (
     <button
       onClick={handleClick}
-      className={`mt-4 flex w-full items-center justify-center gap-2 rounded-full py-3 font-semibold text-white transition active:scale-95 ${
+      className={`btn-shine mt-4 flex w-full items-center justify-center gap-2 rounded-full py-3 font-semibold text-white transition active:scale-95 ${
         added ? "anim-pop bg-green-600" : "bg-accent hover:opacity-90"
       }`}
     >

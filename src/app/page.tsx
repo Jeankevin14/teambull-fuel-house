@@ -1,3 +1,4 @@
+import NewBadge from "@/components/ui/NewBadge";
 import { Suspense } from "react";
 import Link from "next/link";
 import { CATEGORIES } from "@/config/site";
@@ -186,13 +187,13 @@ export default function Home() {
             className="group grid items-center gap-4 rounded-2xl bg-accent p-6 text-white transition hover:bg-accent-dark md:grid-cols-[1fr_auto] md:p-8"
           >
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-white/80">New</p>
+              <p className="text-xs font-semibold uppercase tracking-widest text-white/80">Just launched</p>
               <p className="mt-1 font-display text-3xl font-bold uppercase">Combo packs. Save up to 10%</p>
               <p className="mt-1 text-sm text-white/90">
                 Muscle Starter Pack, Fat Loss Kit and more. Pick your flavours and add the whole pack in one tap.
               </p>
             </div>
-            <span className="rounded-full bg-white px-7 py-3 text-center font-bold text-accent transition group-hover:scale-105">
+            <span className="btn-shine rounded-full bg-white px-7 py-3 text-center font-bold text-accent transition group-hover:scale-105">
               See combo packs →
             </span>
           </Link>
@@ -235,7 +236,7 @@ export default function Home() {
             className="block h-full rounded-xl border border-line bg-surface p-6 transition hover:border-accent"
           >
             <p className="font-display text-xl font-bold uppercase text-accent">
-              BMI calculator
+              BMI calculator <NewBadge className="ml-1" />
             </p>
             <p className="mt-2 text-sm text-muted">
               Check your BMI, daily calories and protein, and get a free

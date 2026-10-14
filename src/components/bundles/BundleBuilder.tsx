@@ -232,7 +232,7 @@ export default function BundleBuilder({ products }: { products: Product[] }) {
           <button
             type="button"
             onClick={addPack}
-            className={`rounded-full px-10 py-4 text-lg font-bold text-white transition active:scale-95 ${
+            className={`btn-shine rounded-full px-10 py-4 text-lg font-bold text-white transition active:scale-95 ${
               added ? "anim-pop bg-green-600" : "bg-accent hover:bg-accent-dark"
             }`}
           >

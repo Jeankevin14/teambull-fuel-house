@@ -440,12 +440,12 @@ export default function BmiCalculator({ products }: { products: Product[] }) {
                   type="button"
                   disabled={!canNext}
                   onClick={() => setStep(step + 1)}
-                  className="rounded-full bg-accent px-9 py-3 font-bold text-white transition hover:bg-accent-dark disabled:cursor-not-allowed disabled:opacity-40"
+                  className="btn-shine rounded-full bg-accent px-9 py-3 font-bold text-white transition hover:bg-accent-dark disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {canNext ? "Next" : "Pick one to continue"}
                 </button>
               ) : (
-                <button type="button" onClick={reveal} className="rounded-full bg-accent px-9 py-3 font-bold text-white transition hover:bg-accent-dark">
+                <button type="button" onClick={reveal} className="btn-shine rounded-full bg-accent px-9 py-3 font-bold text-white transition hover:bg-accent-dark">
                   Show my BMI
                 </button>
               )}
