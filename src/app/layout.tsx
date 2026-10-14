@@ -40,7 +40,7 @@ const jsonLd = {
   description: SITE.description,
   email: SITE.email,
   sameAs: [SITE.instagram],
-  address: { "@type": "PostalAddress", addressLocality: "Puducherry", postalCode: "605008", addressCountry: "IN" },
+  address: { "@type": "PostalAddress", streetAddress: "No: 4-5, 1st Floor, East Coast Rd, Kottupalayam", addressLocality: "Puducherry", addressRegion: "Puducherry", postalCode: "605008", addressCountry: "IN" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -15,7 +15,7 @@ export const SITE = {
 
   instagram: "https://instagram.com/teambull.offi",
   email: "teambull2002@gmail.com",
-  address: "Your shop address, Puducherry, 605008",
+  address: "No: 4-5, 1st Floor, East Coast Rd, Kottupalayam, Puducherry, 605008",
   fssai: "", // Add your FSSAI number here once you have it (shown in footer)
 
   year: 2026,
