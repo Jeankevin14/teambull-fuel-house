@@ -16,8 +16,16 @@ function Glyph({ id, ink }: { id: BadgeId; ink: string }) {
           <circle cx="50" cy="48" r="4" fill="#fff" />
         </g>
       );
-    case "reflex": // bolt
-      return <path d="M55 28 38 52h11l-4 20 17-26H51z" fill={ink} />;
+    case "rep": // dumbbell
+      return (
+        <g fill={ink}>
+          <rect x="26" y="40" width="7" height="20" rx="2" />
+          <rect x="33" y="34" width="7" height="32" rx="2" />
+          <rect x="40" y="47" width="20" height="6" />
+          <rect x="60" y="34" width="7" height="32" rx="2" />
+          <rect x="67" y="40" width="7" height="20" rx="2" />
+        </g>
+      );
     case "quiz": // question mark
       return (
         <text x="50" y="62" textAnchor="middle" fontSize="40" fontWeight="800" fill={ink} fontFamily="Arial, sans-serif">

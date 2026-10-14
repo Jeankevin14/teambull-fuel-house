@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { REWARDS_ENABLED, TIERS } from "@/config/rewards";
 import MemoryGame from "./MemoryGame";
-import ReflexGame from "./ReflexGame";
+import PerfectRepGame from "./PerfectRepGame";
 import QuizGame from "./QuizGame";
 import BadgeShelf from "./BadgeShelf";
 
 const GAMES = [
   { id: "memory", name: "Plate Memory", blurb: "Match 6 pairs in the fewest moves", tag: "Memory" },
-  { id: "reflex", name: "Rep Counter Reflex", blurb: "Tap the plates for 30 seconds", tag: "Speed" },
+  { id: "rep", name: "Perfect Rep", blurb: "Stop the bar in the green zone", tag: "Focus" },
   { id: "quiz", name: "Gym Quiz", blurb: "5 questions on training and food", tag: "Brain" },
 ] as const;
 
@@ -55,7 +55,7 @@ export default function PlayZone() {
 
       <div key={game} className="bmi-step">
         {game === "memory" && <MemoryGame />}
-        {game === "reflex" && <ReflexGame />}
+        {game === "rep" && <PerfectRepGame />}
         {game === "quiz" && <QuizGame />}
       </div>
 
