@@ -4,7 +4,7 @@ import PlayZone from "@/components/play/PlayZone";
 
 export const metadata: Metadata = {
   title: "Play & Win",
-  description: "Play free gym brain games from Team Bull Fuel House and win rewards: Plate Memory, Rep Counter Reflex and the Gym Quiz.",
+  description: "Play free gym brain games from Team Bull Fuel House and win rewards: Plate Memory, Perfect Rep and the Gym Quiz.",
   alternates: { canonical: "/play" },
 };
 

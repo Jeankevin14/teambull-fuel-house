@@ -3,7 +3,7 @@
 import { BADGE_INFO, legendOf, useBadges, type BadgeId } from "@/lib/badges";
 import BadgeIcon from "./BadgeIcon";
 
-const ORDER: BadgeId[] = ["memory", "reflex", "quiz", "legend"];
+const ORDER: BadgeId[] = ["memory", "rep", "quiz", "legend"];
 
 export default function BadgeShelf() {
   const earned = useBadges();

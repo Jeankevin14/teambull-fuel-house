@@ -2,14 +2,14 @@
 
 import { useMemo, useSyncExternalStore } from "react";
 
-export type GameId = "memory" | "reflex" | "quiz";
+export type GameId = "memory" | "rep" | "quiz";
 export type Medal = "silver" | "gold";
 export type BadgeId = GameId | "legend";
 export type Earned = Partial<Record<GameId, Medal>>;
 
 export const BADGE_INFO: Record<BadgeId, { name: string; how: string }> = {
   memory: { name: "Plate Master", how: "Win Silver in Plate Memory" },
-  reflex: { name: "Quick Reps", how: "Win Silver in Rep Counter Reflex" },
+  rep: { name: "Perfect Rep", how: "Win Silver in Perfect Rep" },
   quiz: { name: "Quiz Champion", how: "Win Silver in Gym Quiz" },
   legend: { name: "Team Bull Legend", how: "Earn all three badges" },
 };
@@ -69,6 +69,6 @@ export function awardBadge(game: GameId, medal: Medal | "bronze"): Award {
 
 /** the Legend badge needs all three games; it is gold only if all three are gold */
 export function legendOf(e: Earned): Medal | null {
-  if (!e.memory || !e.reflex || !e.quiz) return null;
-  return e.memory === "gold" && e.reflex === "gold" && e.quiz === "gold" ? "gold" : "silver";
+  if (!e.memory || !e.rep || !e.quiz) return null;
+  return e.memory === "gold" && e.rep === "gold" && e.quiz === "gold" ? "gold" : "silver";
 }
