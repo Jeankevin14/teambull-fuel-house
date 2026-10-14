@@ -5,6 +5,7 @@ import { REWARDS_ENABLED, TIERS } from "@/config/rewards";
 import MemoryGame from "./MemoryGame";
 import ReflexGame from "./ReflexGame";
 import QuizGame from "./QuizGame";
+import BadgeShelf from "./BadgeShelf";
 
 const GAMES = [
   { id: "memory", name: "Plate Memory", blurb: "Match 6 pairs in the fewest moves", tag: "Memory" },
@@ -57,6 +58,8 @@ export default function PlayZone() {
         {game === "reflex" && <ReflexGame />}
         {game === "quiz" && <QuizGame />}
       </div>
+
+      <BadgeShelf />
     </div>
   );
 }

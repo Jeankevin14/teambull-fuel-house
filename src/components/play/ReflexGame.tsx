@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { confetti } from "@/lib/motion";
 import { saveBest, useBest } from "@/lib/best";
+import { awardBadge, type Award } from "@/lib/badges";
 import type { Tier } from "@/config/rewards";
 import GameResult from "./GameResult";
 
@@ -15,6 +16,7 @@ export default function ReflexGame() {
   const [left, setLeft] = useState(SECONDS);
   const [target, setTarget] = useState<{ x: number; y: number; k: number } | null>(null);
   const [avg, setAvg] = useState(0);
+  const [award, setAward] = useState<Award>(null);
   const best = useBest("reflex");
 
   const hitsRef = useRef(0);
@@ -41,6 +43,7 @@ export default function ReflexGame() {
     const t = times.current;
     setAvg(t.length ? Math.round(t.reduce((a, b) => a + b, 0) / t.length) : 0);
     saveBest("reflex", n);
+    setAward(awardBadge("reflex", tierFor(n)));
     if (n >= 18) confetti(window.innerWidth / 2, window.innerHeight / 3);
     setPhase("done");
   }
@@ -85,6 +88,7 @@ export default function ReflexGame() {
         detail={`Average reaction ${avg} ms. 26 reps wins Gold.`}
         tier={tierFor(hits)}
         best={best === null ? null : `${best} reps`}
+        award={award}
         onAgain={() => setPhase("idle")}
       />
     );

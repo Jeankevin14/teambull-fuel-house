@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { confetti } from "@/lib/motion";
 import { saveBest, useBest } from "@/lib/best";
+import { awardBadge, type Award } from "@/lib/badges";
 import type { Tier } from "@/config/rewards";
 import GameResult from "./GameResult";
 
@@ -42,6 +43,7 @@ export default function QuizGame() {
   const [picked, setPicked] = useState<string | null>(null);
   const [score, setScore] = useState(0);
   const [done, setDone] = useState(false);
+  const [award, setAward] = useState<Award>(null);
   const best = useBest("quiz");
 
   function start() {
@@ -54,6 +56,7 @@ export default function QuizGame() {
     setPicked(null);
     setScore(0);
     setDone(false);
+    setAward(null);
   }
 
   if (done) {
@@ -64,6 +67,7 @@ export default function QuizGame() {
         detail="Get all 5 right for Gold, 4 for Silver."
         tier={tierFor(score)}
         best={best === null ? null : `${best}/5`}
+        award={award}
         onAgain={() => setItems(null)}
       />
     );
@@ -93,6 +97,7 @@ export default function QuizGame() {
   function next() {
     if (last) {
       saveBest("quiz", score);
+      setAward(awardBadge("quiz", tierFor(score)));
       if (score >= 4) confetti(window.innerWidth / 2, window.innerHeight / 3);
       setDone(true);
     } else {
