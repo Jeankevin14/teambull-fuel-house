@@ -2,81 +2,97 @@
 
 import Link from "next/link";
 import { useState } from "react";
-
-const GOALS = [
-  { id: "maintain", title: "Stay healthy", min: 1.2, max: 1.6 },
-  { id: "muscle", title: "Build muscle", min: 1.6, max: 2.2 },
-  { id: "fatloss", title: "Lose fat", min: 1.6, max: 2.2 },
-];
+import { ACTIVITY, GOALS, proteinFor, type Activity, type Goal } from "@/lib/bmi";
 
 const WHEY_SCOOP_PROTEIN = 24; // grams of protein in one scoop (approx.)
 
+const field =
+  "mt-2 w-full rounded-full border border-line bg-white px-5 py-3 outline-none focus:border-accent";
+
 export default function ProteinCalculator() {
   const [weight, setWeight] = useState("");
-  const [goalId, setGoalId] = useState("muscle");
+  const [height, setHeight] = useState("");
+  const [goal, setGoal] = useState<Goal>("muscle");
+  const [activity, setActivity] = useState<Activity>("moderate");
 
-  const goal = GOALS.find((g) => g.id === goalId) ?? GOALS[1];
   const kg = Number(weight);
-  const valid = kg >= 30 && kg <= 200;
-
-  const low = Math.round(kg * goal.min);
-  const high = Math.round(kg * goal.max);
-  const perMeal = Math.round(((low + high) / 2) / 4);
+  const cm = Number(height);
+  const kgOk = weight !== "" && kg >= 30 && kg <= 250;
+  const cmOk = height !== "" && cm >= 120 && cm <= 230;
+  const valid = kgOk && cmOk;
+  const r = valid ? proteinFor(kg, cm, goal, activity) : null;
+  const mid = r ? (r.min + r.max) / 2 : 0;
+  const perMeal = Math.round(mid / 4);
 
   return (
     <div>
       <div className="grid gap-4 sm:grid-cols-2">
         <label className="block">
-          <span className="text-sm font-semibold">Your weight (kg)</span>
+          <span className="text-sm font-semibold">Weight (kg)</span>
           <input
             type="number"
             inputMode="decimal"
             min={30}
-            max={200}
+            max={250}
+            step="0.1"
             value={weight}
             onChange={(e) => setWeight(e.target.value)}
             placeholder="e.g. 70"
-            className="mt-2 w-full rounded-full border border-line bg-white px-5 py-3 outline-none focus:border-accent"
+            className={field}
           />
         </label>
-
         <label className="block">
-          <span className="text-sm font-semibold">Your goal</span>
-          <select
-            value={goalId}
-            onChange={(e) => setGoalId(e.target.value)}
-            className="mt-2 w-full rounded-full border border-line bg-white px-5 py-3 outline-none focus:border-accent"
-          >
+          <span className="text-sm font-semibold">Height (cm)</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={120}
+            max={230}
+            value={height}
+            onChange={(e) => setHeight(e.target.value)}
+            placeholder="e.g. 170"
+            className={field}
+          />
+        </label>
+        <label className="block">
+          <span className="text-sm font-semibold">Goal</span>
+          <select value={goal} onChange={(e) => setGoal(e.target.value as Goal)} className={field}>
             {GOALS.map((g) => (
-              <option key={g.id} value={g.id}>
-                {g.title}
-              </option>
+              <option key={g.id} value={g.id}>{g.label}</option>
+            ))}
+          </select>
+        </label>
+        <label className="block">
+          <span className="text-sm font-semibold">Activity</span>
+          <select value={activity} onChange={(e) => setActivity(e.target.value as Activity)} className={field}>
+            {ACTIVITY.map((a) => (
+              <option key={a.id} value={a.id}>{a.label}</option>
             ))}
           </select>
         </label>
       </div>
 
-      {weight !== "" && !valid && (
-        <p className="mt-4 text-sm text-accent">
-          Please enter a weight between 30 and 200 kg.
-        </p>
+      {((weight !== "" && !kgOk) || (height !== "" && !cmOk)) && (
+        <p className="mt-4 text-sm text-accent">Enter weight between 30 and 250 kg and height between 120 and 230 cm.</p>
       )}
 
-      {valid && (
+      {r && (
         <div className="mt-8 rounded-xl border border-line bg-red-50 p-6">
-          <p className="text-sm font-semibold uppercase tracking-wide text-accent">
-            Your daily protein
-          </p>
+          <p className="text-sm font-semibold uppercase tracking-wide text-accent">Your daily protein</p>
           <p className="mt-1 font-display text-5xl font-bold">
-            {low}–{high} <span className="text-2xl">g</span>
+            {r.min}–{r.max} <span className="text-2xl">g</span>
+          </p>
+          <p className="mt-1 text-sm text-muted">
+            {r.perKg[0]}–{r.perKg[1]} g per kg{r.adjusted ? ` of ${r.baseKg} kg` : ""}
           </p>
           <ul className="mt-4 space-y-2 text-sm text-muted">
-            <li>About {perMeal} g per meal if you eat 4 meals a day.</li>
+            <li>About {perMeal} g per meal over 4 meals.</li>
             <li>
-              One scoop of whey gives about {WHEY_SCOOP_PROTEIN} g, so 1–2
-              scoops can cover part of your target. The rest comes from food
-              like eggs, dal, paneer, chicken and fish.
+              One whey scoop gives about {WHEY_SCOOP_PROTEIN} g. Cover the rest with eggs, dal, paneer, chicken or fish.
             </li>
+            {r.adjusted && (
+              <li>Your weight is above the healthy range, so protein is counted on {r.baseKg} kg. Extra body fat does not need extra protein.</li>
+            )}
           </ul>
           <Link
             href="/products?category=Whey%20Protein"
@@ -88,9 +104,8 @@ export default function ProteinCalculator() {
       )}
 
       <p className="mt-6 text-xs text-muted">
-        This is a general estimate for healthy adults, not medical advice. If
-        you have kidney problems or any medical condition, or you are pregnant,
-        ask your doctor or dietitian first.
+        General estimate for healthy adults, not medical advice. If you have kidney problems or any medical condition, or
+        you are pregnant, ask your doctor or dietitian first.
       </p>
     </div>
   );
