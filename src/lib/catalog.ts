@@ -12,32 +12,23 @@ import {
   type SheetProduct,
 } from "@/lib/productRows";
 
-const WHEY_PHOTO = "/images/on-gold-standard-whey-2-5kg.jpg";
-
-/** The whey product uses the real pack photo until another photo is set in the sheet. */
-function withPhoto(p: Product): Product {
-  const noPhoto = !p.image || p.image.startsWith("/images/sample-");
-  if (p.category === "Whey Protein" && noPhoto) return { ...p, image: WHEY_PHOTO };
-  return p;
-}
-
 /** Public product list (cached ~1 minute; admin changes refresh it straight away). */
 export async function getProducts(): Promise<Product[]> {
   "use cache";
   cacheLife({ stale: 30, revalidate: 60, expire: 3600 });
   cacheTag("products");
 
-  if (!sheetsConfigured()) return PRODUCTS.map(withPhoto);
+  if (!sheetsConfigured()) return PRODUCTS;
   try {
     const rows = await readTab("Products");
-    if (rows.length === 0) return PRODUCTS.map(withPhoto);
+    if (rows.length === 0) return PRODUCTS;
     const list = rows
       .map((r) => rowToProduct(r))
       .filter((p): p is SheetProduct => p !== null && p.active)
       .map((p): Product => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { active, ...product } = p;
-        return withPhoto(product);
+        return product;
       });
     return list;
   } catch (e) {
@@ -45,7 +36,7 @@ export async function getProducts(): Promise<Product[]> {
       "[catalog] could not read Google Sheet, using built-in products:",
       e,
     );
-    return PRODUCTS.map(withPhoto);
+    return PRODUCTS;
   }
 }
 
@@ -64,7 +55,7 @@ export async function findProduct(id: number): Promise<Product | undefined> {
     if (!p || !p.active) return undefined;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { active, ...product } = p;
-    return withPhoto(product);
+    return product;
   } catch {
     return undefined;
   }
