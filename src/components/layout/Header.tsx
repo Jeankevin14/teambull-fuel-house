@@ -15,22 +15,25 @@ export default function Header() {
         </Link>
 
         <nav className="flex items-center gap-4 text-sm font-medium sm:gap-6">
-          <Link href="/products" className="hidden hover:text-accent sm:inline">
+          <Link href="/products" className="hidden hover:text-accent md:inline">
             Products
           </Link>
-          <Link href="/bundles" className="hidden items-center gap-1.5 hover:text-accent sm:inline-flex">
+          <Link href="/bundles" className="hidden items-center gap-1.5 hover:text-accent md:inline-flex">
             Combos <NewBadge />
+          </Link>
+          <Link href="/play" className="hidden items-center gap-1.5 hover:text-accent md:inline-flex">
+            Play <NewBadge />
           </Link>
           <Link
             href="/find-supplement"
-            className="hidden hover:text-accent lg:inline"
+            className="hidden whitespace-nowrap hover:text-accent xl:inline"
           >
             Find Supplement
           </Link>
-          <Link href="/about" className="hidden hover:text-accent sm:inline">
+          <Link href="/about" className="hidden hover:text-accent md:inline">
             About
           </Link>
-          <Link href="/contact" className="hidden hover:text-accent sm:inline">
+          <Link href="/contact" className="hidden whitespace-nowrap hover:text-accent xl:inline">
             Contact
           </Link>
           <AuthLink />
@@ -41,16 +44,21 @@ export default function Header() {
       {/* phones: quick links in a second row, About right beside Products */}
       <nav
         aria-label="Quick links"
-        className="flex items-center justify-center gap-1 border-t border-line bg-surface px-2 text-sm font-semibold sm:hidden"
+        className="flex items-center justify-center gap-1 overflow-hidden border-t border-line bg-surface px-0.5 text-[12px] font-semibold min-[340px]:px-1 min-[340px]:text-[13px] min-[380px]:px-2 min-[380px]:text-sm md:hidden"
       >
         {[
-          ["Products", "/products"],
-          ["About", "/about"],
-          ["Combos", "/bundles"],
-          ["Contact", "/contact"],
-        ].map(([label, href]) => (
-          <Link key={href} href={href} className="px-3 py-2.5 active:text-accent hover:text-accent">
+          ["Products", "/products", false],
+          ["About", "/about", false],
+          ["Combos", "/bundles", true],
+          ["Play", "/play", true],
+        ].map(([label, href, isNew]) => (
+          <Link
+            key={String(href)}
+            href={String(href)}
+            className="inline-flex items-center gap-1 px-2 py-2.5 min-[380px]:px-2.5 hover:text-accent active:text-accent"
+          >
             {label}
+            {isNew && <NewBadge />}
           </Link>
         ))}
       </nav>
