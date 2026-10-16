@@ -15,14 +15,11 @@ export default function Header() {
         </Link>
 
         <nav className="flex items-center gap-4 text-sm font-medium sm:gap-6">
-          <Link href="/products" className="hover:text-accent">
+          <Link href="/products" className="hidden hover:text-accent sm:inline">
             Products
           </Link>
           <Link href="/bundles" className="hidden items-center gap-1.5 hover:text-accent sm:inline-flex">
             Combos <NewBadge />
-          </Link>
-          <Link href="/play" className="hidden items-center gap-1.5 hover:text-accent md:inline-flex">
-            Play <NewBadge />
           </Link>
           <Link
             href="/find-supplement"
@@ -40,6 +37,23 @@ export default function Header() {
           <CartLink />
         </nav>
       </div>
+
+      {/* phones: quick links in a second row, About right beside Products */}
+      <nav
+        aria-label="Quick links"
+        className="flex items-center justify-center gap-1 border-t border-line bg-surface px-2 text-sm font-semibold sm:hidden"
+      >
+        {[
+          ["Products", "/products"],
+          ["About", "/about"],
+          ["Combos", "/bundles"],
+          ["Contact", "/contact"],
+        ].map(([label, href]) => (
+          <Link key={href} href={href} className="px-3 py-2.5 active:text-accent hover:text-accent">
+            {label}
+          </Link>
+        ))}
+      </nav>
     </header>
   );
 }
