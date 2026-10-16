@@ -151,27 +151,44 @@ export async function makeCertificate(c: CertInput): Promise<Blob> {
   ctx.font = `700 22px ${body}`;
   ctx.fillText(c.medal.toUpperCase(), mx, my + 62);
 
-  // date (bottom right)
+  // date (bottom centre)
   ctx.fillStyle = "#1a1a1a";
   ctx.font = `600 32px ${body}`;
-  ctx.fillText(c.date, W - 270, 940);
+  ctx.fillText(c.date, W / 2, 962);
   ctx.strokeStyle = "#b8860b";
   ctx.lineWidth = 2;
   ctx.beginPath();
-  ctx.moveTo(W - 400, 955);
-  ctx.lineTo(W - 140, 955);
+  ctx.moveTo(W / 2 - 130, 975);
+  ctx.lineTo(W / 2 + 130, 975);
   ctx.stroke();
   ctx.fillStyle = "#5f6368";
   ctx.font = `24px ${body}`;
-  ctx.fillText("Date", W - 270, 990);
+  ctx.fillText("Date", W / 2, 1008);
+
+  // signature (bottom right)
+  const sig = await loadImage("/images/signature.png");
+  if (sig) {
+    const sh = 135;
+    const sw = (sig.width / sig.height) * sh;
+    ctx.drawImage(sig, W - 270 - sw / 2, 975 - sh + 6, sw, sh);
+  }
+  ctx.strokeStyle = "#b8860b";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(W - 400, 975);
+  ctx.lineTo(W - 140, 975);
+  ctx.stroke();
+  ctx.fillStyle = "#1a1a1a";
+  ctx.font = `700 26px ${body}`;
+  ctx.fillText("VISHWAM D", W - 270, 1008);
+  ctx.fillStyle = "#5f6368";
+  ctx.font = `22px ${body}`;
+  ctx.fillText("Founder, TeamBull", W - 270, 1036);
 
   // footer
-  ctx.fillStyle = "#1a1a1a";
-  ctx.font = `700 34px ${display}`;
-  ctx.fillText("FUEL YOUR GAINS", W / 2, 985);
   ctx.fillStyle = "#5f6368";
   ctx.font = `24px ${body}`;
-  ctx.fillText("teambullfuelhouse.com  ·  Puducherry", W / 2, 1025);
+  ctx.fillText("FUEL YOUR GAINS  ·  teambullfuelhouse.com  ·  Puducherry", W / 2, 1046);
 
   return new Promise((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("no image"))), "image/png"));
 }
