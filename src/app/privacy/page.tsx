@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import PageShell from "@/components/ui/PageShell";
 
-export const metadata: Metadata = { title: "Privacy Policy" };
+export const metadata: Metadata = pageMeta({
+  title: "Privacy Policy",
+  description:
+    "How Teambull Fuel House handles your information.",
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (

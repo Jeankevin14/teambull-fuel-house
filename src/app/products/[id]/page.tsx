@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import { getProducts, findProduct } from "@/lib/catalog";
 import BarbellLoader from "@/components/fx/BarbellLoader";
 import ProductPurchase from "@/components/product/ProductPurchase";
@@ -19,7 +20,12 @@ export async function generateMetadata({
   const { id } = await params;
   const product = await findProduct(Number(id));
   if (!product) return {};
-  return { title: product.name, description: product.description, alternates: { canonical: `/products/${product.id}` } };
+  return pageMeta({
+    title: product.name,
+    description: product.description,
+    path: `/products/${product.id}`,
+    image: product.image ? { url: product.image, alt: product.name } : undefined,
+  });
 }
 
 async function ProductDetails({ params }: { params: Promise<{ id: string }> }) {

@@ -1,14 +1,16 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import BarbellLoader from "@/components/fx/BarbellLoader";
 import ProductGrid from "@/components/product/ProductGrid";
 import { getProducts } from "@/lib/catalog";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "Products",
   description:
-    "Browse whey protein, creatine, pre-workout, mass gainers and more.",
-};
+    "Browse whey protein, creatine, pre-workout, mass gainers and more. Order on WhatsApp.",
+  path: "/products",
+});
 
 async function Grid() {
   const products = await getProducts();

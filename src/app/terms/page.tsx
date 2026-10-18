@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import PageShell from "@/components/ui/PageShell";
 
-export const metadata: Metadata = { title: "Terms & Conditions" };
+export const metadata: Metadata = pageMeta({
+  title: "Terms & Conditions",
+  description:
+    "Terms and conditions for shopping at Teambull Fuel House.",
+  path: "/terms",
+});
 
 export default function TermsPage() {
   return (

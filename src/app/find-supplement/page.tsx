@@ -1,15 +1,17 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import BarbellLoader from "@/components/fx/BarbellLoader";
 import PageShell from "@/components/ui/PageShell";
 import SupplementFinder from "@/components/tools/SupplementFinder";
 import { getProducts } from "@/lib/catalog";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "Find Your Supplement",
   description:
     "Answer 2 quick questions and we will suggest supplements for your goal and budget.",
-};
+  path: "/find-supplement",
+});
 
 async function Finder() {
   const products = await getProducts();

@@ -8,6 +8,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
 import CartDrawer from "@/components/layout/CartDrawer";
+import { OG_IMAGE } from "@/lib/seo";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald" });
@@ -20,6 +21,7 @@ export const metadata: Metadata = {
   },
   description: SITE.description,
   keywords: ["gym supplements", "whey protein", "creatine", "pre-workout", "mass gainer", "Puducherry", "Teambull Fuel House"],
+  alternates: { canonical: "./" },
   openGraph: {
     title: SITE.name,
     description: SITE.description,
@@ -27,6 +29,13 @@ export const metadata: Metadata = {
     siteName: SITE.name,
     type: "website",
     locale: "en_IN",
+    images: [OG_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE.name,
+    description: SITE.description,
+    images: [OG_IMAGE.url],
   },
   robots: { index: true, follow: true },
   verification: { google: "6vsu48LdxzFDgFxM53-zQB8WDhrZUjf26xXrn03aD-w" },
