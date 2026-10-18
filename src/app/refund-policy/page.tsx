@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import PageShell from "@/components/ui/PageShell";
 
-export const metadata: Metadata = { title: "Refund & Return Policy" };
+export const metadata: Metadata = pageMeta({
+  title: "Refund & Return Policy",
+  description:
+    "How refunds, returns and replacements work at Teambull Fuel House.",
+  path: "/refund-policy",
+});
 
 export default function RefundPolicyPage() {
   return (

@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import PageShell from "@/components/ui/PageShell";
 import ProteinCalculator from "@/components/tools/ProteinCalculator";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "Protein Calculator",
-  description: "Find out how much protein you need every day for your weight and goal.",
-};
+  description:
+    "Find out how much protein you need every day for your weight, height, goal and activity.",
+  path: "/protein-calculator",
+});
 
 export default function ProteinCalculatorPage() {
   return (

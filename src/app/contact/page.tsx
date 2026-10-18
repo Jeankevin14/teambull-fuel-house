@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import PageShell from "@/components/ui/PageShell";
 import { SITE } from "@/config/site";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "Contact",
-  description: "Contact Teambull Fuel House on WhatsApp, Instagram or email to order gym supplements.",
-  alternates: { canonical: "/contact" },
-};
+  description:
+    "Contact Teambull Fuel House in Puducherry. Message us on WhatsApp or Instagram, or visit the shop.",
+  path: "/contact",
+});
 
 export default function ContactPage() {
   return (

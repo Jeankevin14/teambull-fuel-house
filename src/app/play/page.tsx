@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import PageShell from "@/components/ui/PageShell";
 import PlayZone from "@/components/play/PlayZone";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "Play & Win",
-  description: "Play free gym brain games from Team Bull Fuel House and earn badges and certificates: Plate Memory, Perfect Rep and the Gym Quiz.",
-  alternates: { canonical: "/play" },
-};
+  description:
+    "Play free gym brain games from Team Bull Fuel House and win rewards: Plate Memory, Perfect Rep and the Gym Quiz.",
+  path: "/play",
+});
 
 export default function PlayPage() {
   return (

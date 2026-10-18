@@ -1,16 +1,17 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { pageMeta } from "@/lib/seo";
 import BarbellLoader from "@/components/fx/BarbellLoader";
 import PageShell from "@/components/ui/PageShell";
 import BmiCalculator from "@/components/tools/BmiCalculator";
 import { getProducts } from "@/lib/catalog";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: "BMI Calculator",
   description:
     "Free BMI calculator with daily calories and protein for your goal. Get a free fitness consultation from Team Bull.",
-  alternates: { canonical: "/bmi-calculator" },
-};
+  path: "/bmi-calculator",
+});
 
 const PICK_CATEGORIES = new Set([
   "Whey Protein",
