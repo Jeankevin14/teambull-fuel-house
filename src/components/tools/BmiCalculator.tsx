@@ -6,9 +6,11 @@ import type { Product } from "@/types";
 import {
   ACTIVITY,
   GOALS,
+  SCALES,
   bmiOf,
   caloriesFor,
   gaugeAngle,
+  gradeOf,
   healthyRangeKg,
   levelOf,
   proteinFor,
@@ -17,6 +19,7 @@ import {
   type BmiLevel,
   type Gender,
   type Goal,
+  type Scale,
 } from "@/lib/bmi";
 import { buildChatUrl } from "@/lib/whatsapp";
 import { isInStock } from "@/lib/products";
@@ -24,20 +27,32 @@ import { confetti } from "@/lib/motion";
 import ProductImage from "@/components/product/ProductImage";
 
 const LEVELS: Record<BmiLevel, { label: string; color: string; headline: string; text: string }> = {
-  under: { label: "Underweight", color: "#3b82f6", headline: "Time to fuel up", text: "You are below the healthy range. Eat in a surplus, get enough protein and lift to gain weight the healthy way." },
-  normal: { label: "Healthy", color: "#16a34a", headline: "Right in the zone", text: "Your weight is in the healthy range. Now build strength and stay consistent." },
-  over: { label: "Overweight", color: "#f59e0b", headline: "Slightly above the range", text: "Small changes in food and training can bring this down. A clear plan makes it easier." },
-  obese: { label: "Obese", color: "#ea580c", headline: "Let's build a plan", text: "Steady training and the right nutrition work. Our coaches can guide you step by step." },
-  severe: { label: "Obese (high)", color: "#dc2626", headline: "Start with a plan", text: "Your BMI is high. Please also get a check-up with your doctor. We can help with training and food habits at a safe pace." },
+  under: { label: "Underweight", color: "#3b82f6", headline: "Time to fuel up", text: "You are below the healthy range. Eat in a surplus, get enough protein and lift to gain weight the healthy way. If you are losing weight without trying, see a doctor." },
+  normal: { label: "Normal (Healthy)", color: "#16a34a", headline: "Right in the zone", text: "Your weight is in the healthy range for your height. Now build strength and stay consistent." },
+  over: { label: "Overweight", color: "#f59e0b", headline: "Slightly above the range", text: "You are above the healthy range. Small changes in food and training can bring this down, and a clear plan makes it easier." },
+  obese: { label: "Obese", color: "#dc2626", headline: "Let's build a plan", text: "Your BMI is in the obese range, which raises health risks. Please also get a check-up with your doctor. Steady training and the right nutrition work, and our coaches can guide you step by step." },
 };
 
-const BANDS = [
-  { from: 12, to: 18.5, color: "#3b82f6" },
-  { from: 18.5, to: 23, color: "#16a34a" },
-  { from: 23, to: 25, color: "#f59e0b" },
-  { from: 25, to: 30, color: "#ea580c" },
-  { from: 30, to: 40, color: "#dc2626" },
-];
+function bandsFor(scale: Scale) {
+  const c = SCALES[scale];
+  return [
+    { from: 12, to: 18.5, color: LEVELS.under.color },
+    { from: 18.5, to: c.over, color: LEVELS.normal.color },
+    { from: c.over, to: c.obese, color: LEVELS.over.color },
+    { from: c.obese, to: 40, color: LEVELS.obese.color },
+  ];
+}
+
+function chartFor(scale: Scale) {
+  const c = SCALES[scale];
+  const last = (c.obese - 0.1).toFixed(1);
+  return [
+    { level: "under" as BmiLevel, range: "Below 18.5" },
+    { level: "normal" as BmiLevel, range: `18.5 – ${c.normalTop}` },
+    { level: "over" as BmiLevel, range: `${c.over} – ${last}` },
+    { level: "obese" as BmiLevel, range: `${c.obese} and above` },
+  ];
+}
 
 const STEPS = ["You", "Height", "Weight", "Goal"] as const;
 
@@ -87,12 +102,12 @@ function pickCategories(level: BmiLevel, goal: Goal): string[] {
   return ["Whey Protein", "BCAA & EAA", "Pre-Workout"];
 }
 
-function Gauge({ bmi, color }: { bmi: number; color: string }) {
+function Gauge({ bmi, color, bands }: { bmi: number; color: string; bands: { from: number; to: number; color: string }[] }) {
   const angle = gaugeAngle(bmi);
   const reduce = useSyncExternalStore(subscribeMotion, reducedMotion, () => false);
   return (
     <svg viewBox="0 0 240 140" className="mx-auto w-full max-w-xs" role="img" aria-label={`BMI gauge showing ${bmi.toFixed(1)}`}>
-      {BANDS.map((b) => (
+      {bands.map((b) => (
         <path key={b.from} d={arc(b.from, b.to)} stroke={b.color} strokeWidth="20" fill="none" />
       ))}
       <g key={bmi} transform={`rotate(${angle} ${CX} ${CY})`}>
@@ -136,10 +151,10 @@ function dialArc(a1: number, a2: number, r = DIAL_R) {
 }
 
 /** A weighing-scale dial. The needle moves with your weight and the green zone is the healthy weight for your height. */
-function ScaleDial({ kg, cm, bmi, color, label }: { kg: number; cm: number; bmi: number; color: string; label: string }) {
+function ScaleDial({ kg, cm, bmi, color, label, hi }: { kg: number; cm: number; bmi: number; color: string; label: string; hi: number }) {
   const m2 = (cm / 100) ** 2;
   const gLo = dialAngle(18.5 * m2);
-  const gHi = dialAngle(22.9 * m2);
+  const gHi = dialAngle(hi * m2);
   const ticks: number[] = [];
   for (let w = 30; w <= 250; w += 10) ticks.push(w);
   return (
@@ -256,12 +271,17 @@ export default function BmiCalculator({ products }: { products: Product[] }) {
   const [activity, setActivity] = useState<Activity>("light");
   const [goal, setGoal] = useState<Goal>("maintain");
   const [name, setName] = useState("");
+  const [scale, setScale] = useState<Scale>("who");
 
   const bmi = bmiOf(kg, cm);
-  const level = levelOf(bmi);
+  const level = levelOf(bmi, scale);
+  const grade = gradeOf(bmi, scale);
   const info = LEVELS[level];
   const g: Gender = gender ?? "other";
-  const range = healthyRangeKg(cm);
+  const range = healthyRangeKg(cm, scale);
+  const diff = level === "normal" ? null : kg > range.max ? { dir: "above", kg: Math.round((kg - range.max) * 10) / 10 } : kg < range.min ? { dir: "below", kg: Math.round((range.min - kg) * 10) / 10 } : null;
+  const bands = bandsFor(scale);
+  const m = cm / 100;
   const cal = caloriesFor(kg, cm, age, g, activity, goal);
   const protein = proteinFor(kg, cm, goal, activity);
   const suggested = suggestedGoal(level);
@@ -294,7 +314,7 @@ export default function BmiCalculator({ products }: { products: Product[] }) {
     ...(name.trim() ? [`Name: ${name.trim()}`] : []),
     `Age: ${age} | Gender: ${g[0].toUpperCase()}${g.slice(1)}`,
     `Height: ${cm} cm | Weight: ${kg} kg`,
-    `BMI: ${bmi.toFixed(1)} (${info.label})`,
+    `BMI: ${bmi.toFixed(1)} (${grade}, ${SCALES[scale].short})`,
     `Goal: ${goalLabel}`,
     "",
     "Please guide me.",
@@ -374,7 +394,7 @@ export default function BmiCalculator({ products }: { products: Product[] }) {
             {step === 2 && (
               <div className="space-y-4">
                 <h2 className="text-center font-display text-3xl font-bold uppercase">How much do you weigh?</h2>
-                <ScaleDial kg={kg} cm={cm} bmi={bmi} color={info.color} label={info.label} />
+                <ScaleDial kg={kg} cm={cm} bmi={bmi} color={info.color} label={info.label} hi={SCALES[scale].normalTop} />
                 <NumberStepper value={kg} onChange={setKg} min={W_MIN} max={W_MAX} unit="kg" label="Weight" decimals />
                 <div className="mx-auto max-w-xl">
                   <input
@@ -455,7 +475,7 @@ export default function BmiCalculator({ products }: { products: Product[] }) {
       ) : (
         <div className="bmi-step space-y-6">
           <div className="grid items-center gap-6 rounded-3xl border border-line bg-white p-6 shadow-sm md:grid-cols-2 md:p-8">
-            <Gauge bmi={bmi} color={info.color} />
+            <Gauge bmi={bmi} color={info.color} bands={bands} />
             <div className="text-center md:text-left">
               <p className="font-display text-7xl font-bold leading-none tabular-nums" style={{ color: info.color }}>
                 {bmi.toFixed(1)}
@@ -463,12 +483,50 @@ export default function BmiCalculator({ products }: { products: Product[] }) {
               <p className="mt-3 inline-block rounded-full px-4 py-1 text-sm font-bold uppercase tracking-wide text-white" style={{ background: info.color }}>
                 {info.label}
               </p>
+              <p className="mt-2 text-sm font-semibold" style={{ color: info.color }}>{grade}</p>
               <h2 className="mt-3 font-display text-2xl font-bold uppercase">{info.headline}</h2>
               <p className="mt-1 text-sm text-muted">{info.text}</p>
               <p className="mt-3 text-sm">
                 Healthy weight for {cm} cm: <strong>{range.min}–{range.max} kg</strong>
               </p>
+              {diff && (
+                <p className="mt-1 text-sm text-muted">
+                  You are <strong className="text-foreground">{diff.kg} kg {diff.dir}</strong> the healthy range.
+                </p>
+              )}
             </div>
+          </div>
+
+          <div className="rounded-3xl border border-line bg-surface p-6 md:p-8">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-xs font-semibold uppercase tracking-widest text-accent">BMI chart</p>
+              <div className="flex flex-wrap gap-2">
+                {(Object.keys(SCALES) as Scale[]).map((k) => (
+                  <button key={k} type="button" onClick={() => setScale(k)} aria-pressed={scale === k} className={chip(scale === k)}>
+                    {SCALES[k].label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="mt-4 grid gap-2 sm:grid-cols-4">
+              {chartFor(scale).map((r) => {
+                const on = r.level === level;
+                return (
+                  <div
+                    key={r.level}
+                    className={`rounded-2xl border-2 p-3 text-center transition ${on ? "bg-white" : "border-line opacity-70"}`}
+                    style={on ? { borderColor: LEVELS[r.level].color } : undefined}
+                  >
+                    <p className="text-xs font-bold uppercase" style={{ color: LEVELS[r.level].color }}>{LEVELS[r.level].label}</p>
+                    <p className="mt-0.5 font-display text-xl font-bold tabular-nums">{r.range}</p>
+                  </div>
+                );
+              })}
+            </div>
+            <p className="mt-3 text-xs text-muted">{SCALES[scale].note}</p>
+            <p className="mt-1 text-xs text-muted">
+              How it is worked out: BMI = weight (kg) ÷ height (m)² = {kg} ÷ ({m.toFixed(2)} × {m.toFixed(2)}) = <strong className="text-foreground">{bmi.toFixed(1)}</strong>
+            </p>
           </div>
 
           <div className={`grid items-center gap-5 rounded-3xl p-6 md:grid-cols-[1fr_auto] md:p-8 ${wantsHelp ? "bg-accent text-white" : "border border-line bg-accent-soft"}`}>
@@ -565,8 +623,9 @@ export default function BmiCalculator({ products }: { products: Product[] }) {
       )}
 
       <p className="mx-auto mt-6 max-w-2xl text-center text-xs text-muted">
-        BMI is a screening number and can read high for muscular people. It uses Asian cut-offs (overweight from 23, obese
-        from 25). Calories and protein are estimates, not medical advice. Nothing you enter is saved.
+        BMI is a screening number for adults aged 18 and over. It does not measure body fat, so it can read high for muscular
+        people and low for people who have lost muscle, and it is not suitable during pregnancy. Calories and protein are
+        estimates, not medical advice. For any health concern, please see a doctor. Nothing you enter is saved.
       </p>
     </div>
   );
