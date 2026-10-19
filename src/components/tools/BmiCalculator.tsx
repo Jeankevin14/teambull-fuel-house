@@ -282,7 +282,7 @@ export default function BmiCalculator({ products }: { products: Product[] }) {
   const diff = level === "normal" ? null : kg > range.max ? { dir: "above", kg: Math.round((kg - range.max) * 10) / 10 } : kg < range.min ? { dir: "below", kg: Math.round((range.min - kg) * 10) / 10 } : null;
   const bands = bandsFor(scale);
   const cal = caloriesFor(kg, cm, age, g, activity, goal);
-  const protein = proteinFor(kg, cm, goal, activity);
+  const protein = proteinFor(kg, cm, goal, activity, age);
   const suggested = suggestedGoal(level);
   const wantsHelp = level !== "normal";
   const goalLabel = GOALS.find((x) => x.id === goal)?.label ?? "";

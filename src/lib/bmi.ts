@@ -118,35 +118,50 @@ export function caloriesFor(
 }
 
 /**
- * Weight that protein is worked out on. For a healthy BMI it is your own weight.
- * Above the healthy range, extra fat does not need extra protein, so only a quarter
- * of the excess weight is counted.
+ * Weight that protein is worked out on. Up to the top of the healthy range (BMI 24.9) it is your own weight.
+ * Above it, extra body fat does not need extra protein, so only a quarter of the excess is counted
+ * (the usual "adjusted body weight" method).
  */
 export function proteinBaseKg(kg: number, cm: number) {
-  const top = 22.9 * (cm / 100) ** 2;
+  const top = SCALES.who.normalTop * (cm / 100) ** 2;
   return kg <= top ? kg : top + 0.25 * (kg - top);
 }
 
-/** grams of protein per kg of base weight, by goal (and training level when staying fit) */
-export function proteinPerKg(goal: Goal, activity: Activity): [number, number] {
-  if (goal === "lose") return [1.8, 2.4];
-  if (goal === "muscle") return [1.6, 2.2];
-  if (goal === "gain") return [1.6, 2.0];
-  return { sedentary: [0.8, 1.2], light: [1.0, 1.4], moderate: [1.2, 1.6], active: [1.4, 1.8] }[activity] as [
-    number,
-    number,
-  ];
+/**
+ * Grams of protein per kg of base weight per day, by goal and how much you train.
+ * Based on the RDA (0.8 g/kg minimum), ISSN sports-nutrition guidance (1.4-2.0 g/kg for people who train),
+ * resistance-training meta-analyses (about 1.6-2.2 g/kg for building muscle) and higher intakes
+ * (up to about 2.4 g/kg) to protect muscle while cutting calories.
+ */
+const proteinTable: Record<Goal, Record<Activity, [number, number]>> = {
+  maintain: { sedentary: [0.8, 1.2], light: [1.0, 1.4], moderate: [1.2, 1.6], active: [1.4, 1.8] },
+  muscle: { sedentary: [1.2, 1.6], light: [1.4, 1.8], moderate: [1.6, 2.0], active: [1.6, 2.2] },
+  gain: { sedentary: [1.2, 1.6], light: [1.4, 1.8], moderate: [1.6, 2.0], active: [1.6, 2.0] },
+  lose: { sedentary: [1.2, 1.6], light: [1.6, 2.0], moderate: [1.8, 2.2], active: [1.8, 2.4] },
+};
+
+export function proteinPerKg(goal: Goal, activity: Activity, age = 30): [number, number] {
+  let [lo, hi] = proteinTable[goal][activity];
+  // adults 60+ need more protein per kg to keep muscle (at least 1.0 g/kg)
+  if (age >= 60) {
+    lo = Math.max(lo, 1.0);
+    hi = Math.max(hi, Math.round((lo + 0.4) * 10) / 10);
+  }
+  return [lo, hi];
 }
 
 /** daily protein range in grams */
-export function proteinFor(kg: number, cm: number, goal: Goal, activity: Activity) {
+export function proteinFor(kg: number, cm: number, goal: Goal, activity: Activity, age = 30) {
   const base = proteinBaseKg(kg, cm);
-  const [lo, hi] = proteinPerKg(goal, activity);
+  const [lo, hi] = proteinPerKg(goal, activity, age);
+  const min = Math.round(base * lo);
+  const max = Math.round(base * hi);
   return {
-    min: Math.round(base * lo),
-    max: Math.round(base * hi),
+    min,
+    max,
+    mid: Math.round((min + max) / 2),
     perKg: [lo, hi] as [number, number],
-    baseKg: Math.round(base),
+    baseKg: Math.round(base * 10) / 10,
     adjusted: base < kg - 0.5,
   };
 }
