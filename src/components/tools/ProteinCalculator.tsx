@@ -11,6 +11,7 @@ const field =
 
 export default function ProteinCalculator() {
   const [weight, setWeight] = useState("");
+  const [age, setAge] = useState("");
   const [height, setHeight] = useState("");
   const [goal, setGoal] = useState<Goal>("muscle");
   const [activity, setActivity] = useState<Activity>("moderate");
@@ -19,14 +20,16 @@ export default function ProteinCalculator() {
   const cm = Number(height);
   const kgOk = weight !== "" && kg >= 30 && kg <= 250;
   const cmOk = height !== "" && cm >= 120 && cm <= 230;
-  const valid = kgOk && cmOk;
-  const r = valid ? proteinFor(kg, cm, goal, activity) : null;
-  const mid = r ? (r.min + r.max) / 2 : 0;
-  const perMeal = Math.round(mid / 4);
+  const yrs = Number(age);
+  const ageOk = age !== "" && Number.isInteger(yrs) && yrs >= 18 && yrs <= 80;
+  const valid = kgOk && cmOk && ageOk;
+  const r = valid ? proteinFor(kg, cm, goal, activity, yrs) : null;
+  const perMeal = r ? Math.round(r.mid / 4) : 0;
+  const scoops = r ? Math.round((r.mid / WHEY_SCOOP_PROTEIN) * 10) / 10 : 0;
 
   return (
     <div>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-3">
         <label className="block">
           <span className="text-sm font-semibold">Weight (kg)</span>
           <input
@@ -55,6 +58,22 @@ export default function ProteinCalculator() {
           />
         </label>
         <label className="block">
+          <span className="text-sm font-semibold">Age (years)</span>
+          <input
+            type="number"
+            inputMode="numeric"
+            min={18}
+            max={80}
+            step={1}
+            value={age}
+            onChange={(e) => setAge(e.target.value)}
+            placeholder="e.g. 25"
+            className={field}
+          />
+        </label>
+      </div>
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <label className="block">
           <span className="text-sm font-semibold">Goal</span>
           <select value={goal} onChange={(e) => setGoal(e.target.value as Goal)} className={field}>
             {GOALS.map((g) => (
@@ -72,8 +91,8 @@ export default function ProteinCalculator() {
         </label>
       </div>
 
-      {((weight !== "" && !kgOk) || (height !== "" && !cmOk)) && (
-        <p className="mt-4 text-sm text-accent">Enter weight between 30 and 250 kg and height between 120 and 230 cm.</p>
+      {((weight !== "" && !kgOk) || (height !== "" && !cmOk) || (age !== "" && !ageOk)) && (
+        <p className="mt-4 text-sm text-accent">Enter weight between 30 and 250 kg, height between 120 and 230 cm and age between 18 and 80.</p>
       )}
 
       {r && (
@@ -85,13 +104,19 @@ export default function ProteinCalculator() {
           <p className="mt-1 text-sm text-muted">
             {r.perKg[0]}–{r.perKg[1]} g per kg{r.adjusted ? ` of ${r.baseKg} kg` : ""}
           </p>
-          <ul className="mt-4 space-y-2 text-sm text-muted">
-            <li>About {perMeal} g per meal over 4 meals.</li>
+          <p className="mt-3 font-semibold">
+            Aim for about {r.mid} g a day
+          </p>
+          <ul className="mt-3 space-y-2 text-sm text-muted">
+            <li>Spread over 3 to 5 meals: about {perMeal} g per meal (4 meals).</li>
             <li>
-              One whey scoop gives about {WHEY_SCOOP_PROTEIN} g. Cover the rest with eggs, dal, paneer, chicken or fish.
+              One whey scoop gives about {WHEY_SCOOP_PROTEIN} g. Your daily target is roughly {scoops} scoops of protein in total, and food (eggs, dal, paneer, chicken, fish, curd) should provide most of it.
             </li>
             {r.adjusted && (
               <li>Your weight is above the healthy range, so protein is counted on {r.baseKg} kg. Extra body fat does not need extra protein.</li>
+            )}
+            {activity === "sedentary" && goal !== "maintain" && (
+              <li>Protein helps most when you also train. Add strength training to reach your goal.</li>
             )}
           </ul>
           <Link
@@ -104,7 +129,7 @@ export default function ProteinCalculator() {
       )}
 
       <p className="mt-6 text-xs text-muted">
-        General estimate for healthy adults, not medical advice. If you have kidney problems or any medical condition, or
+        General estimate for healthy adults aged 18 to 80, not medical advice. If you have kidney problems or any medical condition, or
         you are pregnant, ask your doctor or dietitian first.
       </p>
     </div>
