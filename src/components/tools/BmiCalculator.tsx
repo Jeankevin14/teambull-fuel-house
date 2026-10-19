@@ -281,7 +281,6 @@ export default function BmiCalculator({ products }: { products: Product[] }) {
   const range = healthyRangeKg(cm, scale);
   const diff = level === "normal" ? null : kg > range.max ? { dir: "above", kg: Math.round((kg - range.max) * 10) / 10 } : kg < range.min ? { dir: "below", kg: Math.round((range.min - kg) * 10) / 10 } : null;
   const bands = bandsFor(scale);
-  const m = cm / 100;
   const cal = caloriesFor(kg, cm, age, g, activity, goal);
   const protein = proteinFor(kg, cm, goal, activity);
   const suggested = suggestedGoal(level);
@@ -523,10 +522,6 @@ export default function BmiCalculator({ products }: { products: Product[] }) {
                 );
               })}
             </div>
-            <p className="mt-3 text-xs text-muted">{SCALES[scale].note}</p>
-            <p className="mt-1 text-xs text-muted">
-              How it is worked out: BMI = weight (kg) ÷ height (m)² = {kg} ÷ ({m.toFixed(2)} × {m.toFixed(2)}) = <strong className="text-foreground">{bmi.toFixed(1)}</strong>
-            </p>
           </div>
 
           <div className={`grid items-center gap-5 rounded-3xl p-6 md:grid-cols-[1fr_auto] md:p-8 ${wantsHelp ? "bg-accent text-white" : "border border-line bg-accent-soft"}`}>
