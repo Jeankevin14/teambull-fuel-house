@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420" width="400" height="420" role="img" aria-label="BCAA + EAA container">
+<defs>
+<linearGradient id="b" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0d0d10"/><stop offset=".34" stop-color="#2e2e36"/><stop offset=".62" stop-color="#1a1a1f"/><stop offset="1" stop-color="#0a0a0c"/></linearGradient>
+<linearGradient id="r" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#b91c1c"/><stop offset=".5" stop-color="#ef3f3f"/><stop offset="1" stop-color="#b91c1c"/></linearGradient>
+<linearGradient id="l" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#3a3a42"/><stop offset=".4" stop-color="#53535d"/><stop offset="1" stop-color="#26262c"/></linearGradient>
+<radialGradient id="h" cx=".5" cy=".42" r=".62"><stop offset="0" stop-color="#dc2626" stop-opacity=".16"/><stop offset="1" stop-color="#dc2626" stop-opacity="0"/></radialGradient>
+</defs>
+<rect width="400" height="420" fill="none"/>
+<rect width="400" height="420" fill="url(#h)"/>
+<ellipse cx="200" cy="378" rx="114" ry="13" fill="#000" opacity=".16"/>
+<rect x="100.0" y="120.0" width="200" height="34" rx="10" fill="url(#l)"/>
+<rect x="110.0" y="125.0" width="180" height="3" rx="1.5" fill="#fff" opacity=".18"/>
+<rect x="108.0" y="154.0" width="184" height="214" rx="16" fill="url(#b)"/>
+<rect x="117.0" y="164.0" width="11" height="194" rx="5" fill="#fff" opacity=".10"/>
+<rect x="108.0" y="208.0" width="184" height="118.0" fill="url(#r)"/>
+<rect x="108.0" y="204.0" width="184" height="3" fill="#fff" opacity=".35"/>
+<rect x="108.0" y="327.0" width="184" height="3" fill="#fff" opacity=".35"/>
+<text x="200" y="259.0" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-weight="800" font-size="30" letter-spacing="1.2" fill="#ffffff">BCAA</text>
+<text x="200" y="296.0" text-anchor="middle" font-family="Helvetica Neue, Helvetica, Arial, sans-serif" font-weight="800" font-size="30" letter-spacing="1.2" fill="#ffe9e9">+ EAA</text>
+<rect x="174.0" y="338.0" width="52" height="4" rx="2" fill="#fff" opacity=".22"/>
+</svg>
