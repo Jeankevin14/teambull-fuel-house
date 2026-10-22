@@ -6,8 +6,9 @@
 // false = anyone can check out, login is optional
 export const REQUIRE_LOGIN_TO_CHECKOUT = true;
 
-// Products with this many units (or fewer) get a "low stock" warning in Admin
-export const LOW_STOCK_LIMIT = 5;
+// Products with this many units (or fewer) show "Only X left" to customers
+// and count as low stock in Admin.
+export const LOW_STOCK_LIMIT = 2;
 
 // false = tapping "Checkout on WhatsApp" only opens WhatsApp. Nothing is saved
 //         and no "order / purchased" record appears anywhere on the site.
