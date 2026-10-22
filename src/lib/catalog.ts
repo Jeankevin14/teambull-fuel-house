@@ -33,6 +33,7 @@ export async function getProducts(): Promise<Product[]> {
         const { active, ...product } = p;
         return product;
       });
+    if (list.every((p) => p.brand === "Brand Name")) return PRODUCTS.filter(priced);
     return list;
   } catch (e) {
     console.error(
