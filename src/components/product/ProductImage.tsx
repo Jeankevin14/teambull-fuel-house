@@ -25,9 +25,12 @@ export default function ProductImage({
 }) {
   // no photo yet? show a sample picture for the category until a real one is added
   const src = product.image || SAMPLE_BY_CATEGORY[product.category];
+  // SVGs are not served through the Next image optimizer (it rejects them), and
+  // uploaded photos or links can live on any address: both use a plain <img>.
+  const plain = Boolean(src) && (!src.startsWith("/images/") || src.endsWith(".svg"));
   return (
     <div data-stamp-box className={`relative bg-surface ${className}`}>
-      {src && !src.startsWith("/images/") ? (
+      {src && plain ? (
         // photos uploaded in Admin (or links): plain <img> so any address works
         // eslint-disable-next-line @next/next/no-img-element
         <img
