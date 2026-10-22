@@ -82,6 +82,9 @@ async function AdminContent() {
     countUsers(),
   ]);
 
+  const needsNewList =
+    products.length === 0 || products.every((p) => p.brand === "Brand Name");
+
   const outOfStock = products.filter(
     (p) => p.stock !== undefined && p.stock <= 0,
   ).length;
@@ -120,22 +123,41 @@ async function AdminContent() {
         Products &amp; <span className="text-accent">stock</span>
       </h2>
 
-      <details className="mt-4 rounded-xl border border-line bg-surface p-5">
-        <summary className="cursor-pointer text-sm font-semibold text-accent">
-          Load the new product list (32 products)
-        </summary>
-        <p className="mt-3 text-sm text-muted">
-          This replaces <strong>all</strong> products in your Products tab with the new stock list
-          (Whey, Pre-Workout, Mass Gainer, Fat Burners, BCAA, Creatine, Vitamins, Fish Oil, Wellness) with their stock counts.
-          Photos, sizes and prices you added to the old products are removed. New products have no price yet, so they
-          stay hidden from customers until you set a price on each one below.
-        </p>
-        <form action={replaceProductsAction} className="mt-3">
-          <button className="rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90">
-            Yes, replace all products
-          </button>
-        </form>
-      </details>
+      {needsNewList ? (
+        <div className="mt-4 rounded-xl border-2 border-accent bg-accent-soft p-5">
+          <p className="font-display text-lg font-bold uppercase text-accent">
+            Your shop is still showing the old sample products
+          </p>
+          <p className="mt-2 text-sm">
+            Load the real stock list: 32 products across Whey, Pre-Workout, Mass Gainer, Fat Burners &amp;
+            L-Carnitine, BCAA &amp; EAA, Creatine, Vitamins, Fish Oil and Wellness, each with its stock count and a
+            starting price. Customers see them straight away, and you can change any price, photo, size or flavour
+            afterwards.
+          </p>
+          <form action={replaceProductsAction} className="mt-4">
+            <button className="rounded-full bg-accent px-7 py-3 font-bold text-white hover:opacity-90">
+              Load the 32 products now
+            </button>
+          </form>
+        </div>
+      ) : (
+        <details className="mt-4 rounded-xl border border-line bg-surface p-5">
+          <summary className="cursor-pointer text-sm font-semibold text-accent">
+            Reload the product list (32 products)
+          </summary>
+          <p className="mt-3 text-sm text-muted">
+            This replaces <strong>all</strong> products in your Products tab with the built-in stock list and its
+            starting prices. Any photos, sizes, flavours and prices you added here are lost, so only use it if you
+            want to start over.
+          </p>
+          <form action={replaceProductsAction} className="mt-3">
+            <button className="rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90">
+              Yes, replace all products
+            </button>
+          </form>
+        </details>
+      )}
+
 
       {products.length === 0 ? (
         <div className="mt-4 rounded-xl border border-line bg-surface p-5">
