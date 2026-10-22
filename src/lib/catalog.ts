@@ -12,6 +12,19 @@ import {
   type SheetProduct,
 } from "@/lib/productRows";
 
+/**
+ * A sheet row with no photo of its own falls back to the built-in artwork for
+ * that product, so the shop never shows the generic sample picture. A photo
+ * uploaded in Admin always wins.
+ */
+const BUILT_IN = new Map(PRODUCTS.map((p) => [p.id, p]));
+function withArt(p: Product): Product {
+  if (p.image) return p;
+  const b = BUILT_IN.get(p.id);
+  const same = b && b.name.trim().toLowerCase() === p.name.trim().toLowerCase();
+  return same && b.image ? { ...p, image: b.image } : p;
+}
+
 /** a product is shown in the shop only once it has a price */
 const priced = (p: Product) => p.price > 0 || (p.sizes?.some((x) => x.price > 0) ?? false);
 
@@ -31,7 +44,7 @@ export async function getProducts(): Promise<Product[]> {
       .map((p): Product => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { active, ...product } = p;
-        return product;
+        return withArt(product);
       });
     // old sample rows (brand "Brand Name") are placeholders: show the built-in list instead
     if (list.length > 0 && list.every((p) => p.brand === "Brand Name")) {
@@ -62,7 +75,7 @@ export async function findProduct(id: number): Promise<Product | undefined> {
     if (!p || !p.active || !priced(p)) return undefined;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { active, ...product } = p;
-    return product;
+    return withArt(product);
   } catch {
     return undefined;
   }
