@@ -16,9 +16,9 @@ import type { Product } from "@/types";
 
 export const PRODUCTS: Product[] = [
   { id: 1, image: "/images/product-1.webp", name: "Apex Whey Protein", brand: "Apex", category: "Whey Protein", price: 2799, description: "Apex whey protein to support muscle recovery and your daily protein intake.", stock: 3 },
-  { id: 2, image: "/images/product-2.svg", name: "BPI Sports Whey Protein", brand: "BPI Sports", category: "Whey Protein", price: 2699, description: "BPI Sports whey protein to support muscle recovery and your daily protein intake.", stock: 3 },
-  { id: 3, image: "/images/product-3.svg", name: "Gibbon Whey Protein", brand: "Gibbon", category: "Whey Protein", price: 2150, description: "Gibbon whey protein to support muscle recovery and your daily protein intake.", stock: 3 },
-  { id: 4, image: "/images/product-4.svg", name: "BSN Syntha-6 Whey Protein", brand: "BSN", category: "Whey Protein", price: 4499, description: "BSN whey protein to support muscle recovery and your daily protein intake.", stock: 3 },
+  { id: 2, image: "/images/product-2.webp", name: "BPI Sports Whey Protein", brand: "BPI Sports", category: "Whey Protein", price: 2699, description: "BPI Sports whey protein to support muscle recovery and your daily protein intake.", stock: 3 },
+  { id: 3, image: "/images/product-3.webp", name: "Gibbon Whey Protein", brand: "Gibbon", category: "Whey Protein", price: 2150, description: "Gibbon whey protein to support muscle recovery and your daily protein intake.", stock: 3 },
+  { id: 4, image: "/images/product-4.webp", name: "BSN Syntha-6 Whey Protein", brand: "BSN", category: "Whey Protein", price: 4499, description: "BSN whey protein to support muscle recovery and your daily protein intake.", stock: 3 },
   { id: 5, image: "/images/product-5.svg", name: "Hyper Nation Pre-Workout (100 servings)", brand: "Hyper Nation", category: "Pre-Workout", price: 3499, description: "Hyper Nation pre-workout for energy and focus before training.", stock: 3 },
   { id: 6, image: "/images/product-6.svg", name: "Psychotic Pre-Workout (New)", brand: "Insane Labz", category: "Pre-Workout", price: 2199, description: "Insane Labz pre-workout for energy and focus before training.", stock: 3 },
   { id: 7, image: "/images/product-7.svg", name: "N.O.-Xplode Pre-Workout", brand: "BSN", category: "Pre-Workout", price: 3799, description: "BSN pre-workout for energy and focus before training.", stock: 3 },
