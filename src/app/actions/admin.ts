@@ -116,6 +116,23 @@ export async function importSamplesAction(): Promise<void> {
   updateTag("products");
 }
 
+/**
+ * Replace every product in the sheet with the list in src/data/products.ts.
+ * Old rows are reused, extra old rows are blanked (the shop ignores blank rows), the rest are added.
+ * Prices start empty: a product stays hidden in the shop until you set its price.
+ */
+export async function replaceProductsAction(): Promise<void> {
+  await assertAdmin();
+  const rows = await readTab("Products");
+  const fresh = PRODUCTS.map((p) => productToRow({ ...p, price: p.price > 0 ? p.price : 0, stock: p.stock ?? 0, active: true }));
+  const blank = { id: "", name: "", brand: "", category: "", price: "", description: "", image: "", flavours: "", sizes: "", stock: "", active: "" };
+  for (let i = 0; i < rows.length; i++) {
+    await updateRow("Products", rows[i]._row, i < fresh.length ? fresh[i] : blank);
+  }
+  await appendRows("Products", fresh.slice(rows.length));
+  updateTag("products");
+}
+
 export async function orderStatusAction(fd: FormData): Promise<void> {
   await assertAdmin();
   const orderId = text(fd.get("orderId"), 40);

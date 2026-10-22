@@ -12,6 +12,7 @@ import { startingPrice } from "@/lib/products";
 import {
   adjustStockAction,
   importSamplesAction,
+  replaceProductsAction,
   orderStatusAction,
   toggleActiveAction,
 } from "@/app/actions/admin";
@@ -119,6 +120,23 @@ async function AdminContent() {
         Products &amp; <span className="text-accent">stock</span>
       </h2>
 
+      <details className="mt-4 rounded-xl border border-line bg-surface p-5">
+        <summary className="cursor-pointer text-sm font-semibold text-accent">
+          Load the new product list (32 products)
+        </summary>
+        <p className="mt-3 text-sm text-muted">
+          This replaces <strong>all</strong> products in your Products tab with the new stock list
+          (Whey, Pre-Workout, Mass Gainer, Fat Burners, BCAA, Creatine, Vitamins, Fish Oil, Wellness) with their stock counts.
+          Photos, sizes and prices you added to the old products are removed. New products have no price yet, so they
+          stay hidden from customers until you set a price on each one below.
+        </p>
+        <form action={replaceProductsAction} className="mt-3">
+          <button className="rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90">
+            Yes, replace all products
+          </button>
+        </form>
+      </details>
+
       {products.length === 0 ? (
         <div className="mt-4 rounded-xl border border-line bg-surface p-5">
           <p className="text-muted">
@@ -141,6 +159,11 @@ async function AdminContent() {
                   <div className="min-w-0 flex-1 basis-56">
                     <p className="font-semibold text-foreground">
                       {p.name}{" "}
+                      {p.active && startingPrice(p) <= 0 && (
+                        <span className="ml-1 rounded bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                          Set price to show in shop
+                        </span>
+                      )}
                       {!p.active && (
                         <span className="ml-1 rounded bg-line px-2 py-0.5 text-xs text-muted">
                           Hidden
@@ -148,7 +171,7 @@ async function AdminContent() {
                       )}
                     </p>
                     <p className="text-sm text-muted">
-                      {p.category} · from {formatPrice(startingPrice(p))}
+                      {p.category} · {startingPrice(p) > 0 ? `from ${formatPrice(startingPrice(p))}` : "no price yet"}
                     </p>
                   </div>
 
