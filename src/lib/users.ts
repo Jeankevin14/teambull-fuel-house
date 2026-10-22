@@ -3,6 +3,12 @@
 import bcrypt from "bcryptjs";
 import { appendRow, readTab, updateRow } from "@/lib/sheets";
 import type { Me } from "@/types";
+// Safety net: this file handles logins and secrets and must never be bundled
+// into the browser. If it ever is, fail loudly instead of leaking.
+if (typeof window !== "undefined") {
+  throw new Error("users.ts must only be used on the server.");
+}
+
 
 export type UserRecord = Me & { passwordHash: string; createdAt: string; row: number };
 

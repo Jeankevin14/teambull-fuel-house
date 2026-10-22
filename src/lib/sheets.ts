@@ -1,6 +1,12 @@
 // Talks to Google Sheets. Server-side only (never import this in a "use client" file).
 // Your Google Sheet is the database: Products, Users and Orders tabs.
 import { importPKCS8, SignJWT } from "jose";
+// Safety net: this file holds Google credentials and must never be bundled into
+// the browser. If it ever is, fail loudly instead of leaking.
+if (typeof window !== "undefined") {
+  throw new Error("sheets.ts must only be used on the server.");
+}
+
 
 const SCOPE = "https://www.googleapis.com/auth/spreadsheets";
 const TOKEN_URL = process.env.GOOGLE_TOKEN_URL || "https://oauth2.googleapis.com/token";

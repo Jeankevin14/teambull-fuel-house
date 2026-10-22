@@ -25,7 +25,7 @@ export function useCheckout(onLoginNeeded?: () => void) {
     window.open(buildOrderUrl(items, total, user), "_blank", "noopener,noreferrer");
     if (user && RECORD_ORDERS_ON_CHECKOUT) {
       void logOrderAction(
-        items.map((i) => ({ name: i.name, variant: i.variant, qty: i.qty, price: i.price }))
+        items.map((i) => ({ id: i.id, name: i.name, variant: i.variant, qty: i.qty, price: i.price }))
       );
     }
   };

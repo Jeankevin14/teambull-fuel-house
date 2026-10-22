@@ -1,6 +1,12 @@
 // Signed login cookie (JWT). Pure helpers, no Next imports.
 import { SignJWT, jwtVerify } from "jose";
 import type { Me } from "@/types";
+// Safety net: this file handles logins and secrets and must never be bundled
+// into the browser. If it ever is, fail loudly instead of leaking.
+if (typeof window !== "undefined") {
+  throw new Error("token.ts must only be used on the server.");
+}
+
 
 export const SESSION_COOKIE = "tfh-session";
 export const SESSION_DAYS = 30;
