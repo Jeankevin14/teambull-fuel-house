@@ -6,7 +6,7 @@ import type { Product } from "@/types";
 //  Rules:
 //   • every product needs a unique `id`
 //   • `category` must match a name in src/config/site.ts
-//   • `price` is a number only (no ₹ sign). Products with price 0 are hidden until you set a price.
+//   • `price` is a number only (no ₹ sign). Prices below are ESTIMATES: check and change them. Price 0 = hidden from the shop.
 //   • `stock` is the number of units in hand
 //   • `image` is optional: put the file in public/images
 //   • `flavours` / `sizes` are optional:
@@ -15,38 +15,38 @@ import type { Product } from "@/types";
 // ============================================================
 
 export const PRODUCTS: Product[] = [
-  { id: 1, name: "Apex Whey Protein", brand: "Apex", category: "Whey Protein", price: 0, description: "Apex whey protein to support muscle recovery and your daily protein intake.", stock: 3 },
-  { id: 2, name: "BPI Sports Whey Protein", brand: "BPI Sports", category: "Whey Protein", price: 0, description: "BPI Sports whey protein to support muscle recovery and your daily protein intake.", stock: 3 },
-  { id: 3, name: "Gibbon Whey Protein", brand: "Gibbon", category: "Whey Protein", price: 0, description: "Gibbon whey protein to support muscle recovery and your daily protein intake.", stock: 3 },
-  { id: 4, name: "BSN Syntha-6 Whey Protein", brand: "BSN", category: "Whey Protein", price: 0, description: "BSN whey protein to support muscle recovery and your daily protein intake.", stock: 3 },
-  { id: 5, name: "Hyper Nation Pre-Workout (100 servings)", brand: "Hyper Nation", category: "Pre-Workout", price: 0, description: "Hyper Nation pre-workout for energy and focus before training.", stock: 3 },
-  { id: 6, name: "Psychotic Pre-Workout (New)", brand: "Insane Labz", category: "Pre-Workout", price: 0, description: "Insane Labz pre-workout for energy and focus before training.", stock: 3 },
-  { id: 7, name: "N.O.-Xplode Pre-Workout", brand: "BSN", category: "Pre-Workout", price: 0, description: "BSN pre-workout for energy and focus before training.", stock: 3 },
-  { id: 8, name: "C4 Pre-Workout", brand: "Cellucor", category: "Pre-Workout", price: 0, description: "Cellucor pre-workout for energy and focus before training.", stock: 3 },
-  { id: 9, name: "Niox Pre-Workout", brand: "Niox", category: "Pre-Workout", price: 0, description: "Niox pre-workout for energy and focus before training.", stock: 3 },
-  { id: 10, name: "Gibbon Mass Gainer", brand: "Gibbon", category: "Mass Gainer", price: 0, description: "Gibbon mass gainer to help you add calories and gain weight.", stock: 3 },
-  { id: 11, name: "Big Flex Mass Gainer", brand: "Big Flex", category: "Mass Gainer", price: 0, description: "Big Flex mass gainer to help you add calories and gain weight.", stock: 3 },
-  { id: 12, name: "Labrada Mass Gainer", brand: "Labrada", category: "Mass Gainer", price: 0, description: "Labrada mass gainer to help you add calories and gain weight.", stock: 3 },
-  { id: 13, name: "Black Spider Fat Burner", brand: "Black Spider", category: "Fat Burners & L-Carnitine", price: 0, description: "Black Spider fat burner and L-carnitine support for your training and diet plan.", stock: 3 },
-  { id: 14, name: "Lipo 6 Hardcore Fat Burner", brand: "Nutrex", category: "Fat Burners & L-Carnitine", price: 0, description: "Nutrex fat burner and L-carnitine support for your training and diet plan.", stock: 3 },
-  { id: 15, name: "RC 3000mg L-Carnitine", brand: "RC", category: "Fat Burners & L-Carnitine", price: 0, description: "RC fat burner and L-carnitine support for your training and diet plan.", stock: 3 },
-  { id: 16, name: "EVL CLA", brand: "EVL", category: "Fat Burners & L-Carnitine", price: 0, description: "EVL fat burner and L-carnitine support for your training and diet plan.", stock: 3 },
-  { id: 17, name: "Xtend USA BCAA", brand: "Xtend", category: "BCAA & EAA", price: 0, description: "Xtend amino acids to support recovery during training.", stock: 3 },
-  { id: 18, name: "Hyper Nation BCAA + EAA", brand: "Hyper Nation", category: "BCAA & EAA", price: 0, description: "Hyper Nation amino acids to support recovery during training.", stock: 3 },
-  { id: 19, name: "Optimum Nutrition Creatine", brand: "Optimum Nutrition", category: "Creatine", price: 0, description: "Optimum Nutrition creatine for strength and power.", stock: 3 },
-  { id: 20, name: "Gibbon Creatine", brand: "Gibbon", category: "Creatine", price: 0, description: "Gibbon creatine for strength and power.", stock: 3 },
-  { id: 21, name: "Well-being Multivitamin", brand: "Well-being", category: "Vitamins", price: 0, description: "Well-being multivitamin for daily vitamin and mineral support.", stock: 4 },
-  { id: 22, name: "Hyper Nation Multivitamin", brand: "Hyper Nation", category: "Vitamins", price: 0, description: "Hyper Nation multivitamin for daily vitamin and mineral support.", stock: 3 },
-  { id: 23, name: "BPI Sports Multivitamin", brand: "BPI Sports", category: "Vitamins", price: 0, description: "BPI Sports multivitamin for daily vitamin and mineral support.", stock: 3 },
-  { id: 24, name: "Well-being Fish Oil", brand: "Well-being", category: "Fish Oil", price: 0, description: "Well-being fish oil (omega-3) for daily health support.", stock: 4 },
-  { id: 25, name: "1MD Fish Oil", brand: "1MD", category: "Fish Oil", price: 0, description: "1MD fish oil (omega-3) for daily health support.", stock: 4 },
-  { id: 26, name: "Pharm Grade Fish Oil", brand: "Pharm Grade", category: "Fish Oil", price: 0, description: "Pharm Grade fish oil (omega-3) for daily health support.", stock: 3 },
-  { id: 27, name: "1MD Milk Thistle", brand: "1MD", category: "Wellness", price: 0, description: "1MD supplement for daily wellness support.", stock: 3 },
-  { id: 28, name: "Nature's Move NAC", brand: "Nature's Move", category: "Wellness", price: 0, description: "Nature's Move supplement for daily wellness support.", stock: 3 },
-  { id: 29, name: "Well-being Bergamot", brand: "Well-being", category: "Wellness", price: 0, description: "Well-being supplement for daily wellness support.", stock: 3 },
-  { id: 30, name: "Well-being Probiotics", brand: "Well-being", category: "Wellness", price: 0, description: "Well-being supplement for daily wellness support.", stock: 3 },
-  { id: 31, name: "Nature's Move CoQ10", brand: "Nature's Move", category: "Wellness", price: 0, description: "Nature's Move supplement for daily wellness support.", stock: 3 },
-  { id: 32, name: "1MD ZMA+", brand: "1MD", category: "Wellness", price: 0, description: "1MD supplement for daily wellness support.", stock: 3 },
+  { id: 1, name: "Apex Whey Protein", brand: "Apex", category: "Whey Protein", price: 2799, description: "Apex whey protein to support muscle recovery and your daily protein intake.", stock: 3 },
+  { id: 2, name: "BPI Sports Whey Protein", brand: "BPI Sports", category: "Whey Protein", price: 2699, description: "BPI Sports whey protein to support muscle recovery and your daily protein intake.", stock: 3 },
+  { id: 3, name: "Gibbon Whey Protein", brand: "Gibbon", category: "Whey Protein", price: 2150, description: "Gibbon whey protein to support muscle recovery and your daily protein intake.", stock: 3 },
+  { id: 4, name: "BSN Syntha-6 Whey Protein", brand: "BSN", category: "Whey Protein", price: 4499, description: "BSN whey protein to support muscle recovery and your daily protein intake.", stock: 3 },
+  { id: 5, name: "Hyper Nation Pre-Workout (100 servings)", brand: "Hyper Nation", category: "Pre-Workout", price: 3499, description: "Hyper Nation pre-workout for energy and focus before training.", stock: 3 },
+  { id: 6, name: "Psychotic Pre-Workout (New)", brand: "Insane Labz", category: "Pre-Workout", price: 2199, description: "Insane Labz pre-workout for energy and focus before training.", stock: 3 },
+  { id: 7, name: "N.O.-Xplode Pre-Workout", brand: "BSN", category: "Pre-Workout", price: 3799, description: "BSN pre-workout for energy and focus before training.", stock: 3 },
+  { id: 8, name: "C4 Pre-Workout", brand: "Cellucor", category: "Pre-Workout", price: 2799, description: "Cellucor pre-workout for energy and focus before training.", stock: 3 },
+  { id: 9, name: "Niox Pre-Workout", brand: "Niox", category: "Pre-Workout", price: 2499, description: "Niox pre-workout for energy and focus before training.", stock: 3 },
+  { id: 10, name: "Gibbon Mass Gainer", brand: "Gibbon", category: "Mass Gainer", price: 2799, description: "Gibbon mass gainer to help you add calories and gain weight.", stock: 3 },
+  { id: 11, name: "Big Flex Mass Gainer", brand: "Big Flex", category: "Mass Gainer", price: 2999, description: "Big Flex mass gainer to help you add calories and gain weight.", stock: 3 },
+  { id: 12, name: "Labrada Mass Gainer", brand: "Labrada", category: "Mass Gainer", price: 3899, description: "Labrada mass gainer to help you add calories and gain weight.", stock: 3 },
+  { id: 13, name: "Black Spider Fat Burner", brand: "Black Spider", category: "Fat Burners & L-Carnitine", price: 1699, description: "Black Spider fat burner and L-carnitine support for your training and diet plan.", stock: 3 },
+  { id: 14, name: "Lipo 6 Hardcore Fat Burner", brand: "Nutrex", category: "Fat Burners & L-Carnitine", price: 2999, description: "Nutrex fat burner and L-carnitine support for your training and diet plan.", stock: 3 },
+  { id: 15, name: "RC 3000mg L-Carnitine", brand: "RC", category: "Fat Burners & L-Carnitine", price: 1299, description: "RC fat burner and L-carnitine support for your training and diet plan.", stock: 3 },
+  { id: 16, name: "EVL CLA", brand: "EVL", category: "Fat Burners & L-Carnitine", price: 2299, description: "EVL fat burner and L-carnitine support for your training and diet plan.", stock: 3 },
+  { id: 17, name: "Xtend USA BCAA", brand: "Xtend", category: "BCAA & EAA", price: 2299, description: "Xtend amino acids to support recovery during training.", stock: 3 },
+  { id: 18, name: "Hyper Nation BCAA + EAA", brand: "Hyper Nation", category: "BCAA & EAA", price: 1999, description: "Hyper Nation amino acids to support recovery during training.", stock: 3 },
+  { id: 19, name: "Optimum Nutrition Creatine", brand: "Optimum Nutrition", category: "Creatine", price: 1299, description: "Optimum Nutrition creatine for strength and power.", stock: 3 },
+  { id: 20, name: "Gibbon Creatine", brand: "Gibbon", category: "Creatine", price: 899, description: "Gibbon creatine for strength and power.", stock: 3 },
+  { id: 21, name: "Well-being Multivitamin", brand: "Well-being", category: "Vitamins", price: 799, description: "Well-being multivitamin for daily vitamin and mineral support.", stock: 4 },
+  { id: 22, name: "Hyper Nation Multivitamin", brand: "Hyper Nation", category: "Vitamins", price: 1299, description: "Hyper Nation multivitamin for daily vitamin and mineral support.", stock: 3 },
+  { id: 23, name: "BPI Sports Multivitamin", brand: "BPI Sports", category: "Vitamins", price: 1799, description: "BPI Sports multivitamin for daily vitamin and mineral support.", stock: 3 },
+  { id: 24, name: "Well-being Fish Oil", brand: "Well-being", category: "Fish Oil", price: 899, description: "Well-being fish oil (omega-3) for daily health support.", stock: 4 },
+  { id: 25, name: "1MD Fish Oil", brand: "1MD", category: "Fish Oil", price: 1199, description: "1MD fish oil (omega-3) for daily health support.", stock: 4 },
+  { id: 26, name: "Pharm Grade Fish Oil", brand: "Pharm Grade", category: "Fish Oil", price: 1499, description: "Pharm Grade fish oil (omega-3) for daily health support.", stock: 3 },
+  { id: 27, name: "1MD Milk Thistle", brand: "1MD", category: "Wellness", price: 999, description: "1MD supplement for daily wellness support.", stock: 3 },
+  { id: 28, name: "Nature's Move NAC", brand: "Nature's Move", category: "Wellness", price: 899, description: "Nature's Move supplement for daily wellness support.", stock: 3 },
+  { id: 29, name: "Well-being Bergamot", brand: "Well-being", category: "Wellness", price: 1099, description: "Well-being supplement for daily wellness support.", stock: 3 },
+  { id: 30, name: "Well-being Probiotics", brand: "Well-being", category: "Wellness", price: 999, description: "Well-being supplement for daily wellness support.", stock: 3 },
+  { id: 31, name: "Nature's Move CoQ10", brand: "Nature's Move", category: "Wellness", price: 1099, description: "Nature's Move supplement for daily wellness support.", stock: 3 },
+  { id: 32, name: "1MD ZMA+", brand: "1MD", category: "Wellness", price: 1199, description: "1MD supplement for daily wellness support.", stock: 3 },
 ];
 
 export function getProduct(id: number) {
