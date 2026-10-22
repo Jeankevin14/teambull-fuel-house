@@ -12,19 +12,22 @@ import {
   type SheetProduct,
 } from "@/lib/productRows";
 
+/** a product is shown in the shop only once it has a price */
+const priced = (p: Product) => p.price > 0 || (p.sizes?.some((x) => x.price > 0) ?? false);
+
 /** Public product list (cached ~1 minute; admin changes refresh it straight away). */
 export async function getProducts(): Promise<Product[]> {
   "use cache";
   cacheLife({ stale: 30, revalidate: 60, expire: 3600 });
   cacheTag("products");
 
-  if (!sheetsConfigured()) return PRODUCTS;
+  if (!sheetsConfigured()) return PRODUCTS.filter(priced);
   try {
     const rows = await readTab("Products");
-    if (rows.length === 0) return PRODUCTS;
+    if (rows.length === 0) return PRODUCTS.filter(priced);
     const list = rows
       .map((r) => rowToProduct(r))
-      .filter((p): p is SheetProduct => p !== null && p.active)
+      .filter((p): p is SheetProduct => p !== null && p.active && priced(p))
       .map((p): Product => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { active, ...product } = p;
@@ -36,7 +39,7 @@ export async function getProducts(): Promise<Product[]> {
       "[catalog] could not read Google Sheet, using built-in products:",
       e,
     );
-    return PRODUCTS;
+    return PRODUCTS.filter(priced);
   }
 }
 
@@ -52,7 +55,7 @@ export async function findProduct(id: number): Promise<Product | undefined> {
     const rows = await readTab("Products");
     const row = rows.find((r) => Number(r.id) === id);
     const p = row ? rowToProduct(row) : null;
-    if (!p || !p.active) return undefined;
+    if (!p || !p.active || !priced(p)) return undefined;
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { active, ...product } = p;
     return product;

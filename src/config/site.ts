@@ -25,11 +25,14 @@ export const SITE = {
 // A product's `category` must match one of these names exactly.
 export const CATEGORIES = [
   "Whey Protein",
-  "Creatine",
   "Pre-Workout",
   "Mass Gainer",
+  "Fat Burners & L-Carnitine",
   "BCAA & EAA",
+  "Creatine",
   "Vitamins",
+  "Fish Oil",
+  "Wellness",
 ] as const;
 
 export type Category = (typeof CATEGORIES)[number];

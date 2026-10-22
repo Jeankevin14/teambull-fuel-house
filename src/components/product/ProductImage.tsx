@@ -8,6 +8,9 @@ const SAMPLE_BY_CATEGORY: Record<string, string> = {
   "Mass Gainer": "/images/sample-4.svg",
   "BCAA & EAA": "/images/sample-5.svg",
   Vitamins: "/images/sample-6.svg",
+  "Fat Burners & L-Carnitine": "/images/sample-5.svg",
+  "Fish Oil": "/images/sample-6.svg",
+  Wellness: "/images/sample-6.svg",
 };
 
 /** Shows the product photo, or the category's first letter if there is no photo. */
