@@ -5,7 +5,9 @@ import { sessionConfigured } from "@/lib/token";
 import { createUser, findUserByEmail, findUserById, normalizeEmail, updateUserProfile, verifyLogin } from "@/lib/users";
 import { endSession, getSession, startSession } from "@/lib/session";
 import { addOrder } from "@/lib/orders";
-import { clearFailures, cleanPhone, isEmail, noteFailure, text, tooManyTries } from "@/lib/validate";
+import { clearFailures, cleanPhone, isEmail, noteFailure, noteHit, overLimit, text, tooManyTries } from "@/lib/validate";
+import { findProduct } from "@/lib/catalog";
+import { priceFor } from "@/lib/products";
 import type { FormState } from "@/types/forms";
 
 const NOT_READY: FormState = {
@@ -17,8 +19,15 @@ function ready() {
   return sheetsConfigured() && sessionConfigured();
 }
 
+const SIGNUP_MAX_PER_HOUR = 20;
+const ORDERS_MAX_PER_HOUR = 30;
+
 export async function signupAction(_prev: FormState, fd: FormData): Promise<FormState> {
   if (!ready()) return NOT_READY;
+  // stop one person mass-creating accounts and filling the sheet
+  if (overLimit("signup", "all", SIGNUP_MAX_PER_HOUR)) {
+    return { ok: false, error: "Too many new accounts just now. Please try again later." };
+  }
 
   const name = text(fd.get("name"), 60);
   const email = normalizeEmail(text(fd.get("email"), 120));
@@ -37,6 +46,7 @@ export async function signupAction(_prev: FormState, fd: FormData): Promise<Form
     if (await findUserByEmail(email)) {
       return { ok: false, fields, error: "An account with this email already exists. Please log in." };
     }
+    noteHit("signup", "all", SIGNUP_MAX_PER_HOUR, 60 * 60_000);
     const user = await createUser({ name, email, phone, password });
     await startSession({ uid: user.uid, name: user.name, email: user.email, phone: user.phone, role: user.role });
     return { ok: true };
@@ -98,19 +108,32 @@ export async function updateProfileAction(_prev: FormState, fd: FormData): Promi
   }
 }
 
-type OrderLine = { name: string; variant?: string; qty: number; price: number };
+type OrderLine = { id?: number; name: string; variant?: string; qty: number; price: number };
 
-/** Saves the order in the sheet when the customer taps "Checkout on WhatsApp". */
+/**
+ * Saves the order in the sheet when the customer taps "Checkout on WhatsApp".
+ * Prices are looked up on the server from the catalogue, so a tampered browser
+ * cannot record an order at a price you never set.
+ */
 export async function logOrderAction(lines: OrderLine[]): Promise<{ ok: boolean }> {
   const me = await getSession();
   if (!me || !sheetsConfigured() || !Array.isArray(lines) || lines.length === 0) return { ok: false };
+  if (overLimit("order", me.uid, ORDERS_MAX_PER_HOUR)) return { ok: false };
+  noteHit("order", me.uid, ORDERS_MAX_PER_HOUR, 60 * 60_000);
 
-  const clean = lines.slice(0, 40).map((l) => ({
-    name: String(l.name ?? "").slice(0, 80),
-    variant: l.variant ? String(l.variant).slice(0, 60) : "",
-    qty: Math.min(99, Math.max(1, Math.floor(Number(l.qty) || 1))),
-    price: Math.max(0, Math.round(Number(l.price) || 0)),
-  }));
+  const clean: { name: string; variant: string; qty: number; price: number }[] = [];
+  for (const l of lines.slice(0, 40)) {
+    const qty = Math.min(99, Math.max(1, Math.floor(Number(l.qty) || 1)));
+    const variant = l.variant ? String(l.variant).slice(0, 60) : "";
+    const id = Math.floor(Number(l.id));
+    const product = Number.isInteger(id) && id > 0 ? await findProduct(id) : undefined;
+    if (!product) continue; // unknown product: never record a price we cannot verify
+    // the variant reads like "Chocolate · 2kg": find which of our sizes it names
+    const size = product.sizes?.find((sz) => variant.includes(sz.label))?.label;
+    clean.push({ name: product.name.slice(0, 80), variant, qty, price: priceFor(product, size) });
+  }
+  if (clean.length === 0) return { ok: false };
+
   const total = clean.reduce((sum, l) => sum + l.price * l.qty, 0);
   const items = clean
     .map((l, i) => `${i + 1}. ${l.name}${l.variant ? ` (${l.variant})` : ""} x ${l.qty} = Rs ${l.price * l.qty}`)

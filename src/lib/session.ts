@@ -4,6 +4,12 @@ import { redirect } from "next/navigation";
 import { SESSION_COOKIE, SESSION_DAYS, readSession, signSession } from "@/lib/token";
 import { findUserById } from "@/lib/users";
 import type { Me } from "@/types";
+// Safety net: this file handles logins and secrets and must never be bundled
+// into the browser. If it ever is, fail loudly instead of leaking.
+if (typeof window !== "undefined") {
+  throw new Error("session.ts must only be used on the server.");
+}
+
 
 export async function getSession(): Promise<Me | null> {
   const store = await cookies();
