@@ -85,14 +85,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setLastAdded(variant ? `${p.name} (${variant})` : p.name);
     // let the "ADDED TO CART" stamp show on the product first, then slide the cart in
     setTimeout(() => setDrawerOpen(true), 1100);
+    // never let the cart hold more than we actually have on the shelf
+    const max = typeof p.stock === "number" ? Math.max(0, Math.floor(p.stock)) : undefined;
     setItems((prev) => {
       const found = prev.find((i) => i.key === key);
       if (found) {
-        return prev.map((i) => (i.key === key ? { ...i, qty: i.qty + 1 } : i));
+        const next = max === undefined ? found.qty + 1 : Math.min(max, found.qty + 1);
+        return prev.map((i) => (i.key === key ? { ...i, qty: next, max } : i));
       }
+      if (max === 0) return prev;
       return [
         ...prev,
-        { key, id: p.id, name: p.name, variant, price, qty: 1, image: p.image },
+        { key, id: p.id, name: p.name, variant, price, qty: 1, max, image: p.image },
       ];
     });
   };
@@ -101,7 +105,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setItems((prev) =>
       qty <= 0
         ? prev.filter((i) => i.key !== key)
-        : prev.map((i) => (i.key === key ? { ...i, qty } : i))
+        : prev.map((i) =>
+            i.key === key
+              ? { ...i, qty: i.max === undefined ? qty : Math.min(i.max, qty) }
+              : i
+          )
     );
 
   const remove = (key: string) =>

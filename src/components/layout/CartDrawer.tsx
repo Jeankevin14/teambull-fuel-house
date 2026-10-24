@@ -166,6 +166,11 @@ export default function CartDrawer() {
                     <p className="mt-1 text-sm text-muted">
                       {formatPrice(item.price)}
                     </p>
+                    {item.max !== undefined && item.qty >= item.max && (
+                      <p className="mt-1 text-xs font-semibold text-accent">
+                        Only {item.max} in stock
+                      </p>
+                    )}
 
                     <div className="mt-auto flex items-center justify-between pt-2">
                       <div className="flex items-center rounded-full border border-line">
@@ -181,8 +186,10 @@ export default function CartDrawer() {
                         </span>
                         <button
                           onClick={() => setQty(item.key, item.qty + 1)}
+                          disabled={item.max !== undefined && item.qty >= item.max}
                           aria-label="Increase quantity"
-                          className="h-8 w-8 rounded-full hover:text-accent"
+                          title={item.max !== undefined && item.qty >= item.max ? "That is all we have in stock" : undefined}
+                          className="h-8 w-8 rounded-full hover:text-accent disabled:cursor-not-allowed disabled:opacity-35"
                         >
                           +
                         </button>

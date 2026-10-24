@@ -6,7 +6,8 @@ import { pageMeta } from "@/lib/seo";
 import { getProducts, findProduct } from "@/lib/catalog";
 import BarbellLoader from "@/components/fx/BarbellLoader";
 import ProductPurchase from "@/components/product/ProductPurchase";
-import ProductImage from "@/components/product/ProductImage";
+import ProductGallery from "@/components/product/ProductGallery";
+import { nutritionImageFor } from "@/data/nutrition";
 
 export async function generateStaticParams() {
   return (await getProducts()).map((p) => ({ id: String(p.id) }));
@@ -35,11 +36,10 @@ async function ProductDetails({ params }: { params: Promise<{ id: string }> }) {
 
   return (
     <div data-stamp-scope className="mt-6 grid gap-10 md:grid-cols-2">
-      <div className="overflow-hidden rounded-xl">
-        <ProductImage
+      <div>
+        <ProductGallery
           product={product}
-          className="h-80 md:h-96"
-          letterSize="text-7xl"
+          nutritionImage={nutritionImageFor(product.image)}
         />
       </div>
 

@@ -50,6 +50,11 @@ export default function CartPage() {
               <p className="text-sm text-muted">
                 {formatPrice(item.price)} each
               </p>
+              {item.max !== undefined && item.qty >= item.max && (
+                <p className="mt-1 text-xs font-semibold text-accent">
+                  Only {item.max} in stock
+                </p>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
@@ -63,8 +68,10 @@ export default function CartPage() {
               <span className="w-6 text-center">{item.qty}</span>
               <button
                 onClick={() => setQty(item.key, item.qty + 1)}
-                className="h-9 w-9 rounded-full border border-line hover:border-accent"
+                disabled={item.max !== undefined && item.qty >= item.max}
                 aria-label="Increase quantity"
+                title={item.max !== undefined && item.qty >= item.max ? "That is all we have in stock" : undefined}
+                className="h-9 w-9 rounded-full border border-line hover:border-accent disabled:cursor-not-allowed disabled:opacity-35"
               >
                 +
               </button>

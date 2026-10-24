@@ -26,6 +26,7 @@ export type CartItem = {
   variant?: string; // e.g. "Chocolate · 2kg"
   price: number;
   qty: number;
+  max?: number; // units in stock; the cart never goes above this
   image?: string;
 };
 
