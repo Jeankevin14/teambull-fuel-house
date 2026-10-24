@@ -13,13 +13,34 @@ import {
 } from "@/lib/productRows";
 
 /**
- * A sheet row with no photo of its own falls back to the built-in artwork for
- * that product, so the shop never shows the generic sample picture. A photo
- * uploaded in Admin always wins.
+ * Keeps the pictures sane for rows that come from the Google Sheet.
+ *
+ *  - a row with no photo borrows the built-in artwork for the same product
+ *  - a row pointing at a /images/ file we no longer ship (an old catalogue that
+ *    has not been reloaded yet) has its photo dropped, so the category picture
+ *    shows instead of a broken image
+ *
+ * A photo uploaded in Admin, or any full URL, is always left alone.
  */
 const BUILT_IN = new Map(PRODUCTS.map((p) => [p.id, p]));
+const SHIPPED_IMAGES = new Set<string>([
+  ...PRODUCTS.map((p) => p.image).filter((x): x is string => Boolean(x)),
+  "/images/sample-1.svg",
+  "/images/sample-2.svg",
+  "/images/sample-3.svg",
+  "/images/sample-4.svg",
+  "/images/sample-5.svg",
+  "/images/sample-6.svg",
+]);
+
 function withArt(p: Product): Product {
-  if (p.image) return p;
+  if (p.image) {
+    // only police our own bundled files; uploads and links are none of our business
+    if (p.image.startsWith("/images/") && !SHIPPED_IMAGES.has(p.image)) {
+      return { ...p, image: undefined };
+    }
+    return p;
+  }
   const b = BUILT_IN.get(p.id);
   const same = b && b.name.trim().toLowerCase() === p.name.trim().toLowerCase();
   return same && b.image ? { ...p, image: b.image } : p;
