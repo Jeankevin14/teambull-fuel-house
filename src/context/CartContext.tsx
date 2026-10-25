@@ -78,8 +78,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       ? (p.sizes.find((x) => x.label === options.size) ?? p.sizes[0]).label
       : undefined;
     const price = priceFor(p, sizeLabel);
+    // a single-flavour product already names its flavour, so don't repeat it
+    const soleFlavour = p.flavours?.length === 1;
     const variant =
-      [options.flavour, sizeLabel].filter(Boolean).join(" · ") || undefined;
+      [soleFlavour ? undefined : options.flavour, sizeLabel]
+        .filter(Boolean)
+        .join(" · ") || undefined;
     const key = `${p.id}|${options.flavour ?? ""}|${sizeLabel ?? ""}`;
 
     setLastAdded(variant ? `${p.name} (${variant})` : p.name);

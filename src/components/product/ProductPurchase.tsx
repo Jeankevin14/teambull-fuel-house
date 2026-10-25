@@ -55,7 +55,13 @@ export default function ProductPurchase({ product }: { product: Product }) {
         </div>
       )}
 
-      {product.flavours && product.flavours.length > 0 && (
+      {product.flavours && product.flavours.length === 1 && (
+        <p className="mt-6 text-sm font-semibold">
+          Flavour: <span className="font-normal text-muted">{product.flavours[0]}</span>
+        </p>
+      )}
+
+      {product.flavours && product.flavours.length > 1 && (
         <div className="mt-6">
           <p className="text-sm font-semibold">
             Flavour: <span className="font-normal text-muted">{flavour}</span>

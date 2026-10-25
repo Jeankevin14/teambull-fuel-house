@@ -48,12 +48,12 @@ export default function ProductCard({ product }: { product: Product }) {
             {product.description}
           </p>
 
-          {(product.flavours?.length || hasSizes) && (
+          {((product.flavours?.length ?? 0) > 1 || hasSizes) && (
             <p className="mt-2 text-xs text-muted">
-              {product.flavours?.length
-                ? `${product.flavours.length} flavours`
+              {(product.flavours?.length ?? 0) > 1
+                ? `${product.flavours!.length} flavours`
                 : ""}
-              {product.flavours?.length && hasSizes ? " · " : ""}
+              {(product.flavours?.length ?? 0) > 1 && hasSizes ? " · " : ""}
               {hasSizes ? `${product.sizes!.length} sizes` : ""}
             </p>
           )}
