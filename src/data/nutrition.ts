@@ -49,6 +49,8 @@ const BY_IMAGE: Record<string, string> = {
   "wellbeing-slow-multi-omega-50plus": "wellbeing-slow-multi-omega-50plus-nutrition",
   "wellbeing-slow-multi-omega-him": "wellbeing-slow-multi-omega-him-nutrition",
   "wellbeing-slow-triple-omega3": "wellbeing-slow-triple-omega3-nutrition",
+  "lipo6-hardcore": "lipo6-hardcore-nutrition",
+  "rc-lcarnitine-4000-ruby-red-fruit": "rc-lcarnitine-4000-ruby-red-fruit-nutrition",
 };
 
 /**

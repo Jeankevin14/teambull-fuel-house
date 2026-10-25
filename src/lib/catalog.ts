@@ -15,11 +15,18 @@ import { PRODUCTS } from "@/data/products";
 import type { Product } from "@/types";
 import { readTab, sheetsConfigured } from "@/lib/sheets";
 import { rowToProduct, type SheetProduct } from "@/lib/productRows";
+import { nutritionImageFor } from "@/data/nutrition";
 
 /** a product is shown in the shop only once it has a price */
 const priced = (p: Product) => p.price > 0 || (p.sizes?.some((x) => x.price > 0) ?? false);
 
-const BUILT_IN = new Map(PRODUCTS.map((p) => [p.id, p]));
+/**
+ * Every product on the shop must have both of its gallery slides: the pack photo
+ * and the nutrition label. Anything without both is left out rather than shown
+ * half-finished.
+ */
+const hasBothSlides = (p: Product) => Boolean(p.image) && Boolean(nutritionImageFor(p.image));
+
 const SHIPPED_IMAGES = new Set(PRODUCTS.map((p) => p.image).filter(Boolean) as string[]);
 
 /** true when the sheet's photo is a real one, not a stale path we no longer ship */
@@ -74,10 +81,10 @@ export async function buildCatalogue(): Promise<(Product & { active: boolean; ro
     return { ...merge(base, row), active: row ? row.active : true, row: row?.row };
   });
 
-  // plus anything added in Admin that is not in the catalogue
-  const extra = rows.filter((r) => !BUILT_IN.has(r.id));
-
-  return [...merged, ...extra];
+  // Rows whose id is not in the catalogue are leftovers from the old design, when
+  // the sheet itself held the product list. They are ignored: the catalogue decides
+  // what exists, the sheet only says how much is in stock.
+  return merged;
 }
 
 /** Public product list: priced, not hidden. Cached briefly; Admin edits refresh it at once. */
@@ -87,7 +94,9 @@ export async function getProducts(): Promise<Product[]> {
   cacheTag("products");
 
   const all = await buildCatalogue();
-  return all.filter((p) => p.active && priced(p)).map(stripAdminFields);
+  return all
+    .filter((p) => p.active && priced(p) && hasBothSlides(p))
+    .map(stripAdminFields);
 }
 
 /** One product by id. */
@@ -97,7 +106,7 @@ export async function findProduct(id: number): Promise<Product | undefined> {
   await connection(); // a product added seconds ago: look again, at request time
   const all = await buildCatalogue();
   const p = all.find((x) => x.id === id);
-  if (!p || !p.active || !priced(p)) return undefined;
+  if (!p || !p.active || !priced(p) || !hasBothSlides(p)) return undefined;
   return stripAdminFields(p);
 }
 

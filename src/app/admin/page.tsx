@@ -137,6 +137,11 @@ async function AdminContent() {
                   <div className="min-w-0 flex-1 basis-56">
                     <p className="font-semibold text-foreground">
                       {p.name}{" "}
+                      {p.active && !p.image && (
+                        <span className="ml-1 rounded bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                          Needs a photo to show in the shop
+                        </span>
+                      )}
                       {p.active && startingPrice(p) <= 0 && (
                         <span className="ml-1 rounded bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800">
                           Set price to show in shop
