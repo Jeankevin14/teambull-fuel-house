@@ -22,6 +22,15 @@ const BY_IMAGE: Record<string, string> = {
   "psychotic-blue-raspberry": "psychotic-blue-raspberry-nutrition",
   "everlast-devil-tropical": "everlast-devil-tropical-nutrition",
   "everlast-devil-melon": "everlast-devil-melon-nutrition",
+  "hypper-eaa-bcaa-ice-blue-quantum": "hypper-eaa-bcaa-ice-blue-quantum-nutrition",
+  "hypper-eaa-bcaa-mango-magic": "hypper-eaa-bcaa-mango-magic-nutrition",
+  "gibbon-mass-gainer-swiss-chocolate": "gibbon-mass-gainer-swiss-chocolate-nutrition",
+  "bigflex-king-mammoth-chocolate-cookies": "bigflex-king-mammoth-chocolate-cookies-nutrition",
+  "labrada-mass-gainer-chocolate": "labrada-mass-gainer-chocolate-nutrition",
+  "labrada-mass-gainer-mocha": "labrada-mass-gainer-mocha-nutrition",
+  "xtend-bcaa-mango-madness": "xtend-bcaa-mango-madness-nutrition",
+  "xtend-bcaa-watermelon-explosion": "xtend-bcaa-watermelon-explosion-nutrition",
+  "xtend-bcaa-italian-blood-orange": "xtend-bcaa-italian-blood-orange-nutrition",
 };
 
 /**
