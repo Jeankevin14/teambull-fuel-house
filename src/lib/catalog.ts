@@ -1,121 +1,114 @@
-// Where the website gets its products from: your Google Sheet (tab "Products").
-// If the sheet is not set up or is empty, it uses src/data/products.ts instead,
-// so the shop never shows an empty page.
+// Where the website gets its products from.
+//
+//   The CATALOGUE lives in src/data/products.ts: names, photos, descriptions and
+//   the normal price. It ships with the site, so a new product appears the moment
+//   it is deployed. Nothing has to be copied anywhere by hand.
+//
+//   The Google Sheet (tab "Products") holds what CHANGES day to day: stock counts,
+//   any price you override, whether a product is hidden, and any photo you upload
+//   in Admin. Those rows are matched to the catalogue by id and layered on top.
+//
+//   Products you add yourself in Admin live only in the sheet, and are shown too.
 import { connection } from "next/server";
 import { cacheLife, cacheTag } from "next/cache";
 import { PRODUCTS } from "@/data/products";
 import type { Product } from "@/types";
 import { readTab, sheetsConfigured } from "@/lib/sheets";
-import {
-  isDataImage,
-  rowToProduct,
-  type SheetProduct,
-} from "@/lib/productRows";
-
-/**
- * Keeps the pictures sane for rows that come from the Google Sheet.
- *
- *  - a row with no photo borrows the built-in artwork for the same product
- *  - a row pointing at a /images/ file we no longer ship (an old catalogue that
- *    has not been reloaded yet) has its photo dropped, so the category picture
- *    shows instead of a broken image
- *
- * A photo uploaded in Admin, or any full URL, is always left alone.
- */
-const BUILT_IN = new Map(PRODUCTS.map((p) => [p.id, p]));
-const SHIPPED_IMAGES = new Set<string>([
-  ...PRODUCTS.map((p) => p.image).filter((x): x is string => Boolean(x)),
-  "/images/sample-1.svg",
-  "/images/sample-2.svg",
-  "/images/sample-3.svg",
-  "/images/sample-4.svg",
-  "/images/sample-5.svg",
-  "/images/sample-6.svg",
-]);
-
-function withArt(p: Product): Product {
-  if (p.image) {
-    // only police our own bundled files; uploads and links are none of our business
-    if (p.image.startsWith("/images/") && !SHIPPED_IMAGES.has(p.image)) {
-      return { ...p, image: undefined };
-    }
-    return p;
-  }
-  const b = BUILT_IN.get(p.id);
-  const same = b && b.name.trim().toLowerCase() === p.name.trim().toLowerCase();
-  return same && b.image ? { ...p, image: b.image } : p;
-}
+import { rowToProduct, type SheetProduct } from "@/lib/productRows";
 
 /** a product is shown in the shop only once it has a price */
 const priced = (p: Product) => p.price > 0 || (p.sizes?.some((x) => x.price > 0) ?? false);
 
-/** Public product list (cached ~1 minute; admin changes refresh it straight away). */
+const BUILT_IN = new Map(PRODUCTS.map((p) => [p.id, p]));
+const SHIPPED_IMAGES = new Set(PRODUCTS.map((p) => p.image).filter(Boolean) as string[]);
+
+/** true when the sheet's photo is a real one, not a stale path we no longer ship */
+function usableImage(image: string | undefined) {
+  if (!image) return false;
+  if (!image.startsWith("/images/")) return true; // an upload or a full URL
+  return SHIPPED_IMAGES.has(image);
+}
+
+/** one catalogue product with the sheet's live values layered on top */
+function merge(base: Product, row?: SheetProduct): Product {
+  if (!row) return base;
+  return {
+    ...base,
+    price: row.price > 0 ? row.price : base.price,
+    sizes: row.sizes ?? base.sizes,
+    flavours: row.flavours ?? base.flavours,
+    stock: row.stock,
+    inStock: row.inStock,
+    image: usableImage(row.image) ? row.image : base.image,
+  };
+}
+
+/** drops the admin-only fields so the shop gets a plain Product */
+function stripAdminFields(p: Product & { active: boolean; row?: number }): Product {
+  const copy: Product & { active?: boolean; row?: number } = { ...p };
+  delete copy.active;
+  delete copy.row;
+  return copy;
+}
+
+/** The whole catalogue, including anything hidden. Admin uses this. */
+export async function buildCatalogue(): Promise<(Product & { active: boolean; row?: number })[]> {
+  let rows: (SheetProduct & { row: number })[] = [];
+  if (sheetsConfigured()) {
+    try {
+      rows = (await readTab("Products"))
+        .map((r) => {
+          const p = rowToProduct(r);
+          return p ? { ...p, row: r._row } : null;
+        })
+        .filter((p): p is SheetProduct & { row: number } => p !== null);
+    } catch (e) {
+      console.error("[catalog] could not read the Google Sheet, using the built-in catalogue:", e);
+    }
+  }
+  const byId = new Map(rows.map((r) => [r.id, r]));
+
+  // every catalogue product, with its sheet row layered on if there is one
+  const merged = PRODUCTS.map((base) => {
+    const row = byId.get(base.id);
+    return { ...merge(base, row), active: row ? row.active : true, row: row?.row };
+  });
+
+  // plus anything added in Admin that is not in the catalogue
+  const extra = rows.filter((r) => !BUILT_IN.has(r.id));
+
+  return [...merged, ...extra];
+}
+
+/** Public product list: priced, not hidden. Cached briefly; Admin edits refresh it at once. */
 export async function getProducts(): Promise<Product[]> {
   "use cache";
   cacheLife({ stale: 30, revalidate: 60, expire: 3600 });
   cacheTag("products");
 
-  if (!sheetsConfigured()) return PRODUCTS.filter(priced);
-  try {
-    const rows = await readTab("Products");
-    if (rows.length === 0) return PRODUCTS.filter(priced);
-    const list = rows
-      .map((r) => rowToProduct(r))
-      .filter((p): p is SheetProduct => p !== null && p.active && priced(p))
-      .map((p): Product => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { active, ...product } = p;
-        return withArt(product);
-      });
-    // old sample rows (brand "Brand Name") are placeholders: show the built-in list instead
-    if (list.length > 0 && list.every((p) => p.brand === "Brand Name")) {
-      return PRODUCTS.filter(priced);
-    }
-    return list;
-  } catch (e) {
-    console.error(
-      "[catalog] could not read Google Sheet, using built-in products:",
-      e,
-    );
-    return PRODUCTS.filter(priced);
-  }
+  const all = await buildCatalogue();
+  return all.filter((p) => p.active && priced(p)).map(stripAdminFields);
 }
 
-/**
- * One product by id. Uses the cached list first; if the product is not in it yet
- * (for example it was added a few seconds ago), asks the sheet directly.
- */
+/** One product by id. */
 export async function findProduct(id: number): Promise<Product | undefined> {
   const hit = (await getProducts()).find((p) => p.id === id);
   if (hit || !sheetsConfigured()) return hit;
-  await connection(); // fresh lookup: must happen at request time, not at build time
-  try {
-    const rows = await readTab("Products");
-    const row = rows.find((r) => Number(r.id) === id);
-    const p = row ? rowToProduct(row) : null;
-    if (!p || !p.active || !priced(p)) return undefined;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { active, ...product } = p;
-    return withArt(product);
-  } catch {
-    return undefined;
-  }
+  await connection(); // a product added seconds ago: look again, at request time
+  const all = await buildCatalogue();
+  const p = all.find((x) => x.id === id);
+  if (!p || !p.active || !priced(p)) return undefined;
+  return stripAdminFields(p);
 }
 
-export type AdminProduct = SheetProduct & { row: number };
+export type AdminProduct = Product & { active: boolean; row?: number };
 
-/** Admin view: every product (also hidden ones), never cached. */
+/** Admin view: the whole catalogue, hidden products included, never cached. */
 export async function getAdminProducts(): Promise<AdminProduct[]> {
-  const rows = await readTab("Products");
-  return rows
-    .map((r) => {
-      const p = rowToProduct(r);
-      return p ? { ...p, row: r._row } : null;
-    })
-    .filter((p): p is AdminProduct => p !== null);
+  return buildCatalogue();
 }
 
-/** The uploaded photo of one product (cached; refreshed whenever Admin saves). */
+/** The photo uploaded in Admin for one product, if there is one. */
 export async function getProductImage(
   id: number,
 ): Promise<{ type: string; base64: string } | null> {
@@ -128,10 +121,7 @@ export async function getProductImage(
     const rows = await readTab("Products");
     const hit = rows.find((r) => Number(r.id) === id);
     const raw = (hit?.image ?? "").trim();
-    if (!isDataImage(raw)) return null;
-    const m = raw.match(
-      /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/,
-    );
+    const m = raw.match(/^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/);
     return m ? { type: m[1], base64: m[2] } : null;
   } catch {
     return null;

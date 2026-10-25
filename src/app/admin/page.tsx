@@ -11,8 +11,6 @@ import { formatPrice } from "@/lib/format";
 import { startingPrice } from "@/lib/products";
 import {
   adjustStockAction,
-  importSamplesAction,
-  replaceProductsAction,
   orderStatusAction,
   toggleActiveAction,
 } from "@/app/actions/admin";
@@ -82,9 +80,6 @@ async function AdminContent() {
     countUsers(),
   ]);
 
-  const needsNewList =
-    products.length === 0 || products.every((p) => p.brand === "Brand Name");
-
   const outOfStock = products.filter(
     (p) => p.stock !== undefined && p.stock <= 0,
   ).length;
@@ -123,53 +118,14 @@ async function AdminContent() {
         Products &amp; <span className="text-accent">stock</span>
       </h2>
 
-      {needsNewList ? (
-        <div className="mt-4 rounded-xl border-2 border-accent bg-accent-soft p-5">
-          <p className="font-display text-lg font-bold uppercase text-accent">
-            Your shop is still showing the old sample products
-          </p>
-          <p className="mt-2 text-sm">
-            Load the real stock list: 32 products across Whey, Pre-Workout, Mass Gainer, Fat Burners &amp;
-            L-Carnitine, BCAA &amp; EAA, Creatine, Vitamins, Fish Oil and Wellness, each with its stock count and a
-            starting price. Customers see them straight away, and you can change any price, photo, size or flavour
-            afterwards.
-          </p>
-          <form action={replaceProductsAction} className="mt-4">
-            <button className="rounded-full bg-accent px-7 py-3 font-bold text-white hover:opacity-90">
-              Load the 32 products now
-            </button>
-          </form>
-        </div>
-      ) : (
-        <details className="mt-4 rounded-xl border border-line bg-surface p-5">
-          <summary className="cursor-pointer text-sm font-semibold text-accent">
-            Reload the product list (32 products)
-          </summary>
-          <p className="mt-3 text-sm text-muted">
-            This replaces <strong>all</strong> products in your Products tab with the built-in stock list and its
-            starting prices. Any photos, sizes, flavours and prices you added here are lost, so only use it if you
-            want to start over.
-          </p>
-          <form action={replaceProductsAction} className="mt-3">
-            <button className="rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90">
-              Yes, replace all products
-            </button>
-          </form>
-        </details>
-      )}
-
+      <p className="mt-2 text-sm text-muted">
+        Every product on the website is listed here. Changes save to your Google Sheet as you
+        make them and reach the shop within about a minute. Nothing needs loading or importing.
+      </p>
 
       {products.length === 0 ? (
         <div className="mt-4 rounded-xl border border-line bg-surface p-5">
-          <p className="text-muted">
-            Your Products tab is empty. Load the sample products to start, or
-            add your own below.
-          </p>
-          <form action={importSamplesAction} className="mt-3">
-            <button className="rounded-full bg-accent px-6 py-2.5 text-sm font-semibold text-white hover:opacity-90">
-              Load sample products
-            </button>
-          </form>
+          <p className="text-muted">No products yet. Add one below.</p>
         </div>
       ) : (
         <div className="mt-4 divide-y divide-line rounded-xl border border-line bg-surface">

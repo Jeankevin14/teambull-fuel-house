@@ -4,7 +4,7 @@ import { updateTag } from "next/cache";
 import { CATEGORIES } from "@/config/site";
 import { PRODUCTS } from "@/data/products";
 import { assertAdmin } from "@/lib/session";
-import { appendRow, appendRows, readTab, updateRow } from "@/lib/sheets";
+import { appendRow, readTab, updateRow } from "@/lib/sheets";
 import { isDataImage, parseList, parseSizes, productToRow, rowToProduct } from "@/lib/productRows";
 import { ORDER_STATUSES, setOrderStatus } from "@/lib/orders";
 import { text } from "@/lib/validate";
@@ -70,6 +70,23 @@ export async function saveProductAction(_prev: FormState, fd: FormData): Promise
   }
 }
 
+
+/**
+ * Finds the sheet row for a product, creating one from the catalogue if this is the
+ * first time anyone has edited it. That is what lets stock be changed straight away
+ * on a product that has only ever existed in the code.
+ */
+async function rowFor(id: number) {
+  const rows = await readTab("Products");
+  const hit = rows.find((r) => rowToProduct(r)?.id === id);
+  if (hit) return hit;
+  const base = PRODUCTS.find((p) => p.id === id);
+  if (!base) return null;
+  await appendRow("Products", productToRow({ ...base, stock: base.stock ?? 0, active: true }));
+  const after = await readTab("Products");
+  return after.find((r) => rowToProduct(r)?.id === id) ?? null;
+}
+
 /** + / - buttons next to the stock number. */
 export async function adjustStockAction(fd: FormData): Promise<void> {
   await assertAdmin();
@@ -77,8 +94,7 @@ export async function adjustStockAction(fd: FormData): Promise<void> {
   const delta = num(fd.get("delta"));
   if (id === undefined || delta === undefined) return;
 
-  const rows = await readTab("Products");
-  const hit = rows.find((r) => rowToProduct(r)?.id === id);
+  const hit = await rowFor(id);
   const product = hit ? rowToProduct(hit) : null;
   if (!hit || !product) return;
 
@@ -93,43 +109,11 @@ export async function toggleActiveAction(fd: FormData): Promise<void> {
   const id = num(fd.get("id"));
   if (id === undefined) return;
 
-  const rows = await readTab("Products");
-  const hit = rows.find((r) => rowToProduct(r)?.id === id);
+  const hit = await rowFor(id);
   const product = hit ? rowToProduct(hit) : null;
   if (!hit || !product) return;
 
   await updateRow("Products", hit._row, { ...hit, active: product.active ? "FALSE" : "TRUE" });
-  updateTag("products");
-}
-
-/** One click: copy the sample products into the sheet (only if it has none yet). */
-export async function importSamplesAction(): Promise<void> {
-  await assertAdmin();
-  const rows = await readTab("Products");
-  if (rows.length > 0) return;
-  await appendRows(
-    "Products",
-    PRODUCTS.map((p) =>
-      productToRow({ ...p, stock: p.stock ?? 20, active: true })
-    )
-  );
-  updateTag("products");
-}
-
-/**
- * Replace every product in the sheet with the list in src/data/products.ts.
- * Old rows are reused, extra old rows are blanked (the shop ignores blank rows), the rest are added.
- * Prices start empty: a product stays hidden in the shop until you set its price.
- */
-export async function replaceProductsAction(): Promise<void> {
-  await assertAdmin();
-  const rows = await readTab("Products");
-  const fresh = PRODUCTS.map((p) => productToRow({ ...p, price: p.price > 0 ? p.price : 0, stock: p.stock ?? 0, active: true }));
-  const blank = { id: "", name: "", brand: "", category: "", price: "", description: "", image: "", flavours: "", sizes: "", stock: "", active: "" };
-  for (let i = 0; i < rows.length; i++) {
-    await updateRow("Products", rows[i]._row, i < fresh.length ? fresh[i] : blank);
-  }
-  await appendRows("Products", fresh.slice(rows.length));
   updateTag("products");
 }
 
