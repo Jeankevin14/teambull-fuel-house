@@ -83,8 +83,11 @@ export async function createBillAction(
     return { ok: false, error: "Choose how the customer paid." };
   }
 
-  const discountRaw = Number(String(fd.get("discount") ?? "0").replace(/[₹,\s]/g, ""));
-  const discount = Number.isFinite(discountRaw) && discountRaw > 0 ? r2(discountRaw) : 0;
+  const percentRaw = Number(String(fd.get("discountPercent") ?? "0").replace(/[%\s]/g, ""));
+  if (percentRaw < 0 || percentRaw > 100 || !Number.isFinite(percentRaw)) {
+    return { ok: false, error: "The discount must be between 0 and 100 percent." };
+  }
+  const discountPercent = r2(percentRaw);
 
   try {
     const products = await getAdminProducts();
@@ -106,11 +109,10 @@ export async function createBillAction(
     }
 
     const subtotal = r2(billLines.reduce((s, l) => s + l.price * l.qty, 0));
-    if (discount > subtotal) {
-      return { ok: false, error: "The discount is bigger than the bill total." };
-    }
+    // Whole rupees: a shop counter does not hand back paise.
+    const discount = Math.round((subtotal * discountPercent) / 100);
     const taxable = r2(subtotal - discount);
-    const tax = gstEnabled() ? r2((taxable * BILLING.taxPercent) / 100) : 0;
+    const tax = gstEnabled() ? Math.round((taxable * BILLING.taxPercent) / 100) : 0;
     const total = r2(taxable + tax);
 
     const billNo = nextBillNo(await getAllBills());
@@ -122,6 +124,7 @@ export async function createBillAction(
       lines: billLines,
       subtotal,
       discount,
+      discountPercent,
       tax,
       total,
       payment,

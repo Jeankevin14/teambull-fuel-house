@@ -22,7 +22,7 @@ export const TABS = {
   Orders: ["orderId", "date", "userId", "name", "email", "phone", "items", "total", "status"],
   Bills: [
     "billNo", "date", "customerName", "customerPhone", "items", "itemsJson",
-    "subtotal", "discount", "tax", "total", "payment", "createdBy",
+    "subtotal", "discount", "discountPercent", "tax", "total", "payment", "createdBy",
   ],
 } as const;
 

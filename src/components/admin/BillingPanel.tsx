@@ -5,10 +5,13 @@ import { useActionState, useMemo, useState } from "react";
 import { BILLING, gstEnabled } from "@/config/billing";
 import { createBillAction, type BillFormState } from "@/app/actions/billing";
 import { formatPrice } from "@/lib/format";
+import ProductPicker from "./ProductPicker";
 
 export type BillableProduct = {
   id: number;
   name: string;
+  brand?: string;
+  category?: string;
   price: number;
   stock?: number;
   flavours?: string[];
@@ -31,8 +34,7 @@ const smallBtn =
 
 export default function BillingPanel({ products }: { products: BillableProduct[] }) {
   const [lines, setLines] = useState<Line[]>([]);
-  const [discount, setDiscount] = useState("");
-  const [pick, setPick] = useState("");
+  const [percent, setPercent] = useState("");
   const [state, formAction, pending] = useActionState<BillFormState, FormData>(
     createBillAction,
     { ok: false }
@@ -50,9 +52,7 @@ export default function BillingPanel({ products }: { products: BillableProduct[]
     return flavours.length > 1 ? flavours : [];
   }
 
-  function addProduct(idText: string) {
-    const product = byId.get(Number(idText));
-    if (!product) return;
+  function addProduct(product: BillableProduct) {
     const firstSize = product.sizes?.[0];
     setLines((prev) => [
       ...prev,
@@ -65,7 +65,6 @@ export default function BillingPanel({ products }: { products: BillableProduct[]
         price: firstSize?.price ?? product.price,
       },
     ]);
-    setPick("");
   }
 
   function update(key: string, patch: Partial<Line>) {
@@ -78,9 +77,10 @@ export default function BillingPanel({ products }: { products: BillableProduct[]
   }
 
   const subtotal = lines.reduce((s, l) => s + l.price * l.qty, 0);
-  const off = Math.min(Math.max(Number(discount.replace(/[₹,\s]/g, "")) || 0, 0), subtotal);
+  const pct = Math.min(Math.max(Number(percent.replace(/[%\s]/g, "")) || 0, 0), 100);
+  const off = Math.round((subtotal * pct) / 100);
   const taxable = subtotal - off;
-  const tax = gstEnabled() ? Math.round(((taxable * BILLING.taxPercent) / 100) * 100) / 100 : 0;
+  const tax = gstEnabled() ? Math.round((taxable * BILLING.taxPercent) / 100) : 0;
   const total = taxable + tax;
 
   // After a save, start the next bill from a clean slate.
@@ -105,7 +105,7 @@ export default function BillingPanel({ products }: { products: BillableProduct[]
               type="button"
               onClick={() => {
                 setLines([]);
-                setDiscount("");
+                setPercent("");
               }}
               className="font-semibold text-accent underline"
             >
@@ -126,22 +126,7 @@ export default function BillingPanel({ products }: { products: BillableProduct[]
           lines.map((l) => ({ id: l.id, qty: l.qty, price: l.price, variant: l.variant || undefined }))
         )} />
 
-        <label className="block text-sm font-semibold text-foreground">
-          Add a product
-          <select
-            className={`${field} mt-1`}
-            value={pick}
-            onChange={(e) => addProduct(e.target.value)}
-          >
-            <option value="">Choose a product…</option>
-            {products.map((p) => (
-              <option key={p.id} value={p.id}>
-                {p.name} — {formatPrice(p.price)}
-                {p.stock !== undefined ? ` (${p.stock} left)` : ""}
-              </option>
-            ))}
-          </select>
-        </label>
+        <ProductPicker products={products} onPick={addProduct} />
 
         {lines.length === 0 ? (
           <p className="mt-4 text-muted">
@@ -235,15 +220,18 @@ export default function BillingPanel({ products }: { products: BillableProduct[]
             <input name="customerPhone" className={`${field} mt-1`} inputMode="tel" maxLength={20} />
           </label>
           <label className="block text-sm font-semibold text-foreground">
-            Discount
+            Discount %
             <input
-              name="discount"
+              name="discountPercent"
               className={`${field} mt-1`}
               inputMode="decimal"
-              value={discount}
-              onChange={(e) => setDiscount(e.target.value)}
+              value={percent}
+              onChange={(e) => setPercent(e.target.value)}
               placeholder="0"
             />
+            <span className="mt-1 block text-xs font-normal text-muted">
+              {pct > 0 ? `${pct}% off = ${formatPrice(off)}` : "Leave blank for no discount"}
+            </span>
           </label>
           <label className="block text-sm font-semibold text-foreground">
             Paid by
@@ -263,7 +251,7 @@ export default function BillingPanel({ products }: { products: BillableProduct[]
             </div>
             {off > 0 && (
               <div className="flex gap-3">
-                <dt className="text-muted">Discount</dt>
+                <dt className="text-muted">Discount ({pct}%)</dt>
                 <dd className="font-semibold">− {formatPrice(off)}</dd>
               </div>
             )}

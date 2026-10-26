@@ -20,6 +20,7 @@ export type BillRecord = {
   itemsJson: string; // exact lines, used to reprint the bill
   subtotal: number;
   discount: number;
+  discountPercent: number;
   tax: number;
   total: number;
   payment: string;
@@ -42,6 +43,7 @@ function toBill(r: Record<string, string> & { _row: number }): BillRecord {
     itemsJson: r.itemsJson ?? "",
     subtotal: money(r.subtotal),
     discount: money(r.discount),
+    discountPercent: money(r.discountPercent),
     tax: money(r.tax),
     total: money(r.total),
     payment: r.payment || "Cash",
@@ -126,6 +128,7 @@ export async function addBill(b: {
   lines: BillLine[];
   subtotal: number;
   discount: number;
+  discountPercent: number;
   tax: number;
   total: number;
   payment: string;
@@ -140,6 +143,7 @@ export async function addBill(b: {
     itemsJson: JSON.stringify(b.lines),
     subtotal: b.subtotal,
     discount: b.discount,
+    discountPercent: b.discountPercent,
     tax: b.tax,
     total: b.total,
     payment: b.payment,

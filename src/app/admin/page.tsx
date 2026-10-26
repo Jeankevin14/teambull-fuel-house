@@ -157,6 +157,8 @@ async function AdminContent() {
           .map((p) => ({
             id: p.id,
             name: p.name,
+            brand: p.brand,
+            category: p.category,
             price: startingPrice(p),
             stock: p.stock,
             flavours: p.flavours,

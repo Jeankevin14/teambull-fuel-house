@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import BarbellLoader from "@/components/fx/BarbellLoader";
 import PrintButton from "@/components/admin/PrintButton";
+import BillPdfButton from "@/components/admin/BillPdfButton";
 import { BILLING, gstEnabled } from "@/config/billing";
 import { SITE } from "@/config/site";
 import { getBill, linesOf } from "@/lib/bills";
@@ -64,7 +65,11 @@ async function Bill({ params }: { params: Promise<{ billNo: string }> }) {
         `${i + 1}. ${l.name}${l.variant ? ` (${l.variant})` : ""} x ${l.qty} = ${formatPrice(l.price * l.qty)}`
     ),
     "",
-    ...(bill.discount > 0 ? [`Discount: -${formatPrice(bill.discount)}`] : []),
+    ...(bill.discount > 0
+      ? [
+          `Discount${bill.discountPercent > 0 ? ` (${bill.discountPercent}%)` : ""}: -${formatPrice(bill.discount)}`,
+        ]
+      : []),
     `Total: ${formatPrice(bill.total)}`,
     `Paid by: ${bill.payment}`,
     "",
@@ -88,20 +93,59 @@ async function Bill({ params }: { params: Promise<{ billNo: string }> }) {
             Send on WhatsApp
           </a>
         )}
+        <BillPdfButton
+          bill={{
+            billNo: bill.billNo,
+            dateText: billDate(bill.date),
+            title: gstEnabled() ? "Tax Invoice" : "Bill",
+            shopName: SITE.name,
+            shopAddress: SITE.address,
+            shopPhone: SITE.whatsapp,
+            gstin: gstEnabled() ? BILLING.gstin : undefined,
+            fssai: SITE.fssai || undefined,
+            customerName: bill.customerName,
+            customerPhone: bill.customerPhone,
+            lines: lines.map((l) => ({
+              name: l.name,
+              variant: l.variant,
+              qty: l.qty,
+              price: l.price,
+            })),
+            subtotal: bill.subtotal,
+            discount: bill.discount,
+            discountPercent: bill.discountPercent,
+            taxLabel: `GST ${BILLING.taxPercent}%`,
+            tax: bill.tax,
+            total: bill.total,
+            payment: bill.payment,
+            footerNote: BILLING.footerNote,
+            billedBy: bill.createdBy,
+          }}
+        />
         <PrintButton />
       </div>
 
       <article className="bill-sheet rounded-xl border border-line bg-white p-6 print:rounded-none print:border-0 print:p-0">
-        <header className="border-b border-line pb-4">
-          <h1 className="font-display text-2xl font-bold uppercase">{SITE.name}</h1>
-          <p className="mt-1 text-sm text-muted">{SITE.address}</p>
-          <p className="text-sm text-muted">
-            WhatsApp +{SITE.whatsapp}
-            {SITE.fssai ? ` · FSSAI ${SITE.fssai}` : ""}
-          </p>
-          {gstEnabled() && (
-            <p className="text-sm text-muted">GSTIN {BILLING.gstin}</p>
-          )}
+        <header className="flex items-start gap-4 border-b border-line pb-4">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/images/teambull-logo.png"
+            alt=""
+            width={72}
+            height={72}
+            className="h-16 w-auto flex-none object-contain"
+          />
+          <div className="min-w-0">
+            <h1 className="font-display text-2xl font-bold uppercase">{SITE.name}</h1>
+            <p className="mt-1 text-sm text-muted">{SITE.address}</p>
+            <p className="text-sm text-muted">
+              WhatsApp +{SITE.whatsapp}
+              {SITE.fssai ? ` · FSSAI ${SITE.fssai}` : ""}
+            </p>
+            {gstEnabled() && (
+              <p className="text-sm text-muted">GSTIN {BILLING.gstin}</p>
+            )}
+          </div>
         </header>
 
         <div className="mt-4 flex flex-wrap justify-between gap-4 text-sm">
@@ -152,7 +196,9 @@ async function Bill({ params }: { params: Promise<{ billNo: string }> }) {
           </div>
           {bill.discount > 0 && (
             <div className="flex justify-between py-1">
-              <dt className="text-muted">Discount</dt>
+              <dt className="text-muted">
+                Discount{bill.discountPercent > 0 ? ` (${bill.discountPercent}%)` : ""}
+              </dt>
               <dd>− {formatPrice(bill.discount)}</dd>
             </div>
           )}
