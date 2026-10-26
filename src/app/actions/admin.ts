@@ -2,8 +2,8 @@
 
 import { updateTag } from "next/cache";
 import { CATEGORIES } from "@/config/site";
-import { PRODUCTS } from "@/data/products";
 import { assertAdmin } from "@/lib/session";
+import { rowFor } from "@/lib/productSheet";
 import { appendRow, readTab, updateRow } from "@/lib/sheets";
 import { isDataImage, parseList, parseSizes, productToRow, rowToProduct } from "@/lib/productRows";
 import { ORDER_STATUSES, setOrderStatus } from "@/lib/orders";
@@ -70,22 +70,6 @@ export async function saveProductAction(_prev: FormState, fd: FormData): Promise
   }
 }
 
-
-/**
- * Finds the sheet row for a product, creating one from the catalogue if this is the
- * first time anyone has edited it. That is what lets stock be changed straight away
- * on a product that has only ever existed in the code.
- */
-async function rowFor(id: number) {
-  const rows = await readTab("Products");
-  const hit = rows.find((r) => rowToProduct(r)?.id === id);
-  if (hit) return hit;
-  const base = PRODUCTS.find((p) => p.id === id);
-  if (!base) return null;
-  await appendRow("Products", productToRow({ ...base, stock: base.stock ?? 0, active: true }));
-  const after = await readTab("Products");
-  return after.find((r) => rowToProduct(r)?.id === id) ?? null;
-}
 
 /** + / - buttons next to the stock number. */
 export async function adjustStockAction(fd: FormData): Promise<void> {

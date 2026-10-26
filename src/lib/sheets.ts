@@ -20,6 +20,10 @@ export const TABS = {
   ],
   Users: ["id", "name", "email", "phone", "passwordHash", "role", "createdAt"],
   Orders: ["orderId", "date", "userId", "name", "email", "phone", "items", "total", "status"],
+  Bills: [
+    "billNo", "date", "customerName", "customerPhone", "items", "itemsJson",
+    "subtotal", "discount", "tax", "total", "payment", "createdBy",
+  ],
 } as const;
 
 export type TabName = keyof typeof TABS;

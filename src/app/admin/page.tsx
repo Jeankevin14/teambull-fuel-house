@@ -1,6 +1,14 @@
 import BarbellLoader from "@/components/fx/BarbellLoader";
+import Link from "next/link";
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import {
+  getAllBills,
+  salesSince,
+  startOfMonth,
+  startOfToday,
+} from "@/lib/bills";
+import BillingPanel from "@/components/admin/BillingPanel";
 import { LOW_STOCK_LIMIT, RECORD_ORDERS_ON_CHECKOUT } from "@/config/features";
 import { sheetsConfigured } from "@/lib/sheets";
 import { getAdminProducts } from "@/lib/catalog";
@@ -54,6 +62,16 @@ function Tile({
   );
 }
 
+/** Same tile, for money and other text values. */
+function TextTile({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-xl border border-line bg-surface p-4">
+      <p className="text-sm text-muted">{label}</p>
+      <p className="mt-1 font-display text-3xl font-bold">{value}</p>
+    </div>
+  );
+}
+
 const smallBtn =
   "rounded-md border border-line bg-white px-2.5 py-1 text-sm font-semibold text-foreground hover:border-accent hover:text-accent";
 
@@ -74,11 +92,15 @@ async function AdminContent() {
     );
   }
 
-  const [products, orders, customers] = await Promise.all([
+  const [products, orders, customers, bills] = await Promise.all([
     getAdminProducts(),
     RECORD_ORDERS_ON_CHECKOUT ? getAllOrders() : Promise.resolve([]),
     countUsers(),
+    getAllBills(),
   ]);
+
+  const today = salesSince(bills, startOfToday());
+  const month = salesSince(bills, startOfMonth());
 
   const outOfStock = products.filter(
     (p) => p.stock !== undefined && p.stock <= 0,
@@ -112,6 +134,61 @@ async function AdminContent() {
           <Tile label="Orders" value={orders.length} />
         )}
       </div>
+
+      {/* ---------- billing ---------- */}
+      <h2 className="mt-12 font-display text-2xl font-bold uppercase">
+        Billing <span className="text-accent">counter</span>
+      </h2>
+      <p className="mt-2 text-sm text-muted">
+        Make a bill for anyone who buys from you, in the shop or on WhatsApp. Saving a
+        bill takes those units off your stock automatically.
+      </p>
+
+      <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
+        <TextTile label="Sales today" value={formatPrice(today.sum)} />
+        <Tile label="Bills today" value={today.count} />
+        <TextTile label="Sales this month" value={formatPrice(month.sum)} />
+        <Tile label="Bills this month" value={month.count} />
+      </div>
+
+      <BillingPanel
+        products={products
+          .filter((p) => p.active)
+          .map((p) => ({
+            id: p.id,
+            name: p.name,
+            price: startingPrice(p),
+            stock: p.stock,
+            flavours: p.flavours,
+            sizes: p.sizes,
+          }))}
+      />
+
+      {bills.length > 0 && (
+        <div className="mt-6">
+          <h3 className="font-display text-xl font-bold uppercase">Recent bills</h3>
+          <div className="mt-3 divide-y divide-line rounded-xl border border-line bg-surface">
+            {bills.slice(0, 15).map((b) => (
+              <div key={b.billNo} className="flex flex-wrap items-center gap-x-6 gap-y-2 p-4">
+                <div className="min-w-0 flex-1 basis-56">
+                  <p className="font-semibold text-foreground">
+                    {b.billNo} · {formatPrice(b.total)}{" "}
+                    <span className="font-normal text-muted">({b.payment})</span>
+                  </p>
+                  <p className="text-sm text-muted">
+                    {b.customerName || "Walk-in customer"}
+                    {b.customerPhone ? ` · ${b.customerPhone}` : ""} ·{" "}
+                    {b.date.slice(0, 10)}
+                  </p>
+                </div>
+                <Link href={`/admin/bills/${b.billNo}`} className={smallBtn}>
+                  Open
+                </Link>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ---------- products & stock ---------- */}
       <h2 className="mt-12 font-display text-2xl font-bold uppercase">

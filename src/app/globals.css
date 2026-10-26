@@ -590,3 +590,28 @@ section.bg-gradient-to-b {
 .mem-face { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; border-radius: 14px; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .mem-front { transform: rotateY(180deg); }
 @media (prefers-reduced-motion: reduce) { .mem-inner { transition: none; } }
+
+/* =====================================================================
+   PRINTING A BILL — hide the website chrome, keep just the bill
+   ===================================================================== */
+@media print {
+  header,
+  footer,
+  .wa-ping {
+    display: none !important;
+  }
+
+  /* ...but the bill's own heading and footer note must still print */
+  .bill-sheet header,
+  .bill-sheet footer {
+    display: block !important;
+  }
+
+  body {
+    background: #ffffff;
+  }
+
+  @page {
+    margin: 12mm;
+  }
+}
