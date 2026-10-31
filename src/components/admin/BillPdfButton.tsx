@@ -13,7 +13,8 @@ export type PdfBill = {
   fssai?: string;
   customerName: string;
   customerPhone: string;
-  lines: { name: string; variant?: string; qty: number; price: number }[];
+  lines: { name: string; variant?: string; qty: number; price: number; mrp?: number }[];
+  saved: number;
   subtotal: number;
   discount: number;
   discountPercent: number;
@@ -136,7 +137,14 @@ export default function BillPdfButton({ bill }: { bill: PdfBill }) {
         doc.text(String(l.qty), colQty, y, { align: "right" });
         doc.text(rupees(l.price), colRate, y, { align: "right" });
         doc.text(rupees(l.price * l.qty), R, y, { align: "right" });
-        y += Math.max(wrapped.length * 4.6, 6) + 1.5;
+        let extra = 0;
+        if (l.mrp && l.mrp > l.price) {
+          doc.setFontSize(7.5).setTextColor(130);
+          doc.text(`MRP ${rupees(l.mrp)}`, colRate, y + 4, { align: "right" });
+          doc.setFontSize(9).setTextColor(20);
+          extra = 4;
+        }
+        y += Math.max(wrapped.length * 4.6, 6) + 1.5 + extra;
         doc.setDrawColor(235).line(L, y - 2, R, y - 2);
         if (y > 250) {
           doc.addPage();
@@ -162,6 +170,13 @@ export default function BillPdfButton({ bill }: { bill: PdfBill }) {
       y += 2;
       row("Total", rupees(bill.total), true);
       row("Paid by", bill.payment);
+      if (bill.saved > 0) {
+        y += 2;
+        doc.setFont("helvetica", "bold").setFontSize(9).setTextColor(220, 38, 38);
+        doc.text(`You saved ${rupees(bill.saved)} against MRP`, R, y, { align: "right" });
+        doc.setTextColor(20);
+        y += 6;
+      }
 
       y += 8;
       doc.setDrawColor(220, 38, 38).setLineWidth(0.8).line(L, y, R, y);

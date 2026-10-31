@@ -7,6 +7,7 @@ import { CATEGORIES } from "@/config/site";
 import ProductCard from "@/components/product/ProductCard";
 import type { FormState } from "@/types/forms";
 import type { Product, ProductSize } from "@/types";
+import { savingOn } from "@/lib/pricing";
 
 const fieldBase =
   "rounded-lg border border-line bg-white px-3 py-2.5 text-foreground outline-none focus:border-accent";
@@ -57,6 +58,7 @@ type Initial = {
   brand?: string;
   category?: string;
   price?: number;
+  mrp?: number;
   description?: string;
   image?: string;
   flavours?: string[];
@@ -80,6 +82,11 @@ export default function ProductStudio({
   const [category, setCategory] = useState<string>(initial.category ?? "");
   const [description, setDescription] = useState(initial.description ?? "");
   const [price, setPrice] = useState(initial.price !== undefined ? String(initial.price) : "");
+  const [mrp, setMrp] = useState(initial.mrp !== undefined ? String(initial.mrp) : "");
+  const mrpPreview = savingOn(
+    Number(price.replace(/[₹,\s]/g, "")) || 0,
+    Number(mrp.replace(/[₹,\s]/g, "")) || undefined
+  );
   const [image, setImage] = useState(initial.image ?? "");
   const [imageBusy, setImageBusy] = useState(false);
   const [imageError, setImageError] = useState("");
@@ -140,6 +147,7 @@ export default function ProductStudio({
     brand: brand.trim(),
     category: (category || CATEGORIES[0]) as Product["category"],
     price: cleanSizes[0]?.price ?? (Number(price.replace(/[₹,\s]/g, "")) || 0),
+    mrp: Number(mrp.replace(/[₹,\s]/g, "")) || undefined,
     description: description.trim() || "Your description appears here.",
     image: image || undefined,
     flavours: flavours.length ? flavours : undefined,
@@ -369,6 +377,23 @@ export default function ProductStudio({
               />
             </label>
           )}
+
+          <label className={labelCls}>
+            MRP (₹) <span className={`text-sm ${hint}`}>(optional)</span>
+            <input
+              name="mrp"
+              inputMode="numeric"
+              value={mrp}
+              onChange={(e) => setMrp(e.target.value)}
+              placeholder="e.g. 2999"
+              className={`${fieldBase} mt-1 block w-full max-w-48`}
+            />
+            <span className={`mt-1 block text-sm ${hint}`}>
+              {mrpPreview
+                ? `Shows as: MRP ₹${mrpPreview.mrp.toLocaleString("en-IN")}, our price ₹${mrpPreview.price.toLocaleString("en-IN")}, save ₹${mrpPreview.amount.toLocaleString("en-IN")} (${mrpPreview.percent}% off)`
+                : "Leave blank if the pack has no MRP, or if the MRP is the same as your price. Then only your price is shown."}
+            </span>
+          </label>
         </section>
 
         {/* 4. flavours */}

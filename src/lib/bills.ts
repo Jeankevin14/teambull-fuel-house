@@ -8,6 +8,7 @@ export type BillLine = {
   variant?: string;
   qty: number;
   price: number; // unit price actually charged
+  mrp?: number; // the pack MRP, when it is above what we charged
 };
 
 export type BillRecord = {
@@ -96,6 +97,7 @@ export function linesOf(bill: BillRecord): BillLine[] {
       const qty = Number(l.qty);
       const price = Number(l.price);
       if (!Number.isFinite(qty) || !Number.isFinite(price)) return [];
+      const mrp = Number(l.mrp);
       return [
         {
           id: Number(l.id) || 0,
@@ -103,6 +105,7 @@ export function linesOf(bill: BillRecord): BillLine[] {
           variant: l.variant ? String(l.variant) : undefined,
           qty,
           price,
+          mrp: Number.isFinite(mrp) && mrp > price ? mrp : undefined,
         },
       ];
     });
@@ -150,6 +153,14 @@ export async function addBill(b: {
     createdBy: b.createdBy,
   });
   return b.billNo;
+}
+
+/** What the customer saved against MRP on a bill. 0 when no line had an MRP. */
+export function savedOn(lines: BillLine[]) {
+  return lines.reduce(
+    (sum, l) => (l.mrp && l.mrp > l.price ? sum + (l.mrp - l.price) * l.qty : sum),
+    0
+  );
 }
 
 /** Sales totals for the admin tiles. */

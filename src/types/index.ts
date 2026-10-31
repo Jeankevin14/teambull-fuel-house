@@ -11,6 +11,7 @@ export type Product = {
   brand: string;
   category: Category;
   price: number; // price in rupees (number only). If `sizes` is set, the first size's price is used as the default.
+  mrp?: number; // the MRP printed on the pack. Leave out when there is none, or when it equals our price.
   description: string;
   image?: string; // e.g. "/images/whey-2kg.jpg" (file inside public/images)
   flavours?: string[]; // e.g. ["Chocolate", "Vanilla"]

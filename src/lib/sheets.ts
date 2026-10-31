@@ -15,7 +15,7 @@ const API = process.env.SHEETS_API_BASE || "https://sheets.googleapis.com/v4/spr
 /** The tabs and their column headers (row 1 of each tab). */
 export const TABS = {
   Products: [
-    "id", "name", "brand", "category", "price", "description",
+    "id", "name", "brand", "category", "price", "mrp", "description",
     "image", "flavours", "sizes", "stock", "active",
   ],
   Users: ["id", "name", "email", "phone", "passwordHash", "role", "createdAt"],
@@ -130,6 +130,19 @@ async function setup() {
         body: JSON.stringify({ values: [[...TABS[tab]]] }),
       });
       headerCache[tab] = [...TABS[tab]];
+      continue;
+    }
+    // A tab made by an older version can be missing a column we now write, such as
+    // "mrp". Add the missing headers on the end, leaving the existing ones where
+    // they are so nothing already in the sheet moves.
+    const missing = TABS[tab].filter((h) => !row.includes(h));
+    if (missing.length) {
+      const grown = [...row, ...missing];
+      await api(`/values/${tab}!1:1?valueInputOption=RAW`, {
+        method: "PUT",
+        body: JSON.stringify({ values: [grown] }),
+      });
+      headerCache[tab] = grown;
     } else {
       headerCache[tab] = row;
     }

@@ -54,6 +54,9 @@ export function rowToProduct(r: Record<string, string>): SheetProduct | null {
 
   const sizes = parseSizes(r.sizes);
   const price = num(r.price) ?? sizes?.[0]?.price ?? 0;
+  const mrpRaw = num(r.mrp);
+  // An MRP only means something when it is above what we charge.
+  const mrp = mrpRaw !== undefined && mrpRaw > price ? mrpRaw : undefined;
   const stock = num(r.stock);
   const category = ((r.category ?? "").trim() || CATEGORIES[0]) as Category;
   const rawImage = (r.image ?? "").trim();
@@ -68,6 +71,7 @@ export function rowToProduct(r: Record<string, string>): SheetProduct | null {
     brand: (r.brand ?? "").trim(),
     category,
     price,
+    mrp,
     description: (r.description ?? "").trim(),
     image,
     flavours: parseList(r.flavours),
@@ -84,6 +88,7 @@ export function productToRow(p: {
   brand: string;
   category: string;
   price: number;
+  mrp?: number;
   description: string;
   image?: string;
   flavours?: string[];
@@ -97,6 +102,7 @@ export function productToRow(p: {
     brand: p.brand,
     category: p.category,
     price: p.price,
+    mrp: p.mrp === undefined ? "" : p.mrp,
     description: p.description,
     image: p.image ?? "",
     flavours: (p.flavours ?? []).join(", "),

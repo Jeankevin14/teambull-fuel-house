@@ -7,7 +7,7 @@ import PrintButton from "@/components/admin/PrintButton";
 import BillPdfButton from "@/components/admin/BillPdfButton";
 import { BILLING, gstEnabled } from "@/config/billing";
 import { SITE } from "@/config/site";
-import { getBill, linesOf } from "@/lib/bills";
+import { getBill, linesOf, savedOn } from "@/lib/bills";
 import { formatPrice } from "@/lib/format";
 import { requireAdmin } from "@/lib/session";
 
@@ -55,6 +55,7 @@ async function Bill({ params }: { params: Promise<{ billNo: string }> }) {
   if (!bill) notFound();
 
   const lines = linesOf(bill);
+  const saved = savedOn(lines);
   const wa = waNumber(bill.customerPhone);
   const waText = [
     `${SITE.name}`,
@@ -72,6 +73,7 @@ async function Bill({ params }: { params: Promise<{ billNo: string }> }) {
       : []),
     `Total: ${formatPrice(bill.total)}`,
     `Paid by: ${bill.payment}`,
+    ...(saved > 0 ? [`You saved ${formatPrice(saved)} against MRP`] : []),
     "",
     "Thank you!",
   ].join("\n");
@@ -110,7 +112,9 @@ async function Bill({ params }: { params: Promise<{ billNo: string }> }) {
               variant: l.variant,
               qty: l.qty,
               price: l.price,
+              mrp: l.mrp,
             })),
+            saved,
             subtotal: bill.subtotal,
             discount: bill.discount,
             discountPercent: bill.discountPercent,
@@ -182,7 +186,14 @@ async function Bill({ params }: { params: Promise<{ billNo: string }> }) {
                   {l.variant && <span className="text-muted"> · {l.variant}</span>}
                 </td>
                 <td className="py-2 text-center">{l.qty}</td>
-                <td className="py-2 text-right">{formatPrice(l.price)}</td>
+                <td className="py-2 text-right">
+                  {formatPrice(l.price)}
+                  {l.mrp && l.mrp > l.price && (
+                    <span className="block text-xs text-muted line-through">
+                      {formatPrice(l.mrp)}
+                    </span>
+                  )}
+                </td>
                 <td className="py-2 text-right">{formatPrice(l.price * l.qty)}</td>
               </tr>
             ))}
@@ -216,6 +227,11 @@ async function Bill({ params }: { params: Promise<{ billNo: string }> }) {
             <dt className="text-muted">Paid by</dt>
             <dd className="font-semibold">{bill.payment}</dd>
           </div>
+          {saved > 0 && (
+            <div className="mt-2 rounded-md bg-accent-soft px-3 py-2 text-center text-sm font-semibold text-accent-dark">
+              You saved {formatPrice(saved)} against MRP
+            </div>
+          )}
         </dl>
 
         <footer className="mt-6 border-t border-line pt-4 text-xs text-muted">

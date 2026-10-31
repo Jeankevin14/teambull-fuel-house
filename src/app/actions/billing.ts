@@ -105,6 +105,8 @@ export async function createBillAction(
         variant: l.variant,
         qty: l.qty,
         price: l.price,
+        // the MRP comes from the catalogue, and only when it beats what we charged
+        mrp: product.mrp && product.mrp > l.price ? product.mrp : undefined,
       });
     }
 

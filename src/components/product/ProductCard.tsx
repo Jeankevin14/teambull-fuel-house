@@ -1,11 +1,11 @@
 import Link from "next/link";
 import type { Product } from "@/types";
-import { formatPrice } from "@/lib/format";
 import { hasOptions, isInStock, startingPrice } from "@/lib/products";
 import Tilt from "@/components/fx/Tilt";
 import Spotlight from "@/components/fx/Spotlight";
 import { LOW_STOCK_LIMIT } from "@/config/features";
 import AddToCartButton from "./AddToCartButton";
+import PriceTag from "./PriceTag";
 import ProductImage from "./ProductImage";
 
 export default function ProductCard({ product }: { product: Product }) {
@@ -58,12 +58,13 @@ export default function ProductCard({ product }: { product: Product }) {
             </p>
           )}
 
-          <p className="mt-3 text-xl font-bold">
-            {hasSizes && (
-              <span className="mr-1 text-sm font-normal text-muted">From</span>
-            )}
-            {formatPrice(startingPrice(product))}
-          </p>
+          <div className="mt-3">
+            <PriceTag
+              price={startingPrice(product)}
+              mrp={product.mrp}
+              from={hasSizes}
+            />
+          </div>
 
           {options && inStock ? (
             // needs a flavour or size first, so go to the product page

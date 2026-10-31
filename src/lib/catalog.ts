@@ -42,6 +42,7 @@ function merge(base: Product, row?: SheetProduct): Product {
   return {
     ...base,
     price: row.price > 0 ? row.price : base.price,
+    mrp: row.mrp ?? base.mrp,
     sizes: row.sizes ?? base.sizes,
     flavours: row.flavours ?? base.flavours,
     stock: row.stock,

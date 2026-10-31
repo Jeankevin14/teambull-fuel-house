@@ -38,6 +38,7 @@ export async function saveProductAction(_prev: FormState, fd: FormData): Promise
   const flavours = parseList(text(fd.get("flavours"), 300));
   const sizes = parseSizes(text(fd.get("sizes"), 300));
   const price = num(fd.get("price")) ?? sizes?.[0]?.price;
+  const mrpRaw = num(fd.get("mrp"));
   const stockRaw = num(fd.get("stock"));
   const stock = stockRaw === undefined ? undefined : Math.max(0, Math.floor(stockRaw));
   const active = fd.get("active") === "on";
@@ -46,6 +47,12 @@ export async function saveProductAction(_prev: FormState, fd: FormData): Promise
   if (!name) return { ok: false, error: "Product name is required." };
   if (!(CATEGORIES as readonly string[]).includes(category)) return { ok: false, error: "Choose a category." };
   if (price === undefined || price < 0) return { ok: false, error: "Enter a price (numbers only)." };
+  if (mrpRaw !== undefined && mrpRaw < 0) return { ok: false, error: "MRP cannot be a minus number." };
+  if (mrpRaw !== undefined && mrpRaw > 0 && mrpRaw < price) {
+    return { ok: false, error: "MRP is lower than your price. Check the two numbers." };
+  }
+  // An MRP equal to our price says nothing to the customer, so it is not stored.
+  const mrp = mrpRaw !== undefined && mrpRaw > price ? mrpRaw : undefined;
   if (String(fd.get("sizes") ?? "").trim() && !sizes) {
     return { ok: false, error: 'Sizes must look like  1kg:1999|2kg:3499' };
   }
@@ -56,12 +63,12 @@ export async function saveProductAction(_prev: FormState, fd: FormData): Promise
       const hit = rows.find((r) => rowToProduct(r)?.id === idRaw);
       if (!hit) return { ok: false, error: "Product not found. Refresh the page." };
       const finalImage = keepImage ? (hit.image ?? "") : image;
-      await updateRow("Products", hit._row, productToRow({ id: idRaw, name, brand, category, price, description, image: finalImage || undefined, flavours, sizes, stock, active }));
+      await updateRow("Products", hit._row, productToRow({ id: idRaw, name, brand, category, price, mrp, description, image: finalImage || undefined, flavours, sizes, stock, active }));
       updateTag("products");
       return { ok: true, id: idRaw, message: "Saved." };
     }
     const maxId = rows.reduce((m, r) => Math.max(m, rowToProduct(r)?.id ?? 0), 0);
-    await appendRow("Products", productToRow({ id: maxId + 1, name, brand, category, price, description, image: image || undefined, flavours, sizes, stock, active }));
+    await appendRow("Products", productToRow({ id: maxId + 1, name, brand, category, price, mrp, description, image: image || undefined, flavours, sizes, stock, active }));
     updateTag("products");
     return { ok: true, id: maxId + 1, message: `Added "${name}".` };
   } catch (e) {
