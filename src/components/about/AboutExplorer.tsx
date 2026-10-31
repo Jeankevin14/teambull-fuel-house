@@ -34,6 +34,24 @@ const SERVICES = [
   "TeamBull Training Facilities",
 ];
 
+/** The people on the About page. Add another entry to add another card. */
+const PEOPLE = [
+  {
+    name: "Vishwam D",
+    role: "Founder",
+    photo: "/images/vishwam.jpg",
+    blurb: "The founder behind TeamBull, building people, athletes and a brand.",
+    hello: "Hi Vishwam! I found Team Bull Fuel House online and would like to talk.",
+  },
+  {
+    name: "Praveen S",
+    role: "Co-founder",
+    photo: "/images/praveen.jpg",
+    blurb: "Co-founder of TeamBull, working alongside Vishwam to grow the brand.",
+    hello: "Hi Praveen! I found Team Bull Fuel House online and would like to talk.",
+  },
+];
+
 const FUTURE = new Set(["TeamBull-branded Fitness Products", "TeamBull Training Facilities"]);
 
 export default function AboutExplorer() {
@@ -41,7 +59,6 @@ export default function AboutExplorer() {
   const [pillar, setPillar] = useState<number | null>(null);
   const [service, setService] = useState<string | null>(null);
 
-  const founderLink = buildChatUrl("Hi Vishwam! I found Team Bull Fuel House online and would like to talk.");
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-12">
@@ -62,34 +79,39 @@ export default function AboutExplorer() {
         </p>
       </Reveal>
 
-      {/* Founder */}
+      {/* The people behind it */}
       <Reveal delay={0.1} className="mt-8">
-        <div className="flex flex-col items-center gap-6 overflow-hidden rounded-2xl border border-line bg-surface p-5 sm:flex-row sm:items-stretch">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/vishwam.jpg"
-            alt="Vishwam D, founder of Team Bull"
-            width={400}
-            height={500}
-            className="h-72 w-56 shrink-0 rounded-xl object-cover shadow-lg sm:h-64 sm:w-52"
-          />
-          <div className="flex flex-1 flex-col justify-center text-center sm:text-left">
-            <p className="font-display text-xs font-semibold uppercase tracking-[0.25em] text-accent">
-              Founder
-            </p>
-            <h2 className="font-display text-4xl font-bold uppercase">Vishwam D</h2>
-            <p className="mt-2 text-muted">
-              The founder behind TeamBull, building people, athletes and a brand.
-            </p>
-            <a
-              href={founderLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 self-center rounded-full bg-accent px-6 py-3 text-center text-sm font-bold text-white transition hover:bg-accent-dark sm:self-start"
+        <div className="grid gap-5 md:grid-cols-2">
+          {PEOPLE.map((person) => (
+            <div
+              key={person.name}
+              className="flex flex-col items-center gap-5 overflow-hidden rounded-2xl border border-line bg-surface p-5 sm:flex-row sm:items-stretch"
             >
-              Chat on WhatsApp
-            </a>
-          </div>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={person.photo}
+                alt={`${person.name}, ${person.role.toLowerCase()} of Team Bull`}
+                width={400}
+                height={500}
+                className="h-72 w-56 shrink-0 rounded-xl object-cover object-top shadow-lg sm:h-60 sm:w-44"
+              />
+              <div className="flex flex-1 flex-col justify-center text-center sm:text-left">
+                <p className="font-display text-xs font-semibold uppercase tracking-[0.25em] text-accent">
+                  {person.role}
+                </p>
+                <h2 className="font-display text-3xl font-bold uppercase">{person.name}</h2>
+                <p className="mt-2 text-muted">{person.blurb}</p>
+                <a
+                  href={buildChatUrl(person.hello)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 self-center rounded-full bg-accent px-6 py-3 text-center text-sm font-bold text-white transition hover:bg-accent-dark sm:self-start"
+                >
+                  Chat on WhatsApp
+                </a>
+              </div>
+            </div>
+          ))}
         </div>
       </Reveal>
 
