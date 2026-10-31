@@ -27,7 +27,11 @@ export function buildOrderUrl(
   return `https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(message)}`;
 }
 
-/** A plain "chat with us" link (used by the floating button). */
-export function buildChatUrl(message: string) {
-  return `https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(message)}`;
+/**
+ * A plain "chat with us" link (used by the floating button).
+ * `number` defaults to the shop's WhatsApp; pass one to reach a person directly.
+ * Digits only, country code first, e.g. 916383208113.
+ */
+export function buildChatUrl(message: string, number: string = SITE.whatsapp) {
+  return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
 }

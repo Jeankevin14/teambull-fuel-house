@@ -49,6 +49,7 @@ const PEOPLE = [
     photo: "/images/praveen.jpg",
     blurb: "Co-founder of TeamBull, turning the vision into a working business.",
     hello: "Hi Praveen! I found Team Bull Fuel House online and would like to talk.",
+    whatsapp: "916383208113", // Praveen's own number, not the shop's
   },
 ];
 
@@ -102,7 +103,7 @@ export default function AboutExplorer() {
                 <h2 className="font-display text-3xl font-bold uppercase">{person.name}</h2>
                 <p className="mt-2 text-muted">{person.blurb}</p>
                 <a
-                  href={buildChatUrl(person.hello)}
+                  href={buildChatUrl(person.hello, person.whatsapp)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-4 self-center rounded-full bg-accent px-6 py-3 text-center text-sm font-bold text-white transition hover:bg-accent-dark sm:self-start"
