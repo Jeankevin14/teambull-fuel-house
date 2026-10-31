@@ -47,7 +47,7 @@ const PEOPLE = [
     name: "Praveen S",
     role: "Co-founder",
     photo: "/images/praveen.jpg",
-    blurb: "Co-founder of TeamBull, working alongside Vishwam to grow the brand.",
+    blurb: "Co-founder of TeamBull, turning the vision into a working business.",
     hello: "Hi Praveen! I found Team Bull Fuel House online and would like to talk.",
   },
 ];
