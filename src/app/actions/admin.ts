@@ -2,6 +2,7 @@
 
 import { updateTag } from "next/cache";
 import { CATEGORIES } from "@/config/site";
+import { PRODUCTS } from "@/data/products";
 import { assertAdmin } from "@/lib/session";
 import { rowFor } from "@/lib/productSheet";
 import { appendRow, readTab, updateRow } from "@/lib/sheets";
@@ -105,6 +106,30 @@ export async function toggleActiveAction(fd: FormData): Promise<void> {
   if (!hit || !product) return;
 
   await updateRow("Products", hit._row, { ...hit, active: product.active ? "FALSE" : "TRUE" });
+  updateTag("products");
+}
+
+/**
+ * Puts the website back on the prices that ship with the app.
+ *
+ * A price typed into Admin is stored in the Google Sheet and wins over the one in
+ * the app, which is what lets you change a price without a developer. The cost is
+ * that an old sheet price keeps overriding a new price list. This clears those
+ * overrides for the built-in products, so the app's own prices and MRPs apply
+ * again. Stock, photos and hidden/shown are left exactly as they are.
+ */
+export async function usePriceListAction(): Promise<void> {
+  await assertAdmin();
+  const catalogue = new Set(PRODUCTS.map((p) => p.id));
+  const rows = await readTab("Products");
+
+  for (const row of rows) {
+    const product = rowToProduct(row);
+    if (!product || !catalogue.has(product.id)) continue;
+    const hasOverride = (row.price ?? "").trim() !== "" || (row.mrp ?? "").trim() !== "";
+    if (!hasOverride) continue;
+    await updateRow("Products", row._row, { ...row, price: "", mrp: "" });
+  }
   updateTag("products");
 }
 
