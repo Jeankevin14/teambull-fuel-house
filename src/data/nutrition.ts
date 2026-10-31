@@ -51,6 +51,11 @@ const BY_IMAGE: Record<string, string> = {
   "wellbeing-slow-triple-omega3": "wellbeing-slow-triple-omega3-nutrition",
   "lipo6-hardcore": "lipo6-hardcore-nutrition",
   "rc-lcarnitine-4000-ruby-red-fruit": "rc-lcarnitine-4000-ruby-red-fruit-nutrition",
+  "hypper-whey-chocolate-cake": "hypper-whey-chocolate-cake-nutrition",
+  "1md-pro-mass-gainer-belgian-chocolate": "1md-pro-mass-gainer-belgian-chocolate-nutrition",
+  "niox-nitric-oxide": "niox-nitric-oxide-nutrition",
+  "lipo6-intense": "lipo6-intense-nutrition",
+  "black-spider-25-ephedra": "black-spider-25-ephedra-nutrition",
 };
 
 /**
@@ -74,4 +79,9 @@ export const NUTRITION_NEEDS_REVIEW = [
   "enliven-whey-iced-coffee",
   "gibbon-whey-strawberry-cheesecake",
   "psychotic-watermelon",
+  // second picture is the pack's details panel, not a nutrition facts table
+  "niox-nitric-oxide",
+  "lipo6-intense",
+  "black-spider-25-ephedra",
+  "1md-pro-mass-gainer-belgian-chocolate",
 ];

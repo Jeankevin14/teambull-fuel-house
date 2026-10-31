@@ -27,6 +27,14 @@ const priced = (p: Product) => p.price > 0 || (p.sizes?.some((x) => x.price > 0)
  */
 const hasBothSlides = (p: Product) => Boolean(p.image) && Boolean(nutritionImageFor(p.image));
 
+/**
+ * A product is shown when it has both gallery pictures, or when it is marked
+ * `awaitingPhotos` in the catalogue — something the shop stocks and sells now,
+ * with its photo and label still to be taken. Nothing reaches the shop by
+ * accident: the flag has to be written by hand next to the product.
+ */
+const showable = (p: Product) => hasBothSlides(p) || p.awaitingPhotos === true;
+
 const SHIPPED_IMAGES = new Set(PRODUCTS.map((p) => p.image).filter(Boolean) as string[]);
 
 /** true when the sheet's photo is a real one, not a stale path we no longer ship */
@@ -43,6 +51,7 @@ function merge(base: Product, row?: SheetProduct): Product {
     ...base,
     price: row.price > 0 ? row.price : base.price,
     mrp: row.mrp ?? base.mrp,
+    awaitingPhotos: base.awaitingPhotos,
     sizes: row.sizes ?? base.sizes,
     flavours: row.flavours ?? base.flavours,
     stock: row.stock,
@@ -96,7 +105,7 @@ export async function getProducts(): Promise<Product[]> {
 
   const all = await buildCatalogue();
   return all
-    .filter((p) => p.active && priced(p) && hasBothSlides(p))
+    .filter((p) => p.active && priced(p) && showable(p))
     .map(stripAdminFields);
 }
 
@@ -107,7 +116,7 @@ export async function findProduct(id: number): Promise<Product | undefined> {
   await connection(); // a product added seconds ago: look again, at request time
   const all = await buildCatalogue();
   const p = all.find((x) => x.id === id);
-  if (!p || !p.active || !priced(p) || !hasBothSlides(p)) return undefined;
+  if (!p || !p.active || !priced(p) || !showable(p)) return undefined;
   return stripAdminFields(p);
 }
 

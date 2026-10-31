@@ -18,10 +18,13 @@ export default function ProductImage({
   product,
   className = "h-48",
   letterSize = "text-4xl",
+  sizes = "(max-width: 768px) 100vw, 33vw",
 }: {
   product: Product;
   className?: string;
   letterSize?: string;
+  /** what width the picture is actually drawn at, so the browser fetches that size */
+  sizes?: string;
 }) {
   // no photo yet? show a sample picture for the category until a real one is added
   const src = product.image || SAMPLE_BY_CATEGORY[product.category];
@@ -44,7 +47,7 @@ export default function ProductImage({
           src={src}
           alt={product.name}
           fill
-          sizes="(max-width: 768px) 100vw, 33vw"
+          sizes={sizes}
           className="object-contain p-2"
         />
       ) : (

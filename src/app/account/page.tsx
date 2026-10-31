@@ -9,6 +9,7 @@ import { getProducts } from "@/lib/catalog";
 import { formatPrice } from "@/lib/format";
 import { startingPrice, isInStock } from "@/lib/products";
 import { LOW_STOCK_LIMIT, RECORD_ORDERS_ON_CHECKOUT } from "@/config/features";
+import ProductImage from "@/components/product/ProductImage";
 import ProfileForm from "@/components/auth/ProfileForm";
 import LogoutButton from "@/components/auth/LogoutButton";
 
@@ -101,15 +102,21 @@ async function AccountContent() {
             <Link
               key={p.id}
               href={`/products/${p.id}`}
-              className="flex flex-wrap items-center justify-between gap-2 p-4 hover:bg-accent-soft"
+              className="flex items-center gap-4 p-4 hover:bg-accent-soft"
             >
-              <span>
-                <span className="font-semibold text-foreground">{p.name}</span>
+              <ProductImage
+                product={p}
+                className="h-16 w-16 flex-none overflow-hidden rounded-lg border border-line bg-white"
+                letterSize="text-xl"
+                sizes="64px"
+              />
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-semibold text-foreground">{p.name}</span>
                 <span className="block text-sm text-muted">
                   {p.category} · from {formatPrice(startingPrice(p))}
                 </span>
               </span>
-              <span className={`text-sm font-semibold ${inStock ? (low ? "text-accent" : "text-green-600") : "text-muted"}`}>
+              <span className={`flex-none text-right text-sm font-semibold ${inStock ? (low ? "text-accent" : "text-green-600") : "text-muted"}`}>
                 {!inStock ? "Out of stock" : p.stock === undefined ? "In stock" : low ? `Only ${p.stock} left` : `${p.stock} in stock`}
               </span>
             </Link>
