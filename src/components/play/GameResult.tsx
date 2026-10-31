@@ -173,8 +173,8 @@ export default function GameResult({
         >
           Play again
         </button>
-        <Link href="/bundles" className="rounded-full bg-foreground px-7 py-3 font-semibold text-white transition hover:bg-accent">
-          Shop combo packs
+        <Link href="/products" className="rounded-full bg-foreground px-7 py-3 font-semibold text-white transition hover:bg-accent">
+          Shop supplements
         </Link>
       </div>
     </div>

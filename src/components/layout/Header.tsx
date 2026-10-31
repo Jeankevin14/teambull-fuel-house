@@ -18,9 +18,6 @@ export default function Header() {
           <Link href="/products" className="hidden hover:text-accent md:inline">
             Products
           </Link>
-          <Link href="/bundles" className="hidden items-center gap-1.5 hover:text-accent md:inline-flex">
-            Combos <NewBadge />
-          </Link>
           <Link href="/play" className="hidden items-center gap-1.5 hover:text-accent md:inline-flex">
             Play <NewBadge />
           </Link>
@@ -49,7 +46,6 @@ export default function Header() {
         {[
           ["Products", "/products", false],
           ["About", "/about", false],
-          ["Combos", "/bundles", true],
           ["Play", "/play", true],
         ].map(([label, href, isNew]) => (
           <Link
