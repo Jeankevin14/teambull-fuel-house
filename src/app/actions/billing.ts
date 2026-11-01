@@ -89,6 +89,16 @@ export async function createBillAction(
   }
   const discountPercent = r2(percentRaw);
 
+  // Delivery is a flat charge in rupees, typed at the counter.
+  const deliveryRaw = Number(String(fd.get("delivery") ?? "0").replace(/[₹,\s]/g, "") || "0");
+  if (!Number.isFinite(deliveryRaw) || deliveryRaw < 0 || deliveryRaw > BILLING.maxDelivery) {
+    return {
+      ok: false,
+      error: `The delivery charge must be between ₹0 and ₹${BILLING.maxDelivery.toLocaleString("en-IN")}.`,
+    };
+  }
+  const delivery = Math.round(deliveryRaw);
+
   try {
     const products = await getAdminProducts();
     const byId = new Map(products.map((p) => [p.id, p]));
@@ -115,7 +125,9 @@ export async function createBillAction(
     const discount = Math.round((subtotal * discountPercent) / 100);
     const taxable = r2(subtotal - discount);
     const tax = gstEnabled() ? Math.round((taxable * BILLING.taxPercent) / 100) : 0;
-    const total = r2(taxable + tax);
+    // Delivery goes on last, so a discount percent never eats into it and the
+    // GST figure stays a tax on the goods alone.
+    const total = r2(taxable + tax + delivery);
 
     const billNo = nextBillNo(await getAllBills());
 
@@ -128,6 +140,7 @@ export async function createBillAction(
       discount,
       discountPercent,
       tax,
+      delivery,
       total,
       payment,
       createdBy: me.name || me.email,

@@ -20,6 +20,8 @@ export type PdfBill = {
   discountPercent: number;
   taxLabel?: string;
   tax: number;
+  /** Delivery charge, added after the discount. 0 on a counter sale. */
+  delivery?: number;
   total: number;
   payment: string;
   footerNote: string;
@@ -166,6 +168,7 @@ export default function BillPdfButton({ bill }: { bill: PdfBill }) {
       row("Subtotal", rupees(bill.subtotal));
       if (bill.discount > 0) row(`Discount (${bill.discountPercent}%)`, `- ${rupees(bill.discount)}`);
       if (bill.tax > 0) row(bill.taxLabel ?? "Tax", rupees(bill.tax));
+      if (bill.delivery && bill.delivery > 0) row("Delivery", `+ ${rupees(bill.delivery)}`);
       doc.setDrawColor(210).line(labelX - 30, y - 3, R, y - 3);
       y += 2;
       row("Total", rupees(bill.total), true);

@@ -31,10 +31,17 @@ const field =
   "w-full rounded-lg border border-line bg-white px-3 py-2 text-foreground outline-none focus:border-accent";
 const smallBtn =
   "rounded-md border border-line bg-white px-2.5 py-1 text-sm font-semibold text-foreground hover:border-accent hover:text-accent";
+/** The delivery chips. Written as two whole class strings rather than one plus an
+ *  override, because two border-colour utilities in the same class list are
+ *  decided by stylesheet order, not by which one you type last. */
+const chip = "rounded-md border px-2.5 py-1 text-sm font-semibold";
+const chipOff = `${chip} border-line bg-white text-foreground hover:border-accent hover:text-accent`;
+const chipOn = `${chip} border-accent bg-accent-soft text-accent-dark`;
 
 export default function BillingPanel({ products }: { products: BillableProduct[] }) {
   const [lines, setLines] = useState<Line[]>([]);
   const [percent, setPercent] = useState("");
+  const [delivery, setDelivery] = useState("");
   const [state, formAction, pending] = useActionState<BillFormState, FormData>(
     createBillAction,
     { ok: false }
@@ -81,7 +88,11 @@ export default function BillingPanel({ products }: { products: BillableProduct[]
   const off = Math.round((subtotal * pct) / 100);
   const taxable = subtotal - off;
   const tax = gstEnabled() ? Math.round((taxable * BILLING.taxPercent) / 100) : 0;
-  const total = taxable + tax;
+  // Delivery is added last, so the discount and GST only ever touch the goods.
+  const shipTyped = Math.max(Math.round(Number(delivery.replace(/[₹,\s]/g, "")) || 0), 0);
+  const shipTooBig = shipTyped > BILLING.maxDelivery;
+  const ship = Math.min(shipTyped, BILLING.maxDelivery);
+  const total = taxable + tax + ship;
 
   // After a save, start the next bill from a clean slate.
   const justSaved = state.ok && state.billNo;
@@ -106,6 +117,7 @@ export default function BillingPanel({ products }: { products: BillableProduct[]
               onClick={() => {
                 setLines([]);
                 setPercent("");
+                setDelivery("");
               }}
               className="font-semibold text-accent underline"
             >
@@ -234,6 +246,45 @@ export default function BillingPanel({ products }: { products: BillableProduct[]
             </span>
           </label>
           <label className="block text-sm font-semibold text-foreground">
+            Delivery charge ₹
+            <input
+              name="delivery"
+              className={`${field} mt-1`}
+              inputMode="numeric"
+              value={delivery}
+              onChange={(e) => setDelivery(e.target.value.replace(/[^\d]/g, ""))}
+              placeholder="0"
+            />
+            <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setDelivery("")}
+                className={ship === 0 ? chipOn : chipOff}
+              >
+                None
+              </button>
+              {BILLING.deliveryPresets.map((amount) => (
+                <button
+                  key={amount}
+                  type="button"
+                  onClick={() => setDelivery(String(amount))}
+                  className={ship === amount ? chipOn : chipOff}
+                >
+                  ₹{amount}
+                </button>
+              ))}
+            </span>
+            <span
+              className={`mt-1 block text-xs font-normal ${shipTooBig ? "text-accent" : "text-muted"}`}
+            >
+              {shipTooBig
+                ? `That is above the ${formatPrice(BILLING.maxDelivery)} limit — the bill will not save.`
+                : ship > 0
+                  ? `Added after the discount — ${formatPrice(ship)}`
+                  : "Leave blank for a counter sale"}
+            </span>
+          </label>
+          <label className="block text-sm font-semibold text-foreground">
             Paid by
             <select name="payment" className={`${field} mt-1`} defaultValue="Cash">
               {BILLING.paymentMethods.map((m) => (
@@ -259,6 +310,12 @@ export default function BillingPanel({ products }: { products: BillableProduct[]
               <div className="flex gap-3">
                 <dt className="text-muted">GST {BILLING.taxPercent}%</dt>
                 <dd className="font-semibold">{formatPrice(tax)}</dd>
+              </div>
+            )}
+            {ship > 0 && (
+              <div className="flex gap-3">
+                <dt className="text-muted">Delivery</dt>
+                <dd className="font-semibold">+ {formatPrice(ship)}</dd>
               </div>
             )}
             <div className="mt-1 flex gap-3 font-display text-2xl font-bold">

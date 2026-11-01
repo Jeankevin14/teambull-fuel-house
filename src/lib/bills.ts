@@ -23,6 +23,8 @@ export type BillRecord = {
   discount: number;
   discountPercent: number;
   tax: number;
+  /** Delivery charge, added on top of the goods. 0 on a counter sale. */
+  delivery: number;
   total: number;
   payment: string;
   createdBy: string;
@@ -46,6 +48,8 @@ function toBill(r: Record<string, string> & { _row: number }): BillRecord {
     discount: money(r.discount),
     discountPercent: money(r.discountPercent),
     tax: money(r.tax),
+    // Bills saved before delivery existed simply have no value here.
+    delivery: money(r.delivery),
     total: money(r.total),
     payment: r.payment || "Cash",
     createdBy: r.createdBy ?? "",
@@ -133,6 +137,7 @@ export async function addBill(b: {
   discount: number;
   discountPercent: number;
   tax: number;
+  delivery: number;
   total: number;
   payment: string;
   createdBy: string;
@@ -148,6 +153,7 @@ export async function addBill(b: {
     discount: b.discount,
     discountPercent: b.discountPercent,
     tax: b.tax,
+    delivery: b.delivery,
     total: b.total,
     payment: b.payment,
     createdBy: b.createdBy,

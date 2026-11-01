@@ -71,6 +71,7 @@ async function Bill({ params }: { params: Promise<{ billNo: string }> }) {
           `Discount${bill.discountPercent > 0 ? ` (${bill.discountPercent}%)` : ""}: -${formatPrice(bill.discount)}`,
         ]
       : []),
+    ...(bill.delivery > 0 ? [`Delivery: +${formatPrice(bill.delivery)}`] : []),
     `Total: ${formatPrice(bill.total)}`,
     `Paid by: ${bill.payment}`,
     ...(saved > 0 ? [`You saved ${formatPrice(saved)} against MRP`] : []),
@@ -120,6 +121,7 @@ async function Bill({ params }: { params: Promise<{ billNo: string }> }) {
             discountPercent: bill.discountPercent,
             taxLabel: `GST ${BILLING.taxPercent}%`,
             tax: bill.tax,
+            delivery: bill.delivery,
             total: bill.total,
             payment: bill.payment,
             footerNote: BILLING.footerNote,
@@ -217,6 +219,12 @@ async function Bill({ params }: { params: Promise<{ billNo: string }> }) {
             <div className="flex justify-between py-1">
               <dt className="text-muted">GST {BILLING.taxPercent}%</dt>
               <dd>{formatPrice(bill.tax)}</dd>
+            </div>
+          )}
+          {bill.delivery > 0 && (
+            <div className="flex justify-between py-1">
+              <dt className="text-muted">Delivery</dt>
+              <dd>+ {formatPrice(bill.delivery)}</dd>
             </div>
           )}
           <div className="mt-1 flex justify-between border-t border-line py-2 font-display text-xl font-bold">
