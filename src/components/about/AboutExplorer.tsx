@@ -4,6 +4,7 @@ import { useState } from "react";
 import Reveal from "@/components/fx/Reveal";
 import { SITE } from "@/config/site";
 import { buildChatUrl } from "@/lib/whatsapp";
+import { PEOPLE } from "@/config/people";
 
 const TABS = [
   { id: "story", label: "Our Story" },
@@ -34,24 +35,7 @@ const SERVICES = [
   "TeamBull Training Facilities",
 ];
 
-/** The people on the About page. Add another entry to add another card. */
-const PEOPLE = [
-  {
-    name: "Vishwam D",
-    role: "Founder",
-    photo: "/images/vishwam.jpg",
-    blurb: "The founder behind TeamBull, building people, athletes and a brand.",
-    hello: "Hi Vishwam! I found Team Bull Fuel House online and would like to talk.",
-  },
-  {
-    name: "Praveen S",
-    role: "Co-founder",
-    photo: "/images/praveen.jpg",
-    blurb: "Co-founder of TeamBull, turning the vision into a working business.",
-    hello: "Hi Praveen! I found Team Bull Fuel House online and would like to talk.",
-    whatsapp: "916383208113", // Praveen's own number, not the shop's
-  },
-];
+
 
 const FUTURE = new Set(["TeamBull-branded Fitness Products", "TeamBull Training Facilities"]);
 

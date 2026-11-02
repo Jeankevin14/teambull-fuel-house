@@ -506,64 +506,6 @@ section.bg-gradient-to-b {
 @keyframes plate-in { from { transform: scaleY(0); opacity: 0; } }
 @media (prefers-reduced-motion: reduce) { .plate-in { animation: none; } }
 
-/* ===== CINEMATIC LAUNCH (/launch) ===== */
-.cz-push { transform-origin: 50% 45%; }
-.cz-pushing { transform: scale(1.12); transition: transform 14s cubic-bezier(0.25, 0.1, 0.25, 1); }
-.cz-bg { background: radial-gradient(ellipse at 50% 45%, #2b0a0a 0%, #0a0303 55%, #000 100%); transition: background 1s; }
-.cz-bg-live { background: radial-gradient(ellipse at 50% 38%, #6b1212 0%, #1a0505 50%, #000 100%); }
-.cz-black { background: #000; transition: none; }
-.cz-vignette { background: radial-gradient(ellipse at 50% 50%, transparent 40%, rgba(0, 0, 0, 0.85) 100%); }
-.cz-grain { image-rendering: auto; }
-.cz-bar { position: absolute; left: 0; right: 0; height: 0; background: #000; z-index: 5; transition: height 1.4s cubic-bezier(0.7, 0, 0.2, 1); }
-.cz-bar-top { top: 0; }
-.cz-bar-bottom { bottom: 0; }
-.cz-bar-on { height: 12vh; }
-.cz-logo-dim { filter: invert(1) hue-rotate(180deg) saturate(1.9) drop-shadow(0 0 30px rgba(255, 40, 40, 0.5)); opacity: 0.85; }
-.cz-launch { position: relative; display: grid; place-items: center; width: 170px; height: 170px; border-radius: 9999px; color: #fff; cursor: pointer; background: radial-gradient(circle at 35% 30%, #2a0707, #0d0303); border: 2px solid #ff2a2a; box-shadow: 0 0 40px rgba(255, 40, 40, 0.55), inset 0 0 30px rgba(255, 40, 40, 0.25); transition: transform 0.2s, box-shadow 0.2s; }
-.cz-launch:hover { transform: scale(1.06); box-shadow: 0 0 70px rgba(255, 40, 40, 0.85), inset 0 0 40px rgba(255, 40, 40, 0.4); }
-.cz-launch:active { transform: scale(0.95); }
-.cz-launch:focus-visible { outline: 3px solid #fff; outline-offset: 6px; }
-.cz-ring { position: absolute; inset: 0; border-radius: 9999px; border: 1px solid #ff3b30; animation: cz-ring 2.6s ease-out infinite; }
-.cz-ring2 { animation-delay: 1.3s; }
-@keyframes cz-ring { from { transform: scale(1); opacity: 0.8; } to { transform: scale(2.2); opacity: 0; } }
-.cz-line { animation: cz-line 2.6s ease both; }
-.cz-line p { text-shadow: 0 0 40px rgba(255, 40, 40, 0.5), 2px 0 0 rgba(255, 0, 0, 0.35), -2px 0 0 rgba(0, 200, 255, 0.25); }
-@keyframes cz-line { 0% { opacity: 0; letter-spacing: 0.6em; filter: blur(8px); } 25% { opacity: 1; filter: blur(0); } 80% { opacity: 1; } 100% { opacity: 0; letter-spacing: 0.3em; filter: blur(6px); } }
-.cz-line p { animation: cz-track 2.6s ease-out both; }
-@keyframes cz-track { from { letter-spacing: 0.5em; } to { letter-spacing: 0.22em; } }
-.cz-leader { position: relative; width: min(60vh, 70vw); aspect-ratio: 1; display: grid; place-items: center; }
-.cz-num { font-size: min(34vh, 40vw); line-height: 1; animation: cz-numin 1s ease both; text-shadow: 0 0 60px rgba(255, 40, 40, 0.7); }
-@keyframes cz-numin { 0% { opacity: 0; transform: scale(1.3); filter: blur(10px); } 15% { opacity: 1; transform: scale(1); filter: blur(0); } 90% { opacity: 1; } 100% { opacity: 0.2; } }
-.cz-sweep { stroke-dasharray: 540; stroke-dashoffset: 540; animation: cz-sweep 1s linear forwards; }
-@keyframes cz-sweep { to { stroke-dashoffset: 0; } }
-.cz-bloom { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 50% 42%, #fff 0%, #ffd9a0 25%, rgba(255, 80, 40, 0.6) 55%, transparent 80%); animation: cz-bloom 2.8s ease-out both; mix-blend-mode: screen; }
-@keyframes cz-bloom { 0% { opacity: 1; transform: scale(0.4); } 20% { opacity: 1; transform: scale(1.4); } 100% { opacity: 0; transform: scale(2); } }
-.cz-shock { position: absolute; left: 50%; top: 42%; width: 60px; height: 60px; margin: -30px; border-radius: 9999px; border: 3px solid rgba(255, 255, 255, 0.9); box-shadow: 0 0 40px rgba(255, 120, 60, 0.9), inset 0 0 40px rgba(255, 120, 60, 0.5); animation: cz-shock 2.6s cubic-bezier(0.1, 0.6, 0.2, 1) both; pointer-events: none; }
-@keyframes cz-shock { from { transform: scale(0.3); opacity: 1; } to { transform: scale(48); opacity: 0; } }
-.cz-streak { position: absolute; left: -10%; right: -10%; top: 42%; height: 6px; margin-top: -3px; background: linear-gradient(90deg, transparent, #ff3b30 25%, #fff 50%, #ff3b30 75%, transparent); filter: blur(4px); mix-blend-mode: screen; pointer-events: none; animation: cz-streak 3s ease-out both; }
-@keyframes cz-streak { 0% { transform: scaleX(0); opacity: 1; } 15% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(1.2); opacity: 0; } }
-.cz-rays { position: absolute; inset: -30%; pointer-events: none; mix-blend-mode: screen; background: repeating-conic-gradient(from 0deg at 50% 42%, rgba(255, 90, 50, 0.3) 0deg 5deg, transparent 5deg 14deg); -webkit-mask: radial-gradient(circle at 50% 42%, #000 0%, transparent 60%); mask: radial-gradient(circle at 50% 42%, #000 0%, transparent 60%); animation: cz-rays 24s linear infinite, cz-raysin 3s ease both; }
-@keyframes cz-rays { to { transform: rotate(360deg); } }
-@keyframes cz-raysin { from { opacity: 0; } to { opacity: 1; } }
-.cz-logo-wrap { position: relative; }
-.cz-logo-reveal { filter: invert(1) hue-rotate(180deg) saturate(1.9) drop-shadow(0 0 50px rgba(255, 60, 40, 0.85)); animation: cz-logo 2.4s cubic-bezier(0.2, 0.7, 0.2, 1) both; }
-@keyframes cz-logo { 0% { opacity: 0; transform: scale(1.35); filter: invert(1) hue-rotate(180deg) saturate(1.9) blur(18px) brightness(3); } 100% { opacity: 1; transform: scale(1); filter: invert(1) hue-rotate(180deg) saturate(1.9) drop-shadow(0 0 50px rgba(255, 60, 40, 0.85)); } }
-.cz-logo-sheen { position: absolute; inset: 0; pointer-events: none; -webkit-mask: url(/images/teambull-logo.png) center / contain no-repeat; mask: url(/images/teambull-logo.png) center / contain no-repeat; background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, 0.95) 50%, transparent 62%) no-repeat; background-size: 250% 100%; background-position: 150% 0; animation: cz-sheen 2.6s ease-in-out 2.2s infinite; }
-@keyframes cz-sheen { 0% { background-position: 150% 0; } 55%, 100% { background-position: -50% 0; } }
-.cz-title { animation: cz-title 2.2s cubic-bezier(0.2, 0.7, 0.2, 1) 1.8s both; text-shadow: 0 0 40px rgba(255, 60, 40, 0.6), 3px 0 0 rgba(255, 0, 0, 0.3), -3px 0 0 rgba(0, 200, 255, 0.2); }
-@keyframes cz-title { from { opacity: 0; letter-spacing: 0.7em; filter: blur(12px); } to { opacity: 1; letter-spacing: 0.12em; filter: blur(0); } }
-.cz-rule { width: min(60vw, 520px); height: 2px; margin: 16px 0 14px; background: linear-gradient(90deg, transparent, #ff2a2a, transparent); transform-origin: 50% 50%; animation: cz-rule 1.4s ease 2.8s both; }
-@keyframes cz-rule { from { transform: scaleX(0); opacity: 0; } to { transform: scaleX(1); opacity: 1; } }
-.cz-live { letter-spacing: 0.5em; animation: cz-livein 1.6s ease 3.2s both; text-shadow: 0 0 30px rgba(255, 60, 40, 0.6); }
-@keyframes cz-livein { from { opacity: 0; letter-spacing: 0.9em; } to { opacity: 1; letter-spacing: 0.5em; } }
-.cz-cta { animation: cz-ctain 1s ease both; z-index: 6; }
-@keyframes cz-ctain { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) {
-  .cz-pushing { transform: none; transition: none; }
-  .cz-ring, .cz-rays, .cz-logo-sheen { animation: none; }
-  .cz-shock, .cz-streak { display: none; }
-}
-
 /* ===== BMI calculator ===== */
 @keyframes bmi-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 .bmi-step { animation: bmi-in 0.4s ease both; }
@@ -615,3 +557,4 @@ section.bg-gradient-to-b {
     margin: 12mm;
   }
 }
+
