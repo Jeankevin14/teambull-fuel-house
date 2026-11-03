@@ -7,6 +7,7 @@ import { getProducts, findProduct } from "@/lib/catalog";
 import BarbellLoader from "@/components/fx/BarbellLoader";
 import ProductPurchase from "@/components/product/ProductPurchase";
 import ProductGallery from "@/components/product/ProductGallery";
+import MadeInUsa from "@/components/product/MadeInUsa";
 import { nutritionImageFor } from "@/data/nutrition";
 
 export async function generateStaticParams() {
@@ -50,7 +51,10 @@ async function ProductDetails({ params }: { params: Promise<{ id: string }> }) {
         <h1 className="mt-2 font-display text-4xl font-bold uppercase">
           {product.name}
         </h1>
-        <p className="mt-1 text-muted">by {product.brand}</p>
+        <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-2 text-muted">
+          <span>by {product.brand}</span>
+          {product.madeIn === "USA" && <MadeInUsa />}
+        </p>
         <p className="mt-6 text-muted">{product.description}</p>
         <ProductPurchase product={product} />
         <p className="mt-4 text-sm text-muted">

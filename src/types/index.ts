@@ -18,6 +18,7 @@ export type Product = {
   sizes?: ProductSize[]; // e.g. [{ label: "1kg", price: 1999 }, { label: "2kg", price: 3499 }]
   inStock?: boolean; // set to false to show "Out of stock"
   stock?: number; // units left (comes from the Google Sheet). Blank = not tracked
+  madeIn?: "USA"; // shows a MADE IN USA badge. Only set it where the pack says so.
   awaitingPhotos?: boolean; // sold now, pack photo and nutrition label still to come
 };
 

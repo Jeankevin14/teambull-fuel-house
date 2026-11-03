@@ -5,6 +5,7 @@ import Tilt from "@/components/fx/Tilt";
 import Spotlight from "@/components/fx/Spotlight";
 import { LOW_STOCK_LIMIT } from "@/config/features";
 import AddToCartButton from "./AddToCartButton";
+import MadeInUsa from "./MadeInUsa";
 import PriceTag from "./PriceTag";
 import ProductImage from "./ProductImage";
 
@@ -30,6 +31,12 @@ export default function ProductCard({ product }: { product: Product }) {
           {!inStock && (
             <span className="absolute left-3 top-3 rounded-full bg-neutral-800 px-3 py-1 text-xs font-semibold uppercase text-white">
               Out of stock
+            </span>
+          )}
+          {product.madeIn === "USA" && (
+            // top right, because the stock badges own the top left
+            <span className="absolute right-3 top-3">
+              <MadeInUsa overlay />
             </span>
           )}
         </Link>
