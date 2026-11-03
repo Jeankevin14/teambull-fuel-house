@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import type { Metadata } from "next";
 import {
+  cancelledSince,
   getAllBills,
   isLive,
   salesSince,
@@ -104,6 +105,7 @@ async function AdminContent() {
 
   const today = salesSince(bills, startOfToday());
   const month = salesSince(bills, startOfMonth());
+  const voided = cancelledSince(bills, startOfMonth());
 
   const outOfStock = products.filter(
     (p) => p.stock !== undefined && p.stock <= 0,
@@ -153,6 +155,22 @@ async function AdminContent() {
         <TextTile label="Sales this month" value={formatPrice(month.sum)} />
         <Tile label="Bills this month" value={month.count} />
       </div>
+
+      <p className="mt-3 text-sm text-muted">
+        Sales today counts only bills made today. A cancelled bill stops counting from
+        the moment you cancel it
+        {voided.count > 0 ? (
+          <>
+            {" "}— <span className="font-semibold text-foreground">
+              {formatPrice(voided.sum)}
+            </span>{" "}
+            across {voided.count} {voided.count === 1 ? "bill" : "bills"} has been
+            cancelled this month and is already out of the figures above.
+          </>
+        ) : (
+          "."
+        )}
+      </p>
 
       <BillingPanel
         products={products

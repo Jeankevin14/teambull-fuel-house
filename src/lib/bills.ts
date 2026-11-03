@@ -266,6 +266,26 @@ export function salesSince(bills: BillRecord[], from: Date) {
   return { sum, count };
 }
 
+/**
+ * What has been cancelled in a period. Shown beside the sales figures so a
+ * cancellation is visible as a number, rather than only as a total that is
+ * smaller than it was.
+ */
+export function cancelledSince(bills: BillRecord[], from: Date) {
+  const cut = from.getTime();
+  let sum = 0;
+  let count = 0;
+  for (const b of bills) {
+    if (isLive(b)) continue;
+    const t = Date.parse(b.date);
+    if (Number.isFinite(t) && t >= cut) {
+      sum += b.total;
+      count += 1;
+    }
+  }
+  return { sum, count };
+}
+
 export function startOfToday(now = new Date()) {
   return new Date(now.getFullYear(), now.getMonth(), now.getDate());
 }
