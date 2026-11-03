@@ -18,5 +18,7 @@ export function priceFor(p: Product, sizeLabel?: string) {
 }
 
 export function isInStock(p: Product) {
-  return p.inStock !== false;
+  if (p.inStock === false) return false;
+  if (p.stock !== undefined) return p.stock > 0;
+  return true;
 }
