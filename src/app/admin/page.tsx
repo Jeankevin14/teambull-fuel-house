@@ -200,92 +200,98 @@ async function AdminContent() {
           }))}
       />
 
-      {bills.length > 0 && (
-        <div className="mt-6">
-          <h3 className="font-display text-xl font-bold uppercase">Recent bills</h3>
-          {(() => {
-            // Adding the listed bills up by hand will not always match the tiles
-            // above: a cancelled bill is still shown, and the list is not limited
-            // to this month. Rather than leave that to be puzzled over, say it.
-            const shown = bills.slice(0, 15);
-            const sum = (xs: typeof shown) => xs.reduce((n, x) => n + x.total, 0);
-            const monthStart = startOfMonth().getTime();
-            const counted = shown.filter(
-              (x) => isLive(x) && Date.parse(x.date) >= monthStart,
-            );
-            const struck = shown.filter((x) => !isLive(x));
-            const older = shown.filter(
-              (x) => isLive(x) && Date.parse(x.date) < monthStart,
-            );
-            if (shown.length === 0 || sum(shown) === sum(counted)) return null;
-            return (
-              <p className="mt-2 text-sm text-muted">
-                These {shown.length} bills add up to{" "}
-                <span className="font-semibold text-foreground">{formatPrice(sum(shown))}</span>,
-                but only{" "}
-                <span className="font-semibold text-foreground">{formatPrice(sum(counted))}</span>{" "}
-                counts towards Sales this month
-                {struck.length > 0 && ` — ${formatPrice(sum(struck))} cancelled`}
-                {older.length > 0 && ` — ${formatPrice(sum(older))} from an earlier month`}
-                .
+      {bills.length > 0 && (() => {
+        // Live and cancelled bills are kept in two separate lists. Mixed
+        // together, adding the live ones up by eye was easy to get wrong.
+        const liveBills = bills.filter(isLive).slice(0, 15);
+        const deadBills = bills.filter((b) => !isLive(b)).slice(0, 15);
+        const sum = (xs: typeof bills) => xs.reduce((n, x) => n + x.total, 0);
+        const monthStart = startOfMonth().getTime();
+        const older = liveBills.filter((x) => Date.parse(x.date) < monthStart);
+
+        const row = (b: (typeof bills)[number], i: number, cancelled: boolean) => {
+          // Two live bills for the same items and amount within a couple of
+          // minutes are almost certainly one sale saved twice.
+          const twin = liveBills[i + 1];
+          const maybeDouble =
+            !cancelled &&
+            twin !== undefined &&
+            twin.total === b.total &&
+            twin.itemsJson === b.itemsJson &&
+            Math.abs(Date.parse(b.date) - Date.parse(twin.date)) < 120_000;
+          return (
+            <div key={b.billNo} className="flex flex-wrap items-center gap-x-4 gap-y-2 p-4">
+              <div className="min-w-0 flex-1 basis-48">
+                <p
+                  className={`font-semibold ${cancelled ? "text-muted line-through" : "text-foreground"}`}
+                >
+                  {b.billNo} · {formatPrice(b.total)}{" "}
+                  <span className="font-normal text-muted">({b.payment})</span>
+                </p>
+                <p className="text-sm text-muted">
+                  {maybeDouble && (
+                    <span className="mr-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-bold uppercase text-amber-800">
+                      Possible duplicate
+                    </span>
+                  )}
+                  {b.customerName || "Walk-in customer"}
+                  {b.customerPhone ? ` · ${b.customerPhone}` : ""} · {billMoment(b.date)}
+                  {cancelled && b.cancelReason ? ` · ${b.cancelReason}` : ""}
+                </p>
+                {b.items && (
+                  <p className="mt-1 truncate text-xs text-muted">
+                    {b.items.replace(/\n/g, "   ")}
+                  </p>
+                )}
+              </div>
+              <Link href={`/admin/bills/${b.billNo}`} className={smallBtn}>
+                Open
+              </Link>
+              {!cancelled && <CancelBillButton billNo={b.billNo} total={b.total} compact />}
+            </div>
+          );
+        };
+
+        return (
+          <div className="mt-6 grid gap-6 lg:grid-cols-2">
+            {/* min-w-0: a grid item defaults to min-width:auto, so a long bill
+                line would stop the column shrinking and push the page sideways
+                on a phone. */}
+            <div className="min-w-0">
+              <h3 className="font-display text-xl font-bold uppercase">Recent bills</h3>
+              <p className="mt-1 text-sm text-muted">
+                {liveBills.length === 0
+                  ? "No live bills yet."
+                  : `These ${liveBills.length} add up to ${formatPrice(sum(liveBills))}`}
+                {older.length > 0 &&
+                  `, of which ${formatPrice(sum(older))} is from an earlier month and is not in Sales this month`}
+                {liveBills.length > 0 && "."}
               </p>
-            );
-          })()}
-          <div className="mt-3 divide-y divide-line rounded-xl border border-line bg-surface">
-            {bills.slice(0, 15).map((b, i) => {
-              const cancelled = !isLive(b);
-              // Two live bills for the same items and the same amount, within a
-              // couple of minutes of each other, are almost certainly one sale
-              // saved twice. Worth pointing out rather than leaving to be found.
-              const twin = bills[i + 1];
-              const maybeDouble =
-                !cancelled &&
-                twin !== undefined &&
-                isLive(twin) &&
-                twin.total === b.total &&
-                twin.itemsJson === b.itemsJson &&
-                Math.abs(Date.parse(b.date) - Date.parse(twin.date)) < 120_000;
-              return (
-                <div key={b.billNo} className="flex flex-wrap items-center gap-x-6 gap-y-2 p-4">
-                  <div className="min-w-0 flex-1 basis-56">
-                    <p
-                      className={`font-semibold ${cancelled ? "text-muted line-through" : "text-foreground"}`}
-                    >
-                      {b.billNo} · {formatPrice(b.total)}{" "}
-                      <span className="font-normal text-muted">({b.payment})</span>
-                    </p>
-                    <p className="text-sm text-muted">
-                      {cancelled && (
-                        <span className="mr-2 rounded bg-accent-soft px-1.5 py-0.5 text-xs font-bold uppercase text-accent-dark">
-                          Cancelled
-                        </span>
-                      )}
-                      {maybeDouble && (
-                        <span className="mr-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-bold uppercase text-amber-800">
-                          Possible duplicate
-                        </span>
-                      )}
-                      {b.customerName || "Walk-in customer"}
-                      {b.customerPhone ? ` · ${b.customerPhone}` : ""} ·{" "}
-                      {billMoment(b.date)}
-                      {cancelled && b.cancelReason ? ` · ${b.cancelReason}` : ""}
-                    </p>
-                    {b.items && (
-                      <p className="mt-1 truncate text-xs text-muted">
-                        {b.items.replace(/\n/g, "   ")}
-                      </p>
-                    )}
-                  </div>
-                  <Link href={`/admin/bills/${b.billNo}`} className={smallBtn}>
-                    Open
-                  </Link>
-                  {!cancelled && <CancelBillButton billNo={b.billNo} total={b.total} compact />}
+              {liveBills.length > 0 && (
+                <div className="mt-3 divide-y divide-line rounded-xl border border-line bg-surface">
+                  {liveBills.map((b, i) => row(b, i, false))}
                 </div>
-              );
-            })}
+              )}
+            </div>
+
+            <div className="min-w-0">
+              <h3 className="font-display text-xl font-bold uppercase">
+                Cancelled <span className="text-accent">bills</span>
+              </h3>
+              <p className="mt-1 text-sm text-muted">
+                {deadBills.length === 0
+                  ? "Nothing cancelled."
+                  : `${deadBills.length} cancelled, worth ${formatPrice(sum(deadBills))}. None of this counts towards your sales.`}
+              </p>
+              {deadBills.length > 0 && (
+                <div className="mt-3 divide-y divide-line rounded-xl border border-line bg-surface opacity-80">
+                  {deadBills.map((b, i) => row(b, i, true))}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* ---------- products & stock ---------- */}
       <h2 className="mt-12 font-display text-2xl font-bold uppercase">
