@@ -56,6 +56,7 @@ const BY_IMAGE: Record<string, string> = {
   "niox-nitric-oxide": "niox-nitric-oxide-nutrition",
   "lipo6-intense": "lipo6-intense-nutrition",
   "black-spider-25-ephedra": "black-spider-25-ephedra-nutrition",
+  "on-micronised-creatine-citrus-orange": "on-micronised-creatine-citrus-orange-nutrition",
 };
 
 /**
@@ -83,4 +84,5 @@ export const NUTRITION_NEEDS_REVIEW = [
   "lipo6-intense",
   "black-spider-25-ephedra",
   "1md-pro-mass-gainer-belgian-chocolate",
+  "on-micronised-creatine-citrus-orange",
 ];

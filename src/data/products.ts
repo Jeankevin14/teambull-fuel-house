@@ -64,6 +64,7 @@ export const PRODUCTS: Product[] = [
   { id: 74, image: "/images/niox-nitric-oxide.webp", name: "Nutrex Research Niox Nitric Oxide", brand: "Nutrex Research", category: "Pre-Workout", price: 2100, mrp: 2932, description: "Nitric oxide multi-pathway blood flow optimiser. 90 capsules, one month supply.", stock: 3 },
   { id: 75, image: "/images/lipo6-intense.webp", name: "Nutrex Research Lipo 6 Intense Ultra Concentrate", brand: "Nutrex Research", category: "Fat Burners & L-Carnitine", price: 1950, description: "Intense thermogenic fat burner, one capsule per serving. 60 capsules.", stock: 3 },
   { id: 76, image: "/images/black-spider-25-ephedra.webp", name: "Cloma Pharma Black Spider 25 Ephedra", brand: "Cloma Pharma", category: "Fat Burners & L-Carnitine", price: 1950, mrp: 2999, description: "Ephedra thermogenic supplement for energy and metabolism. 100 capsules. Label warning: do not exceed 3 capsules daily.", stock: 3 },
+  { id: 77, image: "/images/on-micronised-creatine-citrus-orange.webp", name: "Optimum Nutrition Micronised Creatine - Citrus Orange", brand: "Optimum Nutrition", category: "Creatine", price: 999, mrp: 1050, description: "Micronised creatine monohydrate, 3000 mg per serving. Banned-substance tested. Citrus Orange flavour, 250 g, 65 servings.", flavours: ["Citrus Orange"], stock: 3 },
 ];
 
 export function getProduct(id: number) {
