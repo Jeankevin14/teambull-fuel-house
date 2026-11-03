@@ -79,6 +79,19 @@ function TextTile({ label, value }: { label: string; value: string }) {
 const smallBtn =
   "rounded-md border border-line bg-white px-2.5 py-1 text-sm font-semibold text-foreground hover:border-accent hover:text-accent";
 
+/** Date and time of a bill — the time is what tells two near-identical bills apart. */
+function billMoment(iso: string) {
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return iso.slice(0, 10);
+  return new Date(t).toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata",
+    day: "2-digit",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 async function AdminContent() {
   const me = await requireAdmin();
 
@@ -191,8 +204,19 @@ async function AdminContent() {
         <div className="mt-6">
           <h3 className="font-display text-xl font-bold uppercase">Recent bills</h3>
           <div className="mt-3 divide-y divide-line rounded-xl border border-line bg-surface">
-            {bills.slice(0, 15).map((b) => {
+            {bills.slice(0, 15).map((b, i) => {
               const cancelled = !isLive(b);
+              // Two live bills for the same items and the same amount, within a
+              // couple of minutes of each other, are almost certainly one sale
+              // saved twice. Worth pointing out rather than leaving to be found.
+              const twin = bills[i + 1];
+              const maybeDouble =
+                !cancelled &&
+                twin !== undefined &&
+                isLive(twin) &&
+                twin.total === b.total &&
+                twin.itemsJson === b.itemsJson &&
+                Math.abs(Date.parse(b.date) - Date.parse(twin.date)) < 120_000;
               return (
                 <div key={b.billNo} className="flex flex-wrap items-center gap-x-6 gap-y-2 p-4">
                   <div className="min-w-0 flex-1 basis-56">
@@ -208,11 +232,21 @@ async function AdminContent() {
                           Cancelled
                         </span>
                       )}
+                      {maybeDouble && (
+                        <span className="mr-2 rounded bg-amber-100 px-1.5 py-0.5 text-xs font-bold uppercase text-amber-800">
+                          Possible duplicate
+                        </span>
+                      )}
                       {b.customerName || "Walk-in customer"}
                       {b.customerPhone ? ` · ${b.customerPhone}` : ""} ·{" "}
-                      {b.date.slice(0, 10)}
+                      {billMoment(b.date)}
                       {cancelled && b.cancelReason ? ` · ${b.cancelReason}` : ""}
                     </p>
+                    {b.items && (
+                      <p className="mt-1 truncate text-xs text-muted">
+                        {b.items.replace(/\n/g, "   ")}
+                      </p>
+                    )}
                   </div>
                   <Link href={`/admin/bills/${b.billNo}`} className={smallBtn}>
                     Open
