@@ -25,6 +25,11 @@ export async function rowFor(id: number): Promise<Row | null> {
  * Products with no stock number are left alone (their stock is not tracked).
  * Stock never goes below zero.
  */
+export async function restoreStock(back: { id: number; qty: number }[]): Promise<void> {
+  // Putting units back is the same job with the sign flipped.
+  await reduceStock(back.map((b) => ({ id: b.id, qty: -b.qty })));
+}
+
 export async function reduceStock(sold: { id: number; qty: number }[]): Promise<void> {
   if (sold.length === 0) return;
 

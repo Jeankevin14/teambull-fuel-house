@@ -5,9 +5,10 @@ import { Suspense } from "react";
 import BarbellLoader from "@/components/fx/BarbellLoader";
 import PrintButton from "@/components/admin/PrintButton";
 import BillPdfButton from "@/components/admin/BillPdfButton";
+import CancelBillButton from "@/components/admin/CancelBillButton";
 import { BILLING, gstEnabled } from "@/config/billing";
 import { SITE } from "@/config/site";
-import { getBill, linesOf, savedOn } from "@/lib/bills";
+import { getBill, isLive, linesOf, savedOn } from "@/lib/bills";
 import { formatPrice } from "@/lib/format";
 import { requireAdmin } from "@/lib/session";
 
@@ -56,7 +57,10 @@ async function Bill({ params }: { params: Promise<{ billNo: string }> }) {
 
   const lines = linesOf(bill);
   const saved = savedOn(lines);
-  const wa = waNumber(bill.customerPhone);
+  const cancelled = !isLive(bill);
+  // A cancelled bill must not be sendable to a customer, so the WhatsApp link
+  // and the PDF are withheld.
+  const wa = cancelled ? "" : waNumber(bill.customerPhone);
   const waText = [
     `${SITE.name}`,
     `Bill ${bill.billNo} · ${billDate(bill.date)}`,
@@ -96,6 +100,14 @@ async function Bill({ params }: { params: Promise<{ billNo: string }> }) {
             Send on WhatsApp
           </a>
         )}
+        {cancelled ? (
+          <span className="rounded-md bg-accent-soft px-3 py-1.5 text-sm font-bold uppercase text-accent-dark">
+            Cancelled
+          </span>
+        ) : (
+          <CancelBillButton billNo={bill.billNo} total={bill.total} />
+        )}
+        {!cancelled && (
         <BillPdfButton
           bill={{
             billNo: bill.billNo,
@@ -128,10 +140,25 @@ async function Bill({ params }: { params: Promise<{ billNo: string }> }) {
             billedBy: bill.createdBy,
           }}
         />
+        )}
         <PrintButton />
       </div>
 
       <article className="bill-sheet rounded-xl border border-line bg-white p-6 print:rounded-none print:border-0 print:p-0">
+        {cancelled && (
+          <div className="mb-4 rounded-lg border-2 border-accent bg-accent-soft px-4 py-3 text-center">
+            <p className="font-display text-2xl font-bold uppercase tracking-wide text-accent-dark">
+              Cancelled
+            </p>
+            <p className="mt-1 text-sm text-accent-dark">
+              This bill was cancelled
+              {bill.cancelledAt ? ` on ${billDate(bill.cancelledAt)}` : ""}
+              {bill.cancelledBy ? ` by ${bill.cancelledBy}` : ""}
+              {bill.cancelReason ? ` · ${bill.cancelReason}` : ""}. It does not count
+              towards sales.
+            </p>
+          </div>
+        )}
         <header className="flex items-start gap-4 border-b border-line pb-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

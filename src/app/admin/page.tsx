@@ -4,11 +4,13 @@ import { Suspense } from "react";
 import type { Metadata } from "next";
 import {
   getAllBills,
+  isLive,
   salesSince,
   startOfMonth,
   startOfToday,
 } from "@/lib/bills";
 import BillingPanel from "@/components/admin/BillingPanel";
+import CancelBillButton from "@/components/admin/CancelBillButton";
 import { LOW_STOCK_LIMIT, RECORD_ORDERS_ON_CHECKOUT } from "@/config/features";
 import { sheetsConfigured } from "@/lib/sheets";
 import { getAdminProducts } from "@/lib/catalog";
@@ -171,24 +173,36 @@ async function AdminContent() {
         <div className="mt-6">
           <h3 className="font-display text-xl font-bold uppercase">Recent bills</h3>
           <div className="mt-3 divide-y divide-line rounded-xl border border-line bg-surface">
-            {bills.slice(0, 15).map((b) => (
-              <div key={b.billNo} className="flex flex-wrap items-center gap-x-6 gap-y-2 p-4">
-                <div className="min-w-0 flex-1 basis-56">
-                  <p className="font-semibold text-foreground">
-                    {b.billNo} · {formatPrice(b.total)}{" "}
-                    <span className="font-normal text-muted">({b.payment})</span>
-                  </p>
-                  <p className="text-sm text-muted">
-                    {b.customerName || "Walk-in customer"}
-                    {b.customerPhone ? ` · ${b.customerPhone}` : ""} ·{" "}
-                    {b.date.slice(0, 10)}
-                  </p>
+            {bills.slice(0, 15).map((b) => {
+              const cancelled = !isLive(b);
+              return (
+                <div key={b.billNo} className="flex flex-wrap items-center gap-x-6 gap-y-2 p-4">
+                  <div className="min-w-0 flex-1 basis-56">
+                    <p
+                      className={`font-semibold ${cancelled ? "text-muted line-through" : "text-foreground"}`}
+                    >
+                      {b.billNo} · {formatPrice(b.total)}{" "}
+                      <span className="font-normal text-muted">({b.payment})</span>
+                    </p>
+                    <p className="text-sm text-muted">
+                      {cancelled && (
+                        <span className="mr-2 rounded bg-accent-soft px-1.5 py-0.5 text-xs font-bold uppercase text-accent-dark">
+                          Cancelled
+                        </span>
+                      )}
+                      {b.customerName || "Walk-in customer"}
+                      {b.customerPhone ? ` · ${b.customerPhone}` : ""} ·{" "}
+                      {b.date.slice(0, 10)}
+                      {cancelled && b.cancelReason ? ` · ${b.cancelReason}` : ""}
+                    </p>
+                  </div>
+                  <Link href={`/admin/bills/${b.billNo}`} className={smallBtn}>
+                    Open
+                  </Link>
+                  {!cancelled && <CancelBillButton billNo={b.billNo} total={b.total} compact />}
                 </div>
-                <Link href={`/admin/bills/${b.billNo}`} className={smallBtn}>
-                  Open
-                </Link>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

@@ -23,6 +23,7 @@ export const TABS = {
   Bills: [
     "billNo", "date", "customerName", "customerPhone", "items", "itemsJson",
     "subtotal", "discount", "discountPercent", "tax", "delivery", "total", "payment", "createdBy",
+    "status", "cancelledAt", "cancelledBy", "cancelReason",
   ],
 } as const;
 

@@ -1,6 +1,6 @@
 // Bills, stored in the "Bills" tab of your Google Sheet.
 import { BILLING } from "@/config/billing";
-import { appendRow, readTab } from "@/lib/sheets";
+import { appendRow, readTab, updateRow } from "@/lib/sheets";
 
 export type BillLine = {
   id: number;
@@ -28,7 +28,22 @@ export type BillRecord = {
   total: number;
   payment: string;
   createdBy: string;
+  /**
+   * "" or "ok" for a live bill, "cancelled" for one that was called off.
+   * A cancelled bill is kept, never erased: the row holds the bill number so
+   * it can never be handed to a different sale, and the shop keeps a record
+   * of what happened.
+   */
+  status: string;
+  cancelledAt: string;
+  cancelledBy: string;
+  cancelReason: string;
 };
+
+/** A bill that still counts towards sales and stock. */
+export function isLive(b: BillRecord) {
+  return b.status !== "cancelled";
+}
 
 function money(v: string | number | undefined) {
   const n = Number(String(v ?? "").replace(/[₹,\s]/g, ""));
@@ -53,6 +68,11 @@ function toBill(r: Record<string, string> & { _row: number }): BillRecord {
     total: money(r.total),
     payment: r.payment || "Cash",
     createdBy: r.createdBy ?? "",
+    // bills saved before cancelling existed simply have no status
+    status: (r.status ?? "").trim().toLowerCase(),
+    cancelledAt: r.cancelledAt ?? "",
+    cancelledBy: r.cancelledBy ?? "",
+    cancelReason: r.cancelReason ?? "",
   };
 }
 
@@ -157,8 +177,46 @@ export async function addBill(b: {
     total: b.total,
     payment: b.payment,
     createdBy: b.createdBy,
+    status: "ok",
+    cancelledAt: "",
+    cancelledBy: "",
+    cancelReason: "",
   });
   return b.billNo;
+}
+
+export type CancelResult =
+  | { ok: true; bill: BillRecord }
+  | { ok: false; reason: "missing" | "already" };
+
+/**
+ * Marks a bill cancelled, in place. The row is never removed: keeping it means
+ * the bill number can never be reused for a different sale, and there is still
+ * a record that the sale was called off.
+ *
+ * Returns "already" if it was cancelled before, which is what stops the stock
+ * being put back twice.
+ */
+export async function cancelBill(
+  billNo: string,
+  by: string,
+  reason: string
+): Promise<CancelResult> {
+  const rows = await readTab("Bills");
+  const raw = rows.find((r) => (r.billNo ?? "") === billNo);
+  if (!raw) return { ok: false, reason: "missing" };
+
+  const before = toBill(raw);
+  if (!isLive(before)) return { ok: false, reason: "already" };
+
+  await updateRow("Bills", raw._row, {
+    ...raw,
+    status: "cancelled",
+    cancelledAt: new Date().toISOString(),
+    cancelledBy: by,
+    cancelReason: reason,
+  });
+  return { ok: true, bill: before };
 }
 
 /** What the customer saved against MRP on a bill. 0 when no line had an MRP. */
@@ -169,12 +227,17 @@ export function savedOn(lines: BillLine[]) {
   );
 }
 
-/** Sales totals for the admin tiles. */
+/**
+ * Sales totals for the admin tiles.
+ * Cancelled bills are left out, so the figures always tally with the money
+ * actually taken.
+ */
 export function salesSince(bills: BillRecord[], from: Date) {
   const cut = from.getTime();
   let sum = 0;
   let count = 0;
   for (const b of bills) {
+    if (!isLive(b)) continue;
     const t = Date.parse(b.date);
     if (Number.isFinite(t) && t >= cut) {
       sum += b.total;

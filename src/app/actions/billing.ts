@@ -2,9 +2,11 @@
 
 import { updateTag } from "next/cache";
 import { BILLING, gstEnabled } from "@/config/billing";
-import { addBill, getAllBills, nextBillNo, type BillLine } from "@/lib/bills";
+import {
+  addBill, cancelBill, getAllBills, linesOf, nextBillNo, type BillLine,
+} from "@/lib/bills";
 import { getAdminProducts } from "@/lib/catalog";
-import { reduceStock } from "@/lib/productSheet";
+import { reduceStock, restoreStock } from "@/lib/productSheet";
 import { assertAdmin } from "@/lib/session";
 import { cleanPhone, text } from "@/lib/validate";
 
@@ -14,6 +16,67 @@ export type BillFormState = {
   billNo?: string;
   total?: number;
 };
+
+export type CancelState = {
+  ok: boolean;
+  error?: string;
+  message?: string;
+};
+
+/**
+ * Cancels a bill: it stops counting towards sales, and the units go back on
+ * the shelf unless the counter says the customer kept them.
+ *
+ * The bill itself is kept rather than erased. That way its number can never be
+ * handed to a different sale, and there is a record that this one was called off.
+ */
+export async function cancelBillAction(
+  _prev: CancelState,
+  fd: FormData
+): Promise<CancelState> {
+  const me = await assertAdmin();
+
+  const billNo = text(fd.get("billNo"), 40);
+  if (!billNo) return { ok: false, error: "Which bill? Reload the page and try again." };
+  const reason = text(fd.get("reason"), 120);
+  const putBack = String(fd.get("restock") ?? "") === "yes";
+
+  try {
+    const result = await cancelBill(billNo, me.name || me.email, reason);
+    if (!result.ok) {
+      return {
+        ok: false,
+        error:
+          result.reason === "already"
+            ? "That bill was already cancelled."
+            : "That bill no longer exists. Reload the page.",
+      };
+    }
+
+    const lines = linesOf(result.bill);
+    let note = "";
+    if (putBack && lines.length > 0) {
+      try {
+        await restoreStock(lines.map((l) => ({ id: l.id, qty: l.qty })));
+      } catch (e) {
+        console.error("[billing] stock not restored", e);
+        note = " Stock could not be put back — check the stock numbers.";
+      }
+    }
+    updateTag("products");
+
+    return {
+      ok: true,
+      message:
+        `Bill ${billNo} cancelled. It no longer counts towards your sales.` +
+        (putBack && lines.length > 0 && !note ? " The items are back in stock." : "") +
+        note,
+    };
+  } catch (e) {
+    console.error("[billing] cancel failed", e);
+    return { ok: false, error: "Could not cancel that bill. Try again." };
+  }
+}
 
 const MAX_LINES = 50;
 const MAX_QTY = 999;
