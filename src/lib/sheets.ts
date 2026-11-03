@@ -123,31 +123,44 @@ async function setup() {
     });
   }
   for (const tab of Object.keys(TABS) as TabName[]) {
-    const r = (await api(`/values/${tab}!1:1`)) as { values?: string[][] };
-    const row = r.values?.[0]?.map((h) => String(h).trim()) ?? [];
-    if (row.length === 0) {
-      await api(`/values/${tab}!A1?valueInputOption=RAW`, {
-        method: "PUT",
-        body: JSON.stringify({ values: [[...TABS[tab]]] }),
-      });
-      headerCache[tab] = [...TABS[tab]];
-      continue;
-    }
-    // A tab made by an older version can be missing a column we now write, such as
-    // "mrp". Add the missing headers on the end, leaving the existing ones where
-    // they are so nothing already in the sheet moves.
-    const missing = TABS[tab].filter((h) => !row.includes(h));
-    if (missing.length) {
-      const grown = [...row, ...missing];
-      await api(`/values/${tab}!1:1?valueInputOption=RAW`, {
-        method: "PUT",
-        body: JSON.stringify({ values: [grown] }),
-      });
-      headerCache[tab] = grown;
-    } else {
-      headerCache[tab] = row;
-    }
+    await syncHeaders(tab);
   }
+}
+
+/**
+ * Reads a tab's header row and adds any column this version of the site writes
+ * but the sheet does not have yet, such as "mrp" or "status". Existing headers
+ * stay where they are, so nothing already in the sheet moves.
+ *
+ * This runs at start-up for every tab, and again on demand when a write finds a
+ * column missing — which is what stops a long-running site silently dropping a
+ * value into a column that is not there.
+ */
+export async function syncHeaders(tab: TabName): Promise<string[]> {
+  const r = (await api(`/values/${tab}!1:1`)) as { values?: string[][] };
+  const row = r.values?.[0]?.map((h) => String(h).trim()).filter(Boolean) ?? [];
+
+  if (row.length === 0) {
+    await api(`/values/${tab}!A1?valueInputOption=RAW`, {
+      method: "PUT",
+      body: JSON.stringify({ values: [[...TABS[tab]]] }),
+    });
+    headerCache[tab] = [...TABS[tab]];
+    return headerCache[tab]!;
+  }
+
+  const missing = TABS[tab].filter((h) => !row.includes(h));
+  if (missing.length) {
+    const grown = [...row, ...missing];
+    await api(`/values/${tab}!1:1?valueInputOption=RAW`, {
+      method: "PUT",
+      body: JSON.stringify({ values: [grown] }),
+    });
+    headerCache[tab] = grown;
+  } else {
+    headerCache[tab] = row;
+  }
+  return headerCache[tab]!;
 }
 
 export function ensureSheets(): Promise<void> {

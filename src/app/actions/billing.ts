@@ -49,7 +49,9 @@ export async function cancelBillAction(
         error:
           result.reason === "already"
             ? "That bill was already cancelled."
-            : "That bill no longer exists. Reload the page.",
+            : result.reason === "no-column"
+              ? "Your Bills sheet could not be updated. Restart the site once and try again."
+              : "That bill no longer exists. Reload the page.",
       };
     }
 

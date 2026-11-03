@@ -1,6 +1,6 @@
 // Bills, stored in the "Bills" tab of your Google Sheet.
 import { BILLING } from "@/config/billing";
-import { appendRow, readTab, updateRow } from "@/lib/sheets";
+import { appendRow, readTab, syncHeaders, updateRow } from "@/lib/sheets";
 
 export type BillLine = {
   id: number;
@@ -187,7 +187,7 @@ export async function addBill(b: {
 
 export type CancelResult =
   | { ok: true; bill: BillRecord }
-  | { ok: false; reason: "missing" | "already" };
+  | { ok: false; reason: "missing" | "already" | "no-column" };
 
 /**
  * Marks a bill cancelled, in place. The row is never removed: keeping it means
@@ -202,9 +202,20 @@ export async function cancelBill(
   by: string,
   reason: string
 ): Promise<CancelResult> {
-  const rows = await readTab("Bills");
-  const raw = rows.find((r) => (r.billNo ?? "") === billNo);
+  let rows = await readTab("Bills");
+  let raw = rows.find((r) => (r.billNo ?? "") === billNo);
   if (!raw) return { ok: false, reason: "missing" };
+
+  // A sheet made before cancelling existed has no "status" column, and a write
+  // to a column that is not there is silently thrown away — the bill would look
+  // cancelled and the totals would not move. Add the column, then carry on.
+  if (!("status" in raw)) {
+    await syncHeaders("Bills");
+    rows = await readTab("Bills");
+    raw = rows.find((r) => (r.billNo ?? "") === billNo);
+    if (!raw) return { ok: false, reason: "missing" };
+    if (!("status" in raw)) return { ok: false, reason: "no-column" };
+  }
 
   const before = toBill(raw);
   if (!isLive(before)) return { ok: false, reason: "already" };
