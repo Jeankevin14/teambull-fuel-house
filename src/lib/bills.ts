@@ -187,7 +187,7 @@ export async function addBill(b: {
 
 export type CancelResult =
   | { ok: true; bill: BillRecord }
-  | { ok: false; reason: "missing" | "already" | "no-column" };
+  | { ok: false; reason: "missing" | "already" | "no-column" | "not-saved" };
 
 /**
  * Marks a bill cancelled, in place. The row is never removed: keeping it means
@@ -227,6 +227,14 @@ export async function cancelBill(
     cancelledBy: by,
     cancelReason: reason,
   });
+
+  // Read it back. A write the sheet quietly refused would otherwise look like
+  // a success while the sales figures never moved — which is exactly the kind
+  // of failure a shop must never be left guessing about.
+  const after = (await readTab("Bills")).find((r) => (r.billNo ?? "") === billNo);
+  if (!after || toBill(after).status !== "cancelled") {
+    return { ok: false, reason: "not-saved" };
+  }
   return { ok: true, bill: before };
 }
 

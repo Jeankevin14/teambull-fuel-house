@@ -49,8 +49,8 @@ export async function cancelBillAction(
         error:
           result.reason === "already"
             ? "That bill was already cancelled."
-            : result.reason === "no-column"
-              ? "Your Bills sheet could not be updated. Restart the site once and try again."
+            : result.reason === "no-column" || result.reason === "not-saved"
+              ? "The cancellation did not save to your Google Sheet, so nothing was changed. Restart the site once and try again."
               : "That bill no longer exists. Reload the page.",
       };
     }
