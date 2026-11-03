@@ -11,7 +11,7 @@ const BY_IMAGE: Record<string, string> = {
   "gibbon-whey-strawberry-cheesecake": "gibbon-whey-strawberry-cheesecake-nutrition",
   "syntha6-chocolate-milkshake": "syntha6-chocolate-milkshake-nutrition",
   "healthfarm-maxwhey-malai-kulfi": "healthfarm-maxwhey-malai-kulfi-nutrition",
-  "enliven-whey-iced-coffee": "enliven-whey-iced-coffee-nutrition",
+  "enliven-whey-iced-coffee-1kg": "enliven-whey-iced-coffee-1kg-nutrition",
   "c4-cherry-limeade": "c4-cherry-limeade-nutrition",
   "c4-strawberry-margarita": "c4-strawberry-margarita-nutrition",
   "noxplode-blue-raz": "noxplode-blue-raz-nutrition",
