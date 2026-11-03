@@ -38,7 +38,34 @@ export type BillRecord = {
   cancelledAt: string;
   cancelledBy: string;
   cancelReason: string;
+  /**
+   * What this bill actually took off the stock counts, which is not always the
+   * quantity sold: selling 3 of something with 1 on the shelf only takes 1.
+   * Cancelling puts back exactly this, so stock can never be invented.
+   */
+  stockTaken: string;
 };
+
+/** The units to put back when a bill is cancelled. */
+export function stockToReturn(b: BillRecord): { id: number; qty: number }[] {
+  try {
+    const parsed: unknown = JSON.parse(b.stockTaken || "[]");
+    if (Array.isArray(parsed) && parsed.length) {
+      return parsed.flatMap((raw) => {
+        const r = raw as Record<string, unknown>;
+        const id = Number(r.id);
+        const qty = Number(r.qty);
+        return Number.isFinite(id) && Number.isFinite(qty) && qty > 0
+          ? [{ id, qty }]
+          : [];
+      });
+    }
+  } catch {
+    /* fall through */
+  }
+  // Bills saved before this was recorded: the quantity sold is the best we know.
+  return linesOf(b).map((l) => ({ id: l.id, qty: l.qty }));
+}
 
 /** A bill that still counts towards sales and stock. */
 export function isLive(b: BillRecord) {
@@ -73,6 +100,7 @@ function toBill(r: Record<string, string> & { _row: number }): BillRecord {
     cancelledAt: r.cancelledAt ?? "",
     cancelledBy: r.cancelledBy ?? "",
     cancelReason: r.cancelReason ?? "",
+    stockTaken: r.stockTaken ?? "",
   };
 }
 
@@ -161,6 +189,7 @@ export async function addBill(b: {
   total: number;
   payment: string;
   createdBy: string;
+  stockTaken: { id: number; qty: number }[];
 }) {
   await appendRow("Bills", {
     billNo: b.billNo,
@@ -181,6 +210,7 @@ export async function addBill(b: {
     cancelledAt: "",
     cancelledBy: "",
     cancelReason: "",
+    stockTaken: JSON.stringify(b.stockTaken),
   });
   return b.billNo;
 }

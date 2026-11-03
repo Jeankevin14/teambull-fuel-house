@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { BILLING, gstEnabled } from "@/config/billing";
 import { createBillAction, type BillFormState } from "@/app/actions/billing";
 import { formatPrice } from "@/lib/format";
@@ -46,6 +46,23 @@ export default function BillingPanel({ products }: { products: BillableProduct[]
     createBillAction,
     { ok: false }
   );
+
+  /**
+   * Clear the counter as soon as a bill is saved.
+   *
+   * Without this the items stayed on screen with Save still live, so a second
+   * tap wrote the same sale again and took the stock off twice. Emptying the
+   * lines also disables Save, which is what makes a double tap harmless.
+   */
+  const handled = useRef<string | null>(null);
+  useEffect(() => {
+    if (state.ok && state.billNo && handled.current !== state.billNo) {
+      handled.current = state.billNo;
+      setLines([]);
+      setPercent("");
+      setDelivery("");
+    }
+  }, [state.ok, state.billNo]);
 
   const byId = useMemo(() => new Map(products.map((p) => [p.id, p])), [products]);
 

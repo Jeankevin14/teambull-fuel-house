@@ -3,7 +3,7 @@
 import { updateTag } from "next/cache";
 import { BILLING, gstEnabled } from "@/config/billing";
 import {
-  addBill, cancelBill, getAllBills, linesOf, nextBillNo, type BillLine,
+  addBill, cancelBill, getAllBills, nextBillNo, stockToReturn, type BillLine,
 } from "@/lib/bills";
 import { getAdminProducts } from "@/lib/catalog";
 import { reduceStock, restoreStock } from "@/lib/productSheet";
@@ -55,11 +55,11 @@ export async function cancelBillAction(
       };
     }
 
-    const lines = linesOf(result.bill);
+    const back = stockToReturn(result.bill);
     let note = "";
-    if (putBack && lines.length > 0) {
+    if (putBack && back.length > 0) {
       try {
-        await restoreStock(lines.map((l) => ({ id: l.id, qty: l.qty })));
+        await restoreStock(back);
       } catch (e) {
         console.error("[billing] stock not restored", e);
         note = " Stock could not be put back — check the stock numbers.";
@@ -71,7 +71,7 @@ export async function cancelBillAction(
       ok: true,
       message:
         `Bill ${billNo} cancelled. It no longer counts towards your sales.` +
-        (putBack && lines.length > 0 && !note ? " The items are back in stock." : "") +
+        (putBack && back.length > 0 && !note ? " The items are back in stock." : "") +
         note,
     };
   } catch (e) {
@@ -194,6 +194,16 @@ export async function createBillAction(
     // GST figure stays a tax on the goods alone.
     const total = r2(taxable + tax + delivery);
 
+    // What this sale really takes off the shelf. Selling 3 of something with 1
+    // on the shelf only takes 1, and cancelling must put back only that — or
+    // the shop would gain stock it never had.
+    const stockTaken = billLines.flatMap((l) => {
+      const have = byId.get(l.id)?.stock;
+      if (have === undefined) return [];          // this product's stock is not tracked
+      const qty = Math.max(0, Math.min(l.qty, have));
+      return qty > 0 ? [{ id: l.id, qty }] : [];
+    });
+
     const billNo = nextBillNo(await getAllBills());
 
     await addBill({
@@ -209,6 +219,7 @@ export async function createBillAction(
       total,
       payment,
       createdBy: me.name || me.email,
+      stockTaken,
     });
 
     // Sold units come off stock. A bill is still valid if this part fails,
