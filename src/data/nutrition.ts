@@ -76,7 +76,6 @@ export function nutritionImageFor(image?: string): string | undefined {
  */
 export const NUTRITION_NEEDS_REVIEW = [
   "syntha6-chocolate-milkshake",
-  "enliven-whey-iced-coffee",
   "gibbon-whey-strawberry-cheesecake",
   "psychotic-watermelon",
   // second picture is the pack's details panel, not a nutrition facts table
