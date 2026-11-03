@@ -203,6 +203,34 @@ async function AdminContent() {
       {bills.length > 0 && (
         <div className="mt-6">
           <h3 className="font-display text-xl font-bold uppercase">Recent bills</h3>
+          {(() => {
+            // Adding the listed bills up by hand will not always match the tiles
+            // above: a cancelled bill is still shown, and the list is not limited
+            // to this month. Rather than leave that to be puzzled over, say it.
+            const shown = bills.slice(0, 15);
+            const sum = (xs: typeof shown) => xs.reduce((n, x) => n + x.total, 0);
+            const monthStart = startOfMonth().getTime();
+            const counted = shown.filter(
+              (x) => isLive(x) && Date.parse(x.date) >= monthStart,
+            );
+            const struck = shown.filter((x) => !isLive(x));
+            const older = shown.filter(
+              (x) => isLive(x) && Date.parse(x.date) < monthStart,
+            );
+            if (shown.length === 0 || sum(shown) === sum(counted)) return null;
+            return (
+              <p className="mt-2 text-sm text-muted">
+                These {shown.length} bills add up to{" "}
+                <span className="font-semibold text-foreground">{formatPrice(sum(shown))}</span>,
+                but only{" "}
+                <span className="font-semibold text-foreground">{formatPrice(sum(counted))}</span>{" "}
+                counts towards Sales this month
+                {struck.length > 0 && ` — ${formatPrice(sum(struck))} cancelled`}
+                {older.length > 0 && ` — ${formatPrice(sum(older))} from an earlier month`}
+                .
+              </p>
+            );
+          })()}
           <div className="mt-3 divide-y divide-line rounded-xl border border-line bg-surface">
             {bills.slice(0, 15).map((b, i) => {
               const cancelled = !isLive(b);
