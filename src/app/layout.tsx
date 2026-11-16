@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
     default: `${SITE.name} | Gym Supplements`,
-    template: `%s | ${SITE.name}`,
+    template: `%s | ${SITE.titleSuffix}`,
   },
   description: SITE.description,
   keywords: ["gym supplements", "whey protein", "creatine", "pre-workout", "mass gainer", "Puducherry", "Teambull Fuel House"],

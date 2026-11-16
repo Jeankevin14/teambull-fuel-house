@@ -5,6 +5,9 @@
 export const SITE = {
   name: "Teambull Fuel House",
   shortName: "TFH",
+  /** Used at the end of page titles. Google cuts a title off near 60
+   *  characters, so the full name would push the product name out of sight. */
+  titleSuffix: "Teambull",
   tagline: "Fuel Your Gains",
   description:
     "Buy genuine gym supplements: whey protein, creatine, pre-workout and more. Order easily on WhatsApp.",
