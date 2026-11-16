@@ -21,7 +21,6 @@ export const metadata: Metadata = {
   },
   description: SITE.description,
   keywords: ["gym supplements", "whey protein", "creatine", "pre-workout", "mass gainer", "Puducherry", "Teambull Fuel House"],
-  alternates: { canonical: "./" },
   openGraph: {
     title: SITE.name,
     description: SITE.description,

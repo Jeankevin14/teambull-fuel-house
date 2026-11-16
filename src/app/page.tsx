@@ -13,6 +13,12 @@ import Reveal from "@/components/fx/Reveal";
 import CountUp from "@/components/fx/CountUp";
 import Tilt from "@/components/fx/Tilt";
 
+import type { Metadata } from "next";
+
+/** The home page is the one route with no pageMeta() call, so it states its own
+ *  canonical. Without this it inherited a relative one that resolved to /index. */
+export const metadata: Metadata = { alternates: { canonical: "/" } };
+
 const TRUST = [
   ["Genuine Products", "Sourced from authorised suppliers"],
   ["Order on WhatsApp", "Quick, personal, no checkout hassle"],

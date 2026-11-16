@@ -9,6 +9,8 @@ import ProductPurchase from "@/components/product/ProductPurchase";
 import ProductGallery from "@/components/product/ProductGallery";
 import MadeInUsa from "@/components/product/MadeInUsa";
 import { nutritionImageFor } from "@/data/nutrition";
+import { SITE } from "@/config/site";
+import type { Product } from "@/types";
 
 export async function generateStaticParams() {
   return (await getProducts()).map((p) => ({ id: String(p.id) }));
@@ -30,6 +32,35 @@ export async function generateMetadata({
   });
 }
 
+/**
+ * The Product + Offer block Google reads to show price and availability in the
+ * search result. Every value comes from the catalogue - nothing is invented, and
+ * a field we do not have is left out rather than guessed.
+ */
+function productJsonLd(product: Product) {
+  const inStock =
+    product.inStock === false ? false : product.stock === undefined ? true : product.stock > 0;
+  return {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description: product.description,
+    brand: { "@type": "Brand", name: product.brand },
+    category: product.category,
+    ...(product.image ? { image: new URL(product.image, SITE.url).toString() } : {}),
+    offers: {
+      "@type": "Offer",
+      url: new URL(`/products/${product.id}`, SITE.url).toString(),
+      price: String(product.price),
+      priceCurrency: "INR",
+      availability: inStock
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
+      seller: { "@type": "Organization", name: SITE.name },
+    },
+  };
+}
+
 async function ProductDetails({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const product = await findProduct(Number(id));
@@ -37,6 +68,12 @@ async function ProductDetails({ params }: { params: Promise<{ id: string }> }) {
 
   return (
     <div data-stamp-scope className="mt-6 grid gap-10 md:grid-cols-2">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(productJsonLd(product)).replace(/</g, "\\u003c"),
+        }}
+      />
       <div>
         <ProductGallery
           product={product}
