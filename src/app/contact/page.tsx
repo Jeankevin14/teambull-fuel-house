@@ -10,7 +10,7 @@ export const metadata: Metadata = pageMeta({
   path: "/contact",
 });
 
-/** +917548854038 -> +91 75488 54038 */
+/** +919342654038 -> +91 93426 54038 */
 function prettyPhone(digits: string) {
   const d = digits.replace(/\D/g, "");
   const cc = d.slice(0, 2);
