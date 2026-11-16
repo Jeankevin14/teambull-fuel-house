@@ -20,7 +20,6 @@ export const PEOPLE: Person[] = [
     photo: "/images/vishwam.jpg",
     blurb: "The founder behind TeamBull, building people, athletes and a brand.",
     hello: "Hi Vishwam! I found Team Bull Fuel House online and would like to talk.",
-    whatsapp: "917548854038",
   },
   {
     name: "Praveen S",

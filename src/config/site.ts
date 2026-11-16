@@ -11,7 +11,7 @@ export const SITE = {
   url: "https://www.teambullfuelhouse.com",
 
   // WhatsApp number: country code + number, digits only (no +, no spaces)
-  whatsapp: "919342654038",
+  whatsapp: "917548854038",
 
   instagram: "https://instagram.com/teambull.offi",
   email: "teambull2002@gmail.com",
