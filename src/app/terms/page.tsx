@@ -13,11 +13,6 @@ export default function TermsPage() {
   return (
     <PageShell first="Terms &" second="Conditions">
       <p>
-        Prices shown on this website are for reference. The final price,
-        delivery charges and payment method are confirmed with you on WhatsApp
-        before your order is accepted.
-      </p>
-      <p>
         An order is confirmed only after we reply on WhatsApp and agree the
         details with you. Products are subject to availability.
       </p>

@@ -21,10 +21,6 @@ export default function RefundPolicyPage() {
         For opened or used supplements we cannot accept returns, for hygiene and
         safety reasons.
       </p>
-      <p>
-        Add your own return window, refund method and timeline here. (Edit this
-        text in <code>src/app/refund-policy/page.tsx</code>.)
-      </p>
     </PageShell>
   );
 }
