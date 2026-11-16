@@ -21,9 +21,6 @@ export default function PrivacyPage() {
         the name, phone number and address you share on WhatsApp only to confirm
         and deliver your order, and we do not sell your data.
       </p>
-      <p className="text-sm text-muted">
-        Sample wording. Please have it reviewed by a professional before launch.
-      </p>
     </PageShell>
   );
 }

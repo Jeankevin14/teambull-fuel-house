@@ -26,9 +26,6 @@ export default function TermsPage() {
         cure any disease. Consult a doctor before use if you have a medical
         condition.
       </p>
-      <p className="text-sm text-muted">
-        Sample wording. Please have it reviewed by a professional before launch.
-      </p>
     </PageShell>
   );
 }
