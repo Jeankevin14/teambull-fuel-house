@@ -48,6 +48,14 @@ const jsonLd = {
   description: SITE.description,
   email: SITE.email,
   sameAs: [SITE.instagram],
+  telephone: `+${SITE.whatsapp}`,
+  // Opening hours, as the shop gave them: every day, 9am to 9pm.
+  openingHoursSpecification: {
+    "@type": "OpeningHoursSpecification",
+    dayOfWeek: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"],
+    opens: "09:00",
+    closes: "21:00",
+  },
   address: { "@type": "PostalAddress", streetAddress: "No: 4-5, 1st Floor, East Coast Rd, Kottupalayam", addressLocality: "Puducherry", addressRegion: "Puducherry", postalCode: "605008", addressCountry: "IN" },
 };
 
