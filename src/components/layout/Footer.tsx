@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { SITE } from "@/config/site";
+import ChristmasOnly from "@/components/christmas/ChristmasOnly";
+import ChristmasCredit from "@/components/christmas/ChristmasCredit";
 
 const LINKS = [
   { href: "/products", label: "Products" },
@@ -52,6 +54,10 @@ export default function Footer() {
         <p className="mt-6">
           © {SITE.year} {SITE.name}. All rights reserved.
         </p>
+
+        <ChristmasOnly>
+          <ChristmasCredit />
+        </ChristmasOnly>
       </div>
     </footer>
   );

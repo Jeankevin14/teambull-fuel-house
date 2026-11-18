@@ -15,7 +15,7 @@ export default function Header() {
           className="relative font-display text-xl font-bold uppercase tracking-wide sm:text-2xl"
         >
           <ChristmasOnly>
-            <SantaHat className="absolute -left-3 -top-4 h-7 w-9 -rotate-12 sm:-top-5 sm:h-8 sm:w-10" />
+            <SantaHat className="absolute -left-4 -top-4 w-10 -rotate-[14deg] sm:-top-5 sm:w-12" />
           </ChristmasOnly>
           Teambull <span className="text-accent">Fuel House</span>
         </Link>
