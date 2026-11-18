@@ -572,3 +572,23 @@ section.bg-gradient-to-b {
 @media (prefers-reduced-motion: reduce) {
   .bauble { animation: none; transform: none; }
 }
+
+
+/* ---- Christmas: Santa's wave ---- */
+.santa-arm {
+  animation: santa-wave 2.6s ease-in-out infinite;
+  will-change: transform;
+}
+@keyframes santa-wave {
+  /* two waves, then his arm rests a moment - a metronome reads as a machine */
+  0%   { transform: rotate(0deg); }
+  8%   { transform: rotate(-13deg); }
+  16%  { transform: rotate(12deg); }
+  24%  { transform: rotate(-13deg); }
+  32%  { transform: rotate(12deg); }
+  40%  { transform: rotate(-4deg); }
+  46%, 100% { transform: rotate(0deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .santa-arm { animation: none; }
+}
