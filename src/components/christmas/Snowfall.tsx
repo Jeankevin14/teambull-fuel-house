@@ -42,6 +42,30 @@ export default function Snowfall() {
     let wind = 0;
     let windTarget = 0;
 
+    /**
+     * Snow is drawn from two pre-made sprites rather than as plain circles.
+     * A flake far away is out of focus, so its edge is soft; a near one is
+     * sharper. Painting a ready-made image is also far cheaper per frame than
+     * building a gradient for every flake, every frame.
+     */
+    const sprite = (hardness: number) => {
+      const size = 32;
+      const off = document.createElement("canvas");
+      off.width = size;
+      off.height = size;
+      const c = off.getContext("2d");
+      if (!c) return off;
+      const g = c.createRadialGradient(16, 16, 0, 16, 16, 16);
+      g.addColorStop(0, "rgba(168,194,224,1)");
+      g.addColorStop(hardness, "rgba(168,194,224,0.82)");
+      g.addColorStop(1, "rgba(168,194,224,0)");
+      c.fillStyle = g;
+      c.fillRect(0, 0, size, size);
+      return off;
+    };
+    const nearSprite = sprite(0.58);
+    const farSprite = sprite(0.14);
+
     const makeFlake = (startAnywhere: boolean): Flake => {
       const r = 1 + Math.random() * 2.2;
       return {
@@ -89,11 +113,12 @@ export default function Snowfall() {
         if (f.x < -12) f.x = width + 12;
         else if (f.x > width + 12) f.x = -12;
 
-        ctx.beginPath();
-        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(150,178,214,${f.alpha})`;
-        ctx.fill();
+        const sheet = f.r > 2 ? nearSprite : farSprite;
+        const size = f.r * 4;
+        ctx.globalAlpha = f.alpha;
+        ctx.drawImage(sheet, f.x - size / 2, f.y - size / 2, size, size);
       }
+      ctx.globalAlpha = 1;
       frameId = requestAnimationFrame(draw);
     };
 
