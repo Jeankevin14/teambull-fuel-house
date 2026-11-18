@@ -16,7 +16,6 @@ import Tilt from "@/components/fx/Tilt";
 import type { Metadata } from "next";
 import ChristmasOnly from "@/components/christmas/ChristmasOnly";
 import SnowDrift from "@/components/christmas/SnowDrift";
-import SantaWave from "@/components/christmas/SantaWave";
 
 /** The home page is the one route with no pageMeta() call, so it states its own
  *  canonical. Without this it inherited a relative one that resolved to /index. */
@@ -61,10 +60,6 @@ export default function Home() {
       <section className="relative overflow-hidden bg-gradient-to-b from-white to-red-50">
         <ChristmasOnly>
           <SnowDrift />
-          {/* he stands on the drift, bottom left, clear of the hero text */}
-          <div className="absolute bottom-0 left-1 z-20 sm:left-6 lg:left-10">
-            <SantaWave />
-          </div>
         </ChristmasOnly>
         <svg
           className="ecg pointer-events-none absolute inset-x-0 bottom-3 h-20 w-full text-accent opacity-60"
