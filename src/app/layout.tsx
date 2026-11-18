@@ -7,6 +7,8 @@ import { UserProvider } from "@/context/UserContext";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import WhatsAppButton from "@/components/layout/WhatsAppButton";
+import ChristmasOnly from "@/components/christmas/ChristmasOnly";
+import Snowfall from "@/components/christmas/Snowfall";
 import CartDrawer from "@/components/layout/CartDrawer";
 import { OG_IMAGE } from "@/lib/seo";
 
@@ -71,6 +73,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <Footer />
             <WhatsAppButton />
             <CartDrawer />
+            <ChristmasOnly>
+              <Snowfall />
+            </ChristmasOnly>
           </CartProvider>
         </UserProvider>
       </body>

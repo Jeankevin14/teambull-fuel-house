@@ -8,6 +8,9 @@ import AddToCartButton from "./AddToCartButton";
 import MadeInUsa from "./MadeInUsa";
 import PriceTag from "./PriceTag";
 import ProductImage from "./ProductImage";
+import ChristmasOnly from "@/components/christmas/ChristmasOnly";
+import ChristmasOffer from "@/components/christmas/ChristmasOffer";
+import { hasChristmasOffer } from "@/config/christmas";
 
 export default function ProductCard({ product }: { product: Product }) {
   const inStock = isInStock(product);
@@ -31,6 +34,14 @@ export default function ProductCard({ product }: { product: Product }) {
           {!inStock && (
             <span className="absolute left-3 top-3 rounded-full bg-neutral-800 px-3 py-1 text-xs font-semibold uppercase text-white">
               Out of stock
+            </span>
+          )}
+          {hasChristmasOffer(product.id) && (
+            // bottom left: the stock badges own the top left, the flag the top right
+            <span className="absolute bottom-3 left-3">
+              <ChristmasOnly>
+                <ChristmasOffer />
+              </ChristmasOnly>
             </span>
           )}
           {product.madeIn === "USA" && (

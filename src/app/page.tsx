@@ -14,6 +14,8 @@ import CountUp from "@/components/fx/CountUp";
 import Tilt from "@/components/fx/Tilt";
 
 import type { Metadata } from "next";
+import ChristmasOnly from "@/components/christmas/ChristmasOnly";
+import SnowDrift from "@/components/christmas/SnowDrift";
 
 /** The home page is the one route with no pageMeta() call, so it states its own
  *  canonical. Without this it inherited a relative one that resolved to /index. */
@@ -56,6 +58,9 @@ export default function Home() {
     <>
       {/* Hero */}
       <section className="relative overflow-hidden bg-gradient-to-b from-white to-red-50">
+        <ChristmasOnly>
+          <SnowDrift />
+        </ChristmasOnly>
         <svg
           className="ecg pointer-events-none absolute inset-x-0 bottom-3 h-20 w-full text-accent opacity-60"
           viewBox="0 0 900 100"

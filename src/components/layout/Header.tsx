@@ -2,6 +2,9 @@ import NewBadge from "@/components/ui/NewBadge";
 import Link from "next/link";
 import CartLink from "./CartLink";
 import AuthLink from "./AuthLink";
+import ChristmasOnly from "@/components/christmas/ChristmasOnly";
+import Garland from "@/components/christmas/Garland";
+import SantaHat from "@/components/christmas/SantaHat";
 
 export default function Header() {
   return (
@@ -9,8 +12,11 @@ export default function Header() {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
         <Link
           href="/"
-          className="font-display text-xl font-bold uppercase tracking-wide sm:text-2xl"
+          className="relative font-display text-xl font-bold uppercase tracking-wide sm:text-2xl"
         >
+          <ChristmasOnly>
+            <SantaHat className="absolute -left-3 -top-4 h-7 w-9 -rotate-12 sm:-top-5 sm:h-8 sm:w-10" />
+          </ChristmasOnly>
           Teambull <span className="text-accent">Fuel House</span>
         </Link>
 
@@ -58,6 +64,10 @@ export default function Header() {
           </Link>
         ))}
       </nav>
+      <ChristmasOnly>
+        <Garland />
+      </ChristmasOnly>
+
     </header>
   );
 }

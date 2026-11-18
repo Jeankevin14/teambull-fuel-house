@@ -558,3 +558,15 @@ section.bg-gradient-to-b {
   }
 }
 
+/* ---- Christmas: the baubles on the header garland ---- */
+.bauble {
+  transform-origin: 50% 0;
+  animation: bauble-sway 4.6s ease-in-out infinite;
+}
+@keyframes bauble-sway {
+  0%, 100% { transform: rotate(-7deg); }
+  50% { transform: rotate(7deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .bauble { animation: none; transform: none; }
+}
