@@ -22,7 +22,7 @@ Open http://localhost:3000. Without the Google Sheet values the site still runs,
 |---|---|
 | `npm run dev` | Start the site locally |
 | `npm run lint` | Check the code |
-| `npx tsc --noEmit` | Check types |
+| `npx next typegen && npx tsc --noEmit` | Check types |
 | `npm run build` | Production build (the same check CI runs) |
 
 ## Where to change things

@@ -20,9 +20,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -33,8 +33,11 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # Next.js generates route types (such as LayoutProps) that the type-check needs.
       - name: Type-check
-        run: npx tsc --noEmit
+        run: |
+          npx next typegen
+          npx tsc --noEmit
 
       # The build needs no secrets: without the Google Sheet variables the site
       # falls back to the built-in product list.
