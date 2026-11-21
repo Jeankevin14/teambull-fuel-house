@@ -1,18 +1,21 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useSyncExternalStore, type ReactNode } from "react";
 import { christmasIsOn } from "@/config/christmas";
+
+/** The date check has nothing to subscribe to, so there is nothing to clean up. */
+const subscribe = () => () => {};
 
 /**
  * Shows its children only while the decorations are meant to be up.
  *
- * The check runs after the page has loaded rather than on the server, because
- * these pages are built once and cached: a date decided at build time would
- * still say "December" in February. Rendering nothing first also keeps the
- * server and the browser in agreement, so React never warns about a mismatch.
+ * The check runs in the browser rather than on the server, because these
+ * pages are built once and cached: a date decided at build time would still
+ * say "December" in February. The server snapshot is always "off", so the
+ * server and the first browser render agree and React never warns about a
+ * mismatch; the browser then switches to the real answer.
  */
 export default function ChristmasOnly({ children }: { children: ReactNode }) {
-  const [show, setShow] = useState(false);
-  useEffect(() => setShow(christmasIsOn()), []);
+  const show = useSyncExternalStore(subscribe, () => christmasIsOn(), () => false);
   return show ? <>{children}</> : null;
 }
