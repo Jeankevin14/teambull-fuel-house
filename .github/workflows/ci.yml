@@ -1,0 +1,48 @@
+name: CI
+
+# Runs on every pull request and on every push to main or develop,
+# so a change that breaks the site is caught before it reaches customers.
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, type-check and build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      # Next.js generates route types (such as LayoutProps) that the type-check needs.
+      - name: Type-check
+        run: |
+          npx next typegen
+          npx tsc --noEmit
+
+      # The build needs no secrets: without the Google Sheet variables the site
+      # falls back to the built-in product list.
+      - name: Build
+        run: npm run build
+
+      - name: Security audit (shipped packages)
+        run: npm audit --omit=dev --audit-level=high

@@ -1,77 +1,72 @@
 # Teambull Fuel House
 
-Online store for gym supplements. Customers pick products, and checkout opens
-WhatsApp with the order (products, quantities, prices, total) already typed.
+Online shop and billing system for Teambull Fuel House, a supplement store in Puducherry. Live at **[www.teambullfuelhouse.com](https://www.teambullfuelhouse.com)**.
+
+Customers browse genuine products, add them to the cart, and checkout opens WhatsApp with the order already typed. Shop staff manage products, stock, orders and bills from the Admin area. A Google Sheet is the database.
+
+**Built with:** Next.js 16 (App Router), React, TypeScript, Tailwind CSS, Google Sheets API, deployed on Vercel.
 
 ## Run it on your computer
 
+Needs Node.js 20.9 or newer.
+
 ```bash
 npm install
+cp .env.example .env.local   # then fill in the values, see docs/setup-accounts-and-stock.md
 npm run dev
 ```
 
-Open http://localhost:3000
+Open http://localhost:3000. Without the Google Sheet values the site still runs, using the built-in product list.
+
+| Command | What it does |
+|---|---|
+| `npm run dev` | Start the site locally |
+| `npm run lint` | Check the code |
+| `npx next typegen && npx tsc --noEmit` | Check types |
+| `npm run build` | Production build (the same check CI runs) |
 
 ## Where to change things
 
-| I want to change...              | Edit this file                     |
-| -------------------------------- | ---------------------------------- |
-| WhatsApp number, email, Instagram | `src/config/site.ts`               |
-| Categories                       | `src/config/site.ts`               |
-| Products and prices              | `src/data/products.ts`             |
-| Product photos                   | put in `public/images/`            |
-| WhatsApp order message wording   | `src/lib/whatsapp.ts`              |
-| Colours (orange accent)          | `src/app/globals.css`              |
-| About / Contact / policies       | `src/app/<page>/page.tsx`          |
+| I want to change... | Where |
+|---|---|
+| Products, prices, stock | Admin (`/admin`) or the **Products** tab of the sheet |
+| WhatsApp number, address, FSSAI, social links | `src/config/site.ts` |
+| Bill details (GSTIN, tax, payment methods) | `src/config/billing.ts` |
+| Christmas decorations on or off | `src/config/christmas.ts` |
+| Feature switches (for example, login before checkout) | `src/config/features.ts` |
+| WhatsApp order message wording | `src/lib/whatsapp.ts` |
+| Built-in product list (used when the sheet is not set up) | `src/data/products.ts` |
+| Product photos | `public/images/` |
+| Colours and fonts | `src/app/globals.css` |
+| Page content | `src/app/<page>/page.tsx` |
 
-## Folder structure
+## Project structure
 
 ```
 teambull-fuel-house/
-├── public/
-│   └── images/                 product photos
-├── src/
-│   ├── app/                    pages (each folder = one web address)
-│   │   ├── layout.tsx          wraps every page (header, footer, cart)
-│   │   ├── page.tsx            home page
-│   │   ├── globals.css         colours and fonts
-│   │   ├── icon.svg            browser tab icon
-│   │   ├── not-found.tsx       404 page
-│   │   ├── sitemap.ts          for Google
-│   │   ├── robots.ts           for Google
-│   │   ├── products/
-│   │   │   ├── page.tsx        all products + filters
-│   │   │   └── [id]/page.tsx   single product page
-│   │   ├── cart/page.tsx       cart + Checkout on WhatsApp
-│   │   ├── about/page.tsx
-│   │   ├── contact/page.tsx
-│   │   ├── privacy/page.tsx
-│   │   ├── terms/page.tsx
-│   │   └── refund-policy/page.tsx
-│   ├── components/
-│   │   ├── layout/             Header, Footer, CartLink, CartToast, WhatsAppButton
-│   │   ├── product/            ProductCard, ProductGrid, ProductImage, AddToCartButton
-│   │   └── ui/                 PageShell (shared page wrapper)
-│   ├── config/site.ts          business details + categories
-│   ├── context/CartContext.tsx cart memory (saved in the browser)
-│   ├── data/products.ts        product list
-│   ├── lib/                    whatsapp.ts (order message), format.ts (₹ prices)
-│   └── types/index.ts          shared types
-├── package.json
-└── README.md
+├── .github/workflows/ci.yml   lint, type-check, build and audit on every pull request
+├── .vscode/                   shared editor settings and recommended extensions
+├── docs/                      requirements, architecture, sheet columns, deployment, setup
+├── public/                    images and icons
+└── src/
+    ├── app/                   pages (one folder per web address) and server actions
+    ├── components/            UI grouped by feature (admin, product, cart, play, christmas…)
+    ├── config/                business settings and switches
+    ├── context/               cart and user state
+    ├── data/                  built-in products and nutrition labels
+    ├── lib/                   sheet access, sessions, orders, bills, pricing, WhatsApp
+    └── types/
 ```
 
-## Add a product
+## Docs
 
-1. (Optional) add the photo to `public/images/`.
-2. Open `src/data/products.ts` and copy one product block.
-3. Give it a new unique `id`, and change name, price, description, image.
-4. Save. The site updates by itself.
+- [Requirements](docs/requirements.md)
+- [Architecture](docs/architecture.md)
+- [Google Sheet columns, staging and backups](docs/google-sheet.md)
+- [Deployment, branches and releases](docs/deployment.md)
+- [First-time setup: sheet, accounts and stock](docs/setup-accounts-and-stock.md)
+- [Changelog](CHANGELOG.md)
 
-## Before going live
+## Credits
 
-- Replace the sample WhatsApp number, Instagram, email and address in `src/config/site.ts`.
-- Replace sample products with your real ones.
-- Get your FSSAI license / GST sorted and add the FSSAI number in `src/config/site.ts`.
-- Have the Privacy, Terms and Refund pages reviewed by a professional.
-- Run `npm run build` once to check there are no errors.
+Christmas hat artwork on the wordmark from Vecteezy.com.
