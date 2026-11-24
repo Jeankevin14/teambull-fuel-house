@@ -6,6 +6,8 @@ Customers browse genuine products, add them to the cart, and checkout opens What
 
 **Built with:** Next.js 16 (App Router), React, TypeScript, Tailwind CSS, Google Sheets API, deployed on Vercel.
 
+![Teambull Fuel House home page](docs/screenshot.jpg)
+
 ## Run it on your computer
 
 Needs Node.js 20.9 or newer.
